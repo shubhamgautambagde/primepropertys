@@ -1590,3 +1590,89 @@ without live markers after the home-services slice:
   billing PUT 200 + reread city Nagpur (latent fix confirmed).
 - Backup before this change:
   `~/workspace/primepropertys-backup-settings/`.
+
+## Post-property wizard draft flow (autopilot slice 4, 2026-10-28)
+
+### How the wizard actually works (verified against the markup)
+- The wizard is a 27-step chain (start -> purpose -> category ->
+  type -> location -> basic -> area -> area2 -> pricing ->
+  amenities -> description -> photos -> photos2 -> video ->
+  video2 -> floor-plan -> floor-plan2 -> 360 -> documents ->
+  owner -> contact -> preview -> quality -> duplicate ->
+  verification -> submit -> success), plus my-listings, drafts,
+  edit and performance pages. Only three forms have submit
+  buttons (edit, verification, submit); every other step form is
+  button-less and proceeds via its Continue link. That decided
+  the wiring: step saves happen on Continue-link clicks (and on
+  Enter-submits via forms.js), not on form submits.
+- The create call needs title + property_type + listing_type +
+  price + city, and those only all exist at the description
+  step. So steps before it keep answers in sessionStorage and
+  show an honest notice saying so; the description step creates
+  the draft (POST /api/properties) from the accumulated answers
+  and every later step PATCHes it by ?draft_id= (carried on all
+  wizard links, with a sessionStorage fallback).
+
+### What was built
+- Migration 017: 51 new nullable/defaulted columns on
+  properties for the wizard's real fields (facing, age,
+  possession, furnishing, floors, balconies, parking flags,
+  areas incl. super-builtup/terrace/garden, price-per-sqft,
+  negotiable, maintenance, deposit (text — the form's options
+  are durations like "2 Months"), ownership, transaction type,
+  amenities (JSON array), video/360 URLs, floor-plan titles,
+  owner details, contact preferences + flags, pincode, address,
+  project, dimensions, area notes, availability). Validation
+  accepts them all as optional; create persists them; PATCH
+  already applied them dynamically.
+- New assets/js/groups/post-property.js (js_map entry
+  post-property -> post-property): choice-card handling
+  (data-choice-key/value on cards; purpose Sell/Rent/Lease ->
+  sale/rent/rent and type PG/Office/Shop/Warehouse ->
+  Commercial, because the API enums have no lease or PG/office/
+  shop values — documented in the file), session accumulation,
+  draft creation, step PATCHing, link rewriting, prefill,
+  drafts + my-listings tables (leads counted client-side; Views
+  stays a dash — no per-property view count is exposed),
+  preview/success/performance renders, completeness score
+  (labelled as such: % of 20 scored fields filled) and a real
+  duplicate check (same city + type + price/area within +-10%
+  across own listings and published ones).
+- forms.js cases: wizard-step (hook), wizard-edit (PATCH title/
+  price/description + status select mapped to publish/unpublish
+  with honest partial-failure reporting; availability is stored,
+  status is not a PATCH field), wizard-verification,
+  wizard-submit, wizard-choice, wizard-upload-notice,
+  wizard-quality, wizard-duplicate.
+- Pages wired (25 forms): all 14 step forms + amenities (12
+  checkboxes -> data-amenity), photos/photos2/documents
+  (upload-notice: binary upload is NOT implemented anywhere, so
+  these steps save nothing and say so — images stay URL
+  references via Edit Property), quality + duplicate (live
+  renders), verification (OTP has no provider: the note says so
+  and the flow proceeds to submit for review), submit (terms
+  required; the draft stays a draft — review, not publish),
+  edit (prefill + save), 3 choice pages, drafts + my-listings
+  tables, and live containers on preview/quality/duplicate/
+  success/performance.
+- Deliberately left alone: binary uploads (no backend support),
+  OTP verification (no provider), and the demo content below
+  the live containers on render pages (same as dashboard demo
+  cards, which stay demo by design).
+
+### Verified
+- Tests: 58/58 pass (57 + 1 new in server/test/wizard.js:
+  create with wizard fields, PATCH accumulation, draft stays
+  draft, seller publish 403 / admin publish 200, rejected
+  flag/amenities/email PATCHes change nothing). One test-author
+  bug fixed in passing: property routes return the row at top
+  level (respond() sends body directly), not under .data.
+- Build idempotent; all modules `node --check` PASS.
+- Audit: 250 entries (was 275; not-connected markers 226 ->
+  201, exactly the 25 wired wizard forms), 0 broken links.
+- Live flow on a fresh database (port 8959, temp DB deleted
+  afterwards): create 201 draft -> PATCH 200 (earlier values
+  kept) -> mine?status=draft lists it -> seller publish 403 ->
+  admin publish 200.
+- Backup before this change:
+  `~/workspace/primepropertys-backup-wizard/`.

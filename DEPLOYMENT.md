@@ -142,7 +142,7 @@ is documented in the file itself.
 
 ## Final verification (Stage J)
 
-- `npm test` in `server/`: 57/57 pass, including
+- `npm test` in `server/`: 58/58 pass, including
   `test/journey.js` — one test that walks the whole product:
   admin creates a draft property (invisible publicly),
   publishes it (visible), a buyer enquires, the admin
@@ -233,6 +233,16 @@ The 341 entries are not 341 defects to fix blindly:
   refused with 400: secrets are never stored here and belong in
   environment variables on the server. No secret field exists in
   the settings markup, so none was invented.
+- The post-property wizard is done: 27 steps share one draft —
+  answers accumulate in the browser until the description step
+  creates the draft, then every later step PATCHes it by
+  ?draft_id=. 51 wizard columns (migration 017) hold the forms'
+  real fields; drafts, my-listings, preview, completeness score
+  and a real duplicate check are live. Drafts stay drafts until
+  admin approval — the submit step never claims a publish.
+  Binary photo/document upload and OTP verification are NOT
+  implemented (no backend support / no provider) and the pages
+  say so instead of faking success.
 - Payments (needs a real provider and credentials — never
   invented), support tickets, campaigns, settings forms.
 - Hosting decision: Node hosting vs PHP-only hosting. If
