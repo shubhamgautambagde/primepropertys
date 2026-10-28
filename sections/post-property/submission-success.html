@@ -193,6 +193,44 @@ document.addEventListener('DOMContentLoaded', function () {
     if (a.getAttribute('href') === here) a.classList.add('active');
   });
 });
+
+/* Stage H, Phase 4 — header session state (runs on every page).
+   (a) The static headers' "Sign In" links point at contact.html; point
+   them at the real login page. The correct relative prefix is derived
+   from the header's own index.html link, so it works at any depth and
+   under any hosting subpath.
+   (b) When a session exists, show the user's name and a real Logout
+   action in .header-actions (or the header row as fallback). */
+document.addEventListener('DOMContentLoaded', function () {
+  var homeLink = document.querySelector('a.logo, .main-nav a[href$="index.html"]');
+  var prefix = '';
+  if (homeLink) {
+    var href = homeLink.getAttribute('href') || 'index.html';
+    prefix = href.replace(/index\.html$/, '');
+  }
+  document.querySelectorAll('a').forEach(function (a) {
+    if (a.textContent.trim() === 'Sign In') a.setAttribute('href', prefix + 'login.html');
+  });
+  if (!window.PP || !window.PP.me) return;
+  window.PP.me().then(function (m) {
+    if (!m.ok || !m.data || !m.data.user) return;
+    var actions = document.querySelector('.header-actions') || document.querySelector('.header-row') || document.querySelector('header');
+    if (!actions) return;
+    var chip = document.createElement('span');
+    chip.textContent = (m.data.user.full_name || m.data.user.email) + ' (' + m.data.user.role + ')';
+    chip.style.fontWeight = '600';
+    chip.style.marginLeft = '12px';
+    actions.appendChild(chip);
+    var out = document.createElement('button');
+    out.textContent = 'Logout';
+    out.style.marginLeft = '8px';
+    out.style.cursor = 'pointer';
+    out.addEventListener('click', function () {
+      window.PP.logout().then(function () { window.location.href = prefix + 'index.html'; });
+    });
+    actions.appendChild(out);
+  });
+});
 document.addEventListener('DOMContentLoaded', function () {
   // Home search tabs
   document.querySelectorAll('.search-tab').forEach(function (tab) {
@@ -270,9 +308,315 @@ document.addEventListener('DOMContentLoaded', function () {
   if (jobDept) jobDept.addEventListener('change', filterJobs);
   if (jobLoc) jobLoc.addEventListener('change', filterJobs);
 });
+(function () {
+  var base = (typeof window.PP_API_BASE === 'string' ? window.PP_API_BASE : '').replace(/\/$/, '');
+  function request(path, opts) {
+    opts = opts || {};
+    if (typeof fetch === 'undefined') {
+      return Promise.resolve({ ok: false, status: 0, error: { code: 'NO_FETCH', message: 'This browser cannot reach the server.' } });
+    }
+    return fetch(base + path, {
+      method: opts.method || 'GET',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    }).then(function (res) {
+      return res.text().then(function (text) {
+        var data = null;
+        try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
+        if (!res.ok) {
+          return { ok: false, status: res.status, error: (data && data.error) || { code: 'BAD_RESPONSE', message: 'Server se sahi jawab nahi mila.' } };
+        }
+        return { ok: true, status: res.status, data: data };
+      });
+    }).catch(function () {
+      return { ok: false, status: 0, error: { code: 'API_UNREACHABLE', message: 'Server se connect nahi ho pa raha hai. Please try again later.' } };
+    });
+  }
+  function get(path) { return request(path, { method: 'GET' }); }
+  function post(path, body) { return request(path, { method: 'POST', body: body }); }
+  window.PP = window.PP || {};
+  window.PP.apiBase = base;
+  window.PP.request = request;
+  window.PP.get = get;
+  window.PP.post = post;
+  window.PP.me = function () { return get('/api/auth/me'); };
+  window.PP.login = function (email, password) { return post('/api/auth/login', { email: email, password: password }); };
+  window.PP.register = function (fields) { return post('/api/auth/register', fields); };
+  window.PP.logout = function () { return post('/api/auth/logout', {}); };
+  window.PP.listProperties = function (params) {
+    var q = [];
+    if (params) Object.keys(params).forEach(function (k) { if (params[k] !== undefined && params[k] !== '') q.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k])); });
+    return get('/api/properties' + (q.length ? '?' + q.join('&') : ''));
+  };
+  window.PP.getProperty = function (id) { return get('/api/properties/' + encodeURIComponent(id)); };
+  window.PP.submitInquiry = function (fields) { return post('/api/inquiries', fields); };
+  window.PP.submitContact = function (fields) { return post('/api/contact', fields); };
+  window.PP.savedList = function () { return get('/api/saved'); };
+  window.PP.notifications = function () { return get('/api/notifications'); };
+})();
 document.addEventListener('DOMContentLoaded', function () {
+  /* Role dashboards, relative to the site root (login/register pages
+     live at the root). Seller has no dedicated dashboard section, so
+     sellers land on the home page after login. */
+  var DASHBOARDS = {
+    Buyer: 'sections/buyer-portal/buyer-dashboard.html',
+    Owner: 'sections/owner-portal/owner-dashboard.html',
+    Agent: 'sections/agent-portal/agent-dashboard.html',
+    Builder: 'sections/builder-portal/builder-dashboard.html',
+    Investor: 'sections/investor-portal/investor-dashboard.html',
+    Admin: 'sections/super-admin/super-admin-dashboard.html',
+    'Super Admin': 'sections/super-admin/super-admin-dashboard.html',
+    Support: 'sections/super-admin/super-admin-dashboard.html'
+  };
+  function goToDashboard() {
+    if (!window.PP || !window.PP.me) return;
+    window.PP.me().then(function (m) {
+      var role = (m.data && m.data.user && m.data.user.role) || '';
+      window.location.href = DASHBOARDS[role] || 'index.html';
+    });
+  }
+  var authStatus = document.getElementById('pp-auth-status');
+  if (authStatus && window.PP && window.PP.me) {
+    window.PP.me().then(function (m) {
+      if (m.ok && m.data && m.data.user) {
+        var u = m.data.user;
+        authStatus.textContent = 'Logged in as ' + (u.full_name || u.email) + ' (' + u.role + ').';
+        var a = document.createElement('a');
+        a.href = DASHBOARDS[u.role] || 'index.html';
+        a.textContent = ' Go to dashboard →';
+        authStatus.appendChild(a);
+      }
+    });
+  }
+  function showNote(form, text, isError) {
+    var box = form.querySelector('.pp-form-msg');
+    if (!box) {
+      box = document.createElement('div');
+      box.className = 'pp-form-msg';
+      box.style.marginTop = '10px';
+      box.style.fontWeight = '600';
+      form.appendChild(box);
+    }
+    box.textContent = text;
+    box.style.color = isError ? '#f87171' : '#4ade80';
+    return box;
+  }
+  function field(form, name) {
+    var el = form.querySelector('[name="' + name + '"]');
+    return el ? el.value.trim() : '';
+  }
+  function showSuccess(form, text) {
+    var msg = form.querySelector('.form-success') || form.parentElement.querySelector('.form-success');
+    if (msg) {
+      msg.classList.add('show');
+      msg.textContent = text;
+    } else {
+      showNote(form, text, false);
+    }
+  }
+  function collectMapped(form) {
+    var out = {};
+    form.querySelectorAll('[data-api-field]').forEach(function (el) {
+      out[el.getAttribute('data-api-field')] = (el.value || '').trim();
+    });
+    if (!out.full_name) out.full_name = field(form, 'full-name');
+    if (!out.phone) out.phone = field(form, 'mobile-number');
+    if (!out.email) out.email = field(form, 'email') || field(form, 'email-address');
+    if (!out.message) {
+      var ta = form.querySelector('textarea');
+      out.message = ta ? ta.value.trim() : '';
+    }
+    return out;
+  }
   document.querySelectorAll('form').forEach(function (form) {
     if (form.hasAttribute('onsubmit')) return;
+    if (form.getAttribute('data-api') === 'inquiry') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.submitInquiry) {
+          showNote(form, 'Form wiring load nahi hui — kuch bhi save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var params = new URLSearchParams(window.location.search);
+        var propertyId = parseInt(params.get('property_id') || form.getAttribute('data-property-id') || '', 10);
+        if (!propertyId || propertyId <= 0) {
+          showNote(form, 'Is enquiry ke liye koi property chuni nahi gayi hai. Kisi property listing se Enquire dabakar aayein — tabhi ye form submit hoga.', true);
+          return;
+        }
+        var f = collectMapped(form);
+        var message = f.message || '';
+        var dateEl = form.querySelector('input[type="date"][name="date"]');
+        var timeEl = form.querySelector('input[type="time"]');
+        if (dateEl && dateEl.value) {
+          message = 'Site visit requested on ' + dateEl.value + (timeEl && timeEl.value ? ' at ' + timeEl.value : '') + '. ' + message;
+        }
+        var payload = { property_id: propertyId, full_name: f.full_name, phone: f.phone, message: message };
+        if (f.email) payload.email = f.email;
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.submitInquiry(payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            var text = 'Thank you! Your enquiry has been received.';
+            if (r.data && r.data.is_duplicate) text += ' (Note: ye enquiry pehle bhi darj hai.)';
+            showSuccess(form, text);
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Enquiry save nahi hui. Please try again later.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'contact') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.submitContact) {
+          showNote(form, 'Form wiring load nahi hui — kuch bhi save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.submitContact({
+          full_name: field(form, 'full-name'),
+          email: field(form, 'email-address'),
+          phone: field(form, 'mobile-number'),
+          subject: field(form, 'field'),
+          message: field(form, 'message-here')
+        }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            var msg = form.querySelector('.form-success') || form.parentElement.querySelector('.form-success');
+            if (msg) {
+              msg.classList.add('show');
+              msg.textContent = 'Thank you! Your message has been received.';
+            } else {
+              showNote(form, 'Thank you! Your message has been received.', false);
+            }
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Message save nahi hua. Please try again later.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'assign') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — assign nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var leadId = parseInt(field(form, 'lead-id'), 10);
+        var assignee = parseInt(field(form, 'assigned-to'), 10);
+        if (!leadId || leadId <= 0 || !assignee || assignee <= 0) {
+          showNote(form, 'Lead ID aur agent dono chunein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/leads/' + leadId + '/assign', { assigned_to: assignee }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Lead assigned successfully.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Assign failed. Please try again.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'transfer') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — transfer nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var leadId = parseInt(field(form, 'lead-id'), 10);
+        var assignee = parseInt(field(form, 'assigned-to'), 10);
+        if (!leadId || leadId <= 0 || !assignee || assignee <= 0) {
+          showNote(form, 'Lead ID aur agent dono chunein.', true);
+          return;
+        }
+        var reason = field(form, 'reason');
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/leads/' + leadId + '/assign', { assigned_to: assignee }).then(function (r) {
+          if (!r.ok) {
+            if (btn) btn.disabled = false;
+            showNote(form, (r.error && r.error.message) || 'Transfer failed. Please try again.', true);
+            return;
+          }
+          if (!reason) {
+            if (btn) btn.disabled = false;
+            showSuccess(form, 'Lead transferred successfully.');
+            form.reset();
+            return;
+          }
+          window.PP.post('/api/leads/' + leadId + '/notes', { note: 'Transfer reason: ' + reason }).then(function (n) {
+            if (btn) btn.disabled = false;
+            if (n.ok) showSuccess(form, 'Lead transferred successfully (reason saved).');
+            else showSuccess(form, 'Lead transferred, but the reason note could not be saved: ' + ((n.error && n.error.message) || 'unknown error') + '.');
+            form.reset();
+          });
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'login') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.login) {
+          showNote(form, 'Form wiring load nahi hui — login nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.login(field(form, 'email'), field(form, 'password')).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (!r.ok) {
+            showNote(form, (r.error && r.error.message) || 'Login failed. Please try again.', true);
+            return;
+          }
+          showSuccess(form, 'Login successful! Redirecting to your dashboard...');
+          goToDashboard();
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'register') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.register) {
+          showNote(form, 'Form wiring load nahi hui — account nahi bana. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var payload = {
+          full_name: field(form, 'full-name'),
+          email: field(form, 'email'),
+          password: field(form, 'password'),
+          role: field(form, 'role')
+        };
+        var phone = field(form, 'mobile-number');
+        if (phone) payload.phone = phone;
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.register(payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (!r.ok) {
+            showNote(form, (r.error && r.error.message) || 'Account nahi bana. Please try again.', true);
+            return;
+          }
+          showSuccess(form, 'Account created! Redirecting to your dashboard...');
+          goToDashboard();
+        });
+      });
+      return;
+    }
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var msg = form.querySelector('.form-success') || form.parentElement.querySelector('.form-success');
@@ -281,7 +625,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!msg.querySelector('.demo-note')) {
           var note = document.createElement('small');
           note.className = 'demo-note';
-          note.textContent = ' Demo preview — no data was saved yet. This form will be connected to a real server in Stage H.';
+          note.textContent = ' Demo preview — no data was saved yet. This form is not connected to the server yet.';
           msg.appendChild(note);
         }
       }
