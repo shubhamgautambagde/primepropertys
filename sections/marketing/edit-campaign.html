@@ -27,6 +27,12 @@ p{margin:0 0 1rem}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
 .section.pale{background:var(--pale)}
@@ -178,6 +184,7 @@ table.data th{color:#0A2240;background:#F8FAFC;white-space:nowrap}
 @media(max-width:900px){.app-layout{grid-template-columns:1fr}.sidebar{position:static;min-height:auto}}
 </style></head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Home</a><a href="../../sitemap.html">Sitemap</a><a href="../../help-center.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row">
 <a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
@@ -187,10 +194,10 @@ table.data th{color:#0A2240;background:#F8FAFC;white-space:nowrap}
 </div></header>
 <div class="app-layout">
 <aside class="sidebar"><h3>Marketing</h3><ul><li><a href="affiliate.html" class="">Affiliate</a></li><li><a href="agent-promotion.html" class="">Agent Promotion</a></li><li><a href="banner-ads.html" class="">Banner Ads</a></li><li><a href="builder-promotion.html" class="">Builder Promotion</a></li><li><a href="campaign-analytics.html" class="">Campaign Analytics</a></li><li><a href="campaign-details.html" class="">Campaign Details</a></li><li><a href="campaigns.html" class="">Campaigns</a></li><li><a href="coupons.html" class="">Coupons</a></li><li><a href="create-campaign.html" class="">Create Campaign</a></li><li><a href="edit-campaign.html" class="active">Edit Campaign</a></li><li><a href="featured-property.html" class="">Featured Property</a></li><li><a href="marketing-dashboard.html" class="">Marketing Dashboard</a></li><li><a href="project-promotion.html" class="">Project Promotion</a></li><li><a href="promotions.html" class="">Promotions</a></li><li><a href="property-boost.html" class="">Property Boost</a></li><li><a href="referral.html" class="">Referral</a></li></ul><p class="note">Need help?<br>support@primepropertys.com<br>+91 98765 43210</p><a class="btn small" href="../../contact.html">Contact Support</a></aside>
-<main class="app-main">
+<main id="main-content" tabindex="-1" class="app-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> &gt; Marketing &gt; Edit Campaign</div>
 <div class="app-top"><div><h1>Edit Campaign</h1><p class="lead">Edit the Luxury Homes Campaign and save your changes.</p></div><a class="btn outline small" href="index.html">← All Marketing Pages</a></div>
-<div class="card"><h2>1. Campaign Setup</h2><form data-backend="not-connected"><label>Campaign Objective *</label><select name="field"><option>Generate Leads</option><option>Brand Awareness</option><option>Drive Site Visits</option></select><label>Campaign Name *</label><input value="Luxury Homes Campaign" name="field-2" aria-label="field 2"><label>Campaign Type *</label><select name="field-2"><option>Property Promotion</option><option>Project Promotion</option><option>Lead Generation</option></select><label>Description (Optional)</label><textarea name="message">Promote premium 3 &amp; 4 BHK apartments in prime locations with modern amenities.</textarea><h2>2. Audience &amp; Budget</h2><div class="form-row"><div><label>Daily Budget</label><input placeholder="₹2,500" name="2-500"></div><div><label>Total Budget</label><input placeholder="₹75,000" name="75-000"></div></div><label>Channels</label><select name="field-2"><option>Facebook + Instagram</option><option>Google Ads</option><option>YouTube Ads</option><option>All Channels</option></select><button class="btn" type="submit">Save Campaign</button><div class="form-success">Campaign saved (front-end demo).</div></form></div><div class="card" style="margin-top:20px"><h2>Campaign Summary</h2><p><strong>Objective:</strong> Generate Leads<br><strong>Promote:</strong> Property<br><strong>Estimated Reach:</strong> 250K – 350K people<br><strong>Estimated Leads (Monthly):</strong> 450 – 700</p></div>
+<div class="card"><h2>1. Campaign Setup</h2><form data-backend="not-connected"><label>Campaign Objective *</label><select name="field" aria-label="Field"><option>Generate Leads</option><option>Brand Awareness</option><option>Drive Site Visits</option></select><label>Campaign Name *</label><input value="Luxury Homes Campaign" name="field-2" aria-label="field 2"><label>Campaign Type *</label><select name="field-2" aria-label="Field 2"><option>Property Promotion</option><option>Project Promotion</option><option>Lead Generation</option></select><label>Description (Optional)</label><textarea name="message" aria-label="Message">Promote premium 3 &amp; 4 BHK apartments in prime locations with modern amenities.</textarea><h2>2. Audience &amp; Budget</h2><div class="form-row"><div><label>Daily Budget</label><input placeholder="₹2,500" name="2-500" aria-label="₹2,500"></div><div><label>Total Budget</label><input placeholder="₹75,000" name="75-000" aria-label="₹75,000"></div></div><label>Channels</label><select name="field-2" aria-label="Field 2"><option>Facebook + Instagram</option><option>Google Ads</option><option>YouTube Ads</option><option>All Channels</option></select><button class="btn" type="submit">Save Campaign</button><div class="form-success">Campaign saved (front-end demo).</div></form></div><div class="card" style="margin-top:20px"><h2>Campaign Summary</h2><p><strong>Objective:</strong> Generate Leads<br><strong>Promote:</strong> Property<br><strong>Estimated Reach:</strong> 250K – 350K people<br><strong>Estimated Leads (Monthly):</strong> 450 – 700</p></div>
 </main></div>
 <footer class="site-footer" style="margin-top:0"><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with love in India</span></div></footer>
 <script>

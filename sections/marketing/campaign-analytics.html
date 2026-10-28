@@ -27,6 +27,12 @@ p{margin:0 0 1rem}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
 .section.pale{background:var(--pale)}
@@ -178,6 +184,7 @@ table.data th{color:#0A2240;background:#F8FAFC;white-space:nowrap}
 @media(max-width:900px){.app-layout{grid-template-columns:1fr}.sidebar{position:static;min-height:auto}}
 </style></head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Home</a><a href="../../sitemap.html">Sitemap</a><a href="../../help-center.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row">
 <a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
@@ -187,7 +194,7 @@ table.data th{color:#0A2240;background:#F8FAFC;white-space:nowrap}
 </div></header>
 <div class="app-layout">
 <aside class="sidebar"><h3>Marketing</h3><ul><li><a href="affiliate.html" class="">Affiliate</a></li><li><a href="agent-promotion.html" class="">Agent Promotion</a></li><li><a href="banner-ads.html" class="">Banner Ads</a></li><li><a href="builder-promotion.html" class="">Builder Promotion</a></li><li><a href="campaign-analytics.html" class="active">Campaign Analytics</a></li><li><a href="campaign-details.html" class="">Campaign Details</a></li><li><a href="campaigns.html" class="">Campaigns</a></li><li><a href="coupons.html" class="">Coupons</a></li><li><a href="create-campaign.html" class="">Create Campaign</a></li><li><a href="edit-campaign.html" class="">Edit Campaign</a></li><li><a href="featured-property.html" class="">Featured Property</a></li><li><a href="marketing-dashboard.html" class="">Marketing Dashboard</a></li><li><a href="project-promotion.html" class="">Project Promotion</a></li><li><a href="promotions.html" class="">Promotions</a></li><li><a href="property-boost.html" class="">Property Boost</a></li><li><a href="referral.html" class="">Referral</a></li></ul><p class="note">Need help?<br>support@primepropertys.com<br>+91 98765 43210</p><a class="btn small" href="../../contact.html">Contact Support</a></aside>
-<main class="app-main">
+<main id="main-content" tabindex="-1" class="app-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> &gt; Marketing &gt; Campaign Analytics</div>
 <div class="app-top"><div><h1>Campaign Analytics</h1><p class="lead">Impressions, clicks, leads and conversions for every campaign.</p></div><a class="btn outline small" href="index.html">← All Marketing Pages</a></div>
 <div class="grid grid-3" style="margin:20px 0"><div class="card"><p style="color:#64748B;margin:0">Impressions</p><h3 style="font-size:1.6rem">2.45M</h3><p style="margin:0">↑ 15.3%</p></div><div class="card"><p style="color:#64748B;margin:0">Clicks</p><h3 style="font-size:1.6rem">78,642</h3><p style="margin:0">CTR 3.2%</p></div><div class="card"><p style="color:#64748B;margin:0">Leads</p><h3 style="font-size:1.6rem">3,245</h3><p style="margin:0">↑ 27.8%</p></div><div class="card"><p style="color:#64748B;margin:0">Conversions</p><h3 style="font-size:1.6rem">512</h3><p style="margin:0">↑ 24.6%</p></div></div><div style="overflow-x:auto"><table class="data"><thead><tr><th>Campaign</th><th>Impressions</th><th>Clicks</th><th>Leads</th><th>Conversions</th><th>ROI</th></tr></thead><tbody><tr><td>Luxury Homes Campaign</td><td>4,82,000</td><td>15,240</td><td>1,245</td><td>210</td><td>320%</td></tr><tr><td>Apartment Living Promo</td><td>3,96,000</td><td>12,480</td><td>986</td><td>178</td><td>285%</td></tr><tr><td>Dream Home Search</td><td>3,12,000</td><td>9,860</td><td>745</td><td>165</td><td>260%</td></tr><tr><td>NRI Investment Campaign</td><td>1,98,000</td><td>6,120</td><td>412</td><td>75</td><td>210%</td></tr><tr><td>Summer Offer Campaign</td><td>0</td><td>0</td><td>0</td><td>0</td><td>Scheduled</td></tr></tbody></table></div>

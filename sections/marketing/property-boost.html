@@ -27,6 +27,12 @@ p{margin:0 0 1rem}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
 .section.pale{background:var(--pale)}
@@ -178,6 +184,7 @@ table.data th{color:#0A2240;background:#F8FAFC;white-space:nowrap}
 @media(max-width:900px){.app-layout{grid-template-columns:1fr}.sidebar{position:static;min-height:auto}}
 </style></head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Home</a><a href="../../sitemap.html">Sitemap</a><a href="../../help-center.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row">
 <a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
@@ -187,7 +194,7 @@ table.data th{color:#0A2240;background:#F8FAFC;white-space:nowrap}
 </div></header>
 <div class="app-layout">
 <aside class="sidebar"><h3>Marketing</h3><ul><li><a href="affiliate.html" class="">Affiliate</a></li><li><a href="agent-promotion.html" class="">Agent Promotion</a></li><li><a href="banner-ads.html" class="">Banner Ads</a></li><li><a href="builder-promotion.html" class="">Builder Promotion</a></li><li><a href="campaign-analytics.html" class="">Campaign Analytics</a></li><li><a href="campaign-details.html" class="">Campaign Details</a></li><li><a href="campaigns.html" class="">Campaigns</a></li><li><a href="coupons.html" class="">Coupons</a></li><li><a href="create-campaign.html" class="">Create Campaign</a></li><li><a href="edit-campaign.html" class="">Edit Campaign</a></li><li><a href="featured-property.html" class="">Featured Property</a></li><li><a href="marketing-dashboard.html" class="">Marketing Dashboard</a></li><li><a href="project-promotion.html" class="">Project Promotion</a></li><li><a href="promotions.html" class="">Promotions</a></li><li><a href="property-boost.html" class="active">Property Boost</a></li><li><a href="referral.html" class="">Referral</a></li></ul><p class="note">Need help?<br>support@primepropertys.com<br>+91 98765 43210</p><a class="btn small" href="../../contact.html">Contact Support</a></aside>
-<main class="app-main">
+<main id="main-content" tabindex="-1" class="app-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> &gt; Marketing &gt; Property Boost</div>
 <div class="app-top"><div><h1>Property Boost</h1><p class="lead">Boost a property listing for more views, enquiries and site visits.</p></div><a class="btn outline small" href="index.html">← All Marketing Pages</a></div>
 <div style="overflow-x:auto"><table class="data"><thead><tr><th>Property</th><th>Location</th><th>Price</th><th>Views</th><th>Enquiries</th><th>Status</th></tr></thead><tbody><tr><td>2 BHK Apartment, Wakad</td><td>Pune</td><td>₹1.25 Cr</td><td>18,420</td><td>342</td><td>Boosted</td></tr><tr><td>4 BHK Villa, Vaishali Nagar</td><td>Jaipur</td><td>₹2.75 Cr</td><td>12,860</td><td>268</td><td>Boosted</td></tr><tr><td>3 BHK Apartment, Whitefield</td><td>Bengaluru</td><td>₹8.5 Lakh</td><td>9,540</td><td>187</td><td>Pending</td></tr><tr><td>Office Space, Sector 62</td><td>Noida</td><td>₹95 Lakh</td><td>7,210</td><td>142</td><td>Boosted</td></tr></tbody></table></div><div class="card" style="margin-top:20px"><h2>Boost Packages</h2><p><strong>7 days — ₹999:</strong> 3× more views. &nbsp; <strong>14 days — ₹1,799:</strong> 5× more views + home-page slot. &nbsp; <strong>30 days — ₹2,999:</strong> 8× more views + featured badge.</p><form data-backend="not-connected"><button class="btn" type="submit">Boost This Property</button><div class="form-success">Boost request saved (front-end demo).</div></form></div>
