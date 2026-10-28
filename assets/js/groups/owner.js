@@ -226,3 +226,60 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 });
+
+/* Payments — owner payments + invoices pages (guarded by table ids).
+   Invoice numbers are derived (INV-<payment id>). */
+document.addEventListener('DOMContentLoaded', function () {
+  if (!window.PP || !window.PP.me) return;
+  function host(table) { return table.querySelector('tbody') || table; }
+  function clearRows(table) {
+    var rows = host(table).querySelectorAll('tr');
+    var start = table.querySelector('tbody') ? 0 : 1;
+    for (var i = rows.length - 1; i >= start; i--) rows[i].remove();
+  }
+  function noticeRow(table, text, cols) {
+    clearRows(table);
+    var tr = document.createElement('tr');
+    var td = document.createElement('td');
+    td.setAttribute('colspan', String(cols));
+    td.textContent = text;
+    tr.appendChild(td);
+    host(table).appendChild(tr);
+  }
+  function inr(paise) {
+    return 'Rs ' + (paise / 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function fmtDate(s) {
+    try { return new Date(s).toLocaleDateString('en-IN'); } catch (e) { return s || ''; }
+  }
+  function render(table, cols, makeRow) {
+    window.PP.me().then(function (m) {
+      if (!m.ok || !m.data || !m.data.user) { noticeRow(table, 'Is page ke liye login zaroori hai. Login karke dobara aayein.', cols); return; }
+      window.PP.get('/api/payments?limit=100').then(function (r) {
+        if (!r.ok) { noticeRow(table, (r.error && r.error.message) || 'Payments load nahi ho pa rahe hain.', cols); return; }
+        var items = (r.data && r.data.data) || [];
+        if (!items.length) { noticeRow(table, 'No payments yet.', cols); return; }
+        clearRows(table);
+        var h = host(table);
+        items.forEach(function (p) {
+          if (!p || !Number.isInteger(p.id)) return;
+          var tr = document.createElement('tr');
+          makeRow(p).forEach(function (txt) {
+            var td = document.createElement('td');
+            td.textContent = txt;
+            tr.appendChild(td);
+          });
+          h.appendChild(tr);
+        });
+      });
+    });
+  }
+  var payTable = document.getElementById('pp-live-owner-payments-table');
+  if (payTable) {
+    render(payTable, 4, function (p) { return [fmtDate(p.created_at), p.description, inr(p.amount_paise), p.status]; });
+  }
+  var invTable = document.getElementById('pp-live-owner-invoices-table');
+  if (invTable) {
+    render(invTable, 4, function (p) { return ['INV-' + p.id, fmtDate(p.created_at), p.description, inr(p.amount_paise)]; });
+  }
+});

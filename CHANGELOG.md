@@ -1384,3 +1384,76 @@ without live markers after the home-services slice:
   is console output only).
 - Backup before this change:
   `~/workspace/primepropertys-backup-readmes/`.
+
+## Payments core (autopilot slice 1, 2026-10-28)
+
+### Autopilot decision, documented (user: "sab kuch autopilot mode me solve kar do")
+- There is no payment gateway configured and no provider credentials
+  exist, so a gateway integration cannot be built by autopilot — it
+  would require inventing credentials. What was built instead is the
+  complete offline/manual payment domain, with the limit stated in
+  the code, the docs and the UI copy: a payment record is a PENDING
+  claim until staff verify it; nothing charges a card, UPI id or bank
+  account. A future gateway integration must add its own provider
+  fields and webhooks and must not reinterpret these rows as gateway
+  charges.
+
+### What was built
+- Migration 014: payments (description, amount_paise integer —
+  paise, never float rupees — method card/upi/netbanking/wallet/
+  emi/other, reference, status pending/verified/rejected/
+  refund_requested/refunded, refund fields, verified_by/at) +
+  billing_profiles (one row per user) + payments:manage
+  permission (Super Admin, Admin).
+- server/src/payments.js + routes: POST /api/payments
+  (logged-in; creates pending; checkout billing fields are saved
+  to the billing profile in the same transaction), GET list
+  (own, or all for payments:manage; ?status= filter), GET detail
+  (own or manage, else 404), PATCH (manage only: pending ->
+  verified/rejected; refund_requested -> refunded, or rejected
+  which returns the payment to verified since the refund was
+  declined), POST :id/refund-request (payer only, from pending/
+  verified, amount capped at the payment amount), GET/PUT
+  /api/billing-profile (own).
+- Pages wired (new assets/js/groups/payments.js mapped in
+  tools/section-map.json — the payments section previously had no
+  JS group): payment-history (live table, PAY-<id>), invoice-list
+  (live table, invoice numbers derived as INV-<id>, View links to
+  details), invoice-details (?payment_id=, live meta + single-item
+  breakdown; no GST invented — the amount is the total payable),
+  refund-status (?payment_id= detail, or the user's refund-related
+  payments without one), refund-request (payment dropdown
+  populated from the user's pending/verified payments; reason +
+  amount + refund-to), billing-profile (save + prefill),
+  payment-checkout (amount 1123900 paise and description "PRO
+  plan — yearly" taken from the page's own offer copy, not
+  invented; success note honestly says pending + no gateway
+  charge). Portal tables wired too: buyer/owner/agent payment
+  histories and owner invoices (INV-<id>).
+- Deliberately left alone: payment-success / payment-failed /
+  payment-processing pages (status landing pages, not data views;
+  checkout shows its own success note and does not redirect to
+  them) and the subscription plan flows (plans/checkout/upgrade/
+  downgrade/cancel/coupons need a plan catalog — next autopilot
+  item is campaigns, then settings, then the wizard; subscription
+  plans follow from the plan prices shown on the plans pages).
+
+### Verified
+- Tests: 55/55 pass (54 + 1 new in server/test/payments.js:
+  create/validation, visibility 404, manage-only verify,
+  illegal transitions, refund request cap + approve, refund
+  decline returning to verified, billing profile save + stranger
+  isolation, list scoping).
+- Build idempotent; all modules `node --check` PASS. One false
+  alarm during verification: payments.js IS inlined (build.py
+  strips leading header comments, so grepping for the header
+  text proves nothing — the live table ids in the inlined code
+  are the real check).
+- Audit: 309 entries (was 312; not-connected markers 263 -> 260,
+  exactly the 3 wired payment forms), 0 broken links.
+- Live flow on a fresh database (port 8954, temp DB deleted
+  afterwards): create 201 pending -> verify 200 -> refund-request
+  200 -> refund-approve 200 -> buyer list 1 -> billing profile
+  saved (city Nagpur).
+- Backup before this change:
+  `~/workspace/primepropertys-backup-payments/`.

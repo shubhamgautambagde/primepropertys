@@ -193,3 +193,47 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 });
+
+/* Payments — agent payments page (guarded by
+   #pp-live-agent-payments-table). Offline records only. */
+document.addEventListener('DOMContentLoaded', function () {
+  var table = document.getElementById('pp-live-agent-payments-table');
+  if (!table || !window.PP || !window.PP.me) return;
+  function host() { return table.querySelector('tbody') || table; }
+  function clearRows() {
+    var rows = host().querySelectorAll('tr');
+    var start = table.querySelector('tbody') ? 0 : 1;
+    for (var i = rows.length - 1; i >= start; i--) rows[i].remove();
+  }
+  function noticeRow(text) {
+    clearRows();
+    var tr = document.createElement('tr');
+    var td = document.createElement('td');
+    td.setAttribute('colspan', '4');
+    td.textContent = text;
+    tr.appendChild(td);
+    host().appendChild(tr);
+  }
+  window.PP.me().then(function (m) {
+    if (!m.ok || !m.data || !m.data.user) { noticeRow('Is page ke liye login zaroori hai. Login karke dobara aayein.'); return; }
+    window.PP.get('/api/payments?limit=100').then(function (r) {
+      if (!r.ok) { noticeRow((r.error && r.error.message) || 'Payments load nahi ho pa rahe hain.'); return; }
+      var items = (r.data && r.data.data) || [];
+      if (!items.length) { noticeRow('No payments yet.'); return; }
+      clearRows();
+      var h = host();
+      items.forEach(function (p) {
+        if (!p || !Number.isInteger(p.id)) return;
+        var tr = document.createElement('tr');
+        [new Date(p.created_at).toLocaleDateString('en-IN'), p.description,
+         'Rs ' + (p.amount_paise / 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+         p.status].forEach(function (txt) {
+          var td = document.createElement('td');
+          td.textContent = txt;
+          tr.appendChild(td);
+        });
+        h.appendChild(tr);
+      });
+    });
+  });
+});

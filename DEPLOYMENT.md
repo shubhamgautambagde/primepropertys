@@ -142,7 +142,7 @@ is documented in the file itself.
 
 ## Final verification (Stage J)
 
-- `npm test` in `server/`: 54/54 pass, including
+- `npm test` in `server/`: 55/55 pass, including
   `test/journey.js` — one test that walks the whole product:
   admin creates a draft property (invisible publicly),
   publishes it (visible), a buyer enquires, the admin
@@ -207,6 +207,15 @@ The 341 entries are not 341 defects to fix blindly:
   FRONTEND_BACKEND_MAPPING.md and
   PLACEHOLDER_LINKS_REPORT.md (186 href="#" triaged,
   none changed — no determinable destinations).
+- Payments (offline/manual records) are done: create/list/
+  detail/verify/refund-request/refund-approve endpoints plus
+  billing profiles, and the wired payment-history, invoice-list,
+  invoice-details, refund-status, refund-request, billing-profile
+  and checkout pages (plus portal payment histories and owner
+  invoices). NO gateway is configured: records are pending
+  claims until staff verify them, and nothing charges a card,
+  UPI id or bank account. A live gateway still needs a provider
+  and credentials.
 - Payments (needs a real provider and credentials — never
   invented), support tickets, campaigns, settings forms.
 - Hosting decision: Node hosting vs PHP-only hosting. If
