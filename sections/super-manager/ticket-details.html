@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ticket Details</title>
+<meta name="description" content="Support — PrimePropertys, India&#x27;s real estate portal.">
+<link rel="canonical" href="https://shubhamgautambagde.github.io/primepropertys/sections/super-manager/support.html">
+<meta property="og:title" content="Support | PrimePropertys Admin">
+<meta property="og:description" content="Support — PrimePropertys, India&#x27;s real estate portal.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://shubhamgautambagde.github.io/primepropertys/sections/super-manager/support.html">
+<style>
+:root{
+  --navy:#0A2240; --navy2:#0E2F56; --blue:#2563EB; --blue-dark:#1D4ED8;
+  --red:#E11D48; --ink:#1F2937; --muted:#64748B; --body:#475569;
+  --line:#E2E8F0; --pale:#EEF3FA; --pale2:#F8FAFC; --white:#fff;
+  --green:#16A34A; --amber:#D97706; --radius:14px; --shadow:0 8px 30px rgba(10,34,64,.08);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--body);background:var(--white);line-height:1.6}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+img{max-width:100%;display:block;border-radius:12px}
+h1,h2,h3,h4{color:var(--navy);line-height:1.25;margin:0 0 .5rem}
+h1{font-size:2.4rem} h2{font-size:1.7rem} h3{font-size:1.15rem}
+p{margin:0 0 1rem}
+.center{text-align:center}
+.eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
+.underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
+.lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
+.container{max-width:1200px;margin:0 auto;padding:0 20px}
+.section{padding:48px 0}
+.section.pale{background:var(--pale)}
+/* Top bar + header */
+.topbar{background:var(--navy);color:#CBD5E1;font-size:.85rem}
+.topbar .container{display:flex;justify-content:space-between;gap:16px;padding-top:8px;padding-bottom:8px;flex-wrap:wrap}
+.topbar a{color:#E2E8F0;margin-left:16px}
+.site-header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+.header-row{display:flex;align-items:center;gap:24px;padding:14px 20px}
+.logo{font-size:1.55rem;font-weight:800;color:var(--navy);white-space:nowrap}
+.logo span{color:var(--red)}
+.logo small{display:block;font-size:.7rem;font-weight:500;color:var(--muted);letter-spacing:.02em}
+.main-nav{display:flex;gap:18px;flex-wrap:wrap;margin-left:auto}
+.main-nav a{color:var(--ink);font-weight:600;font-size:.95rem}
+.main-nav a.active{color:var(--blue)}
+.header-actions{display:flex;gap:10px;white-space:nowrap}
+.nav-toggle{display:none;margin-left:auto;background:var(--navy);color:#fff;border:0;border-radius:8px;padding:8px 12px;font-size:1rem;cursor:pointer}
+/* Hero */
+.hero{background:linear-gradient(180deg,#EEF3FA,#fff);padding:40px 0 30px}
+.hero-inner{display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center}
+.hero-inner img{height:340px;width:100%;object-fit:cover}
+.hero-home{background:var(--navy);color:#fff;padding:0}
+.hero-home h1{color:#fff;font-size:2.8rem}
+.hero-home p{color:#E2E8F0}
+.hero-img{position:relative}
+.hero-img img{height:420px;width:100%;object-fit:cover;border-radius:0}
+.breadcrumb{font-size:.9rem;color:var(--muted);margin-bottom:12px}
+.breadcrumb a{color:var(--muted)}
+.meta{font-size:.9rem;color:var(--muted);background:#fff;border:1px solid var(--line);display:inline-block;padding:6px 12px;border-radius:999px;margin:4px 6px 4px 0}
+.grid{display:grid;gap:20px}
+.grid-2{grid-template-columns:repeat(2,1fr)} .grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-4{grid-template-columns:repeat(4,1fr)} .grid-5{grid-template-columns:repeat(5,1fr)}
+.grid-8{grid-template-columns:repeat(4,1fr)}
+/* Two-column policy layout */
+.layout-2{display:grid;grid-template-columns:2fr 1fr;gap:28px;align-items:start}
+.policy-section{display:flex;gap:16px;padding:22px 0;border-bottom:1px solid var(--line)}
+.policy-num{flex:0 0 44px;height:44px;border-radius:50%;background:var(--pale);color:var(--blue);display:flex;align-items:center;justify-content:center;font-weight:800}
+.sidebar .card{margin-bottom:20px}
+.quick-links{list-style:none;padding:0;margin:0}
+.quick-links li{border-bottom:1px solid var(--pale);padding:8px 0}
+.quick-links li:last-child{border-bottom:0}
+.contact-strip{background:var(--pale);border-radius:12px;padding:20px;margin-top:24px}
+/* Footer */
+.site-footer{background:var(--navy);color:#CBD5E1;margin-top:48px}
+.site-footer h4{color:#fff}
+.site-footer a{color:#CBD5E1}
+.footer-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1.3fr;gap:28px;padding:44px 20px}
+.footer-bottom{border-top:1px solid #1E3A5F;padding:16px 20px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.newsletter-row{display:flex;gap:8px}
+.newsletter-row input{flex:1}
+/* Buttons */
+.btn{display:inline-block;background:var(--blue);color:#fff !important;border:1px solid var(--blue);padding:11px 20px;border-radius:10px;font-weight:700;cursor:pointer;text-decoration:none !important}
+.btn:hover{background:var(--blue-dark)}
+.btn.red{background:var(--red);border-color:var(--red)}
+.btn.red:hover{background:#BE123C}
+.btn.navy{background:var(--navy);border-color:var(--navy)}
+.btn.outline{background:#fff;color:var(--blue) !important;border-color:var(--blue)}
+.btn.white{background:#fff;color:var(--navy) !important;border-color:#fff}
+.btn.white-outline{background:transparent;color:#fff !important;border-color:#fff}
+.btn.small{padding:7px 14px;font-size:.9rem;border-radius:8px}
+/* Search */
+.search-box{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:20px;margin-top:-40px;position:relative;z-index:2}
+.search-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.search-tab{border:1px solid var(--line);background:#fff;padding:9px 16px;border-radius:999px;font-weight:700;cursor:pointer}
+.search-tab.active{background:var(--red);color:#fff;border-color:var(--red)}
+.search-grid{display:grid;grid-template-columns:repeat(4,1fr) auto;gap:12px;align-items:end}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.pill{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:.85rem;background:var(--pale2);color:var(--ink)}
+/* Grids + cards */
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:0 2px 10px rgba(10,34,64,.04)}
+.card img{height:170px;width:100%;object-fit:cover;margin-bottom:12px}
+.icon{font-size:1.6rem}
+.price{color:var(--blue);font-weight:800;font-size:1.25rem}
+.badge{display:inline-block;background:var(--green);color:#fff;font-size:.75rem;font-weight:700;padding:3px 9px;border-radius:999px}
+.badge.blue{background:var(--blue)} .badge.red{background:var(--red)} .badge.amber{background:var(--amber)}
+.check{color:var(--green);font-weight:700}
+.check-list{list-style:none;padding:0;margin:0}
+.check-list li{padding:6px 0;border-bottom:1px solid var(--pale)}
+.check-list li:last-child{border-bottom:0}
+/* Accordion */
+.acc-item{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;background:#fff}
+.acc-btn{width:100%;text-align:left;background:#fff;border:0;padding:16px 18px;font:inherit;font-weight:700;color:var(--navy);cursor:pointer;display:flex;justify-content:space-between;gap:12px}
+.acc-body{display:none;padding:0 18px 16px}
+.acc-item.open .acc-body{display:block}
+/* Pricing */
+.toggle{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px}
+.toggle button{border:0;background:transparent;padding:8px 18px;border-radius:999px;font-weight:700;cursor:pointer}
+.toggle button.active{background:var(--blue);color:#fff}
+.audience-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px 0}
+.audience-tabs button{border:0;border-bottom:3px solid transparent;background:transparent;padding:10px 14px;font-weight:700;cursor:pointer;color:var(--ink)}
+.audience-tabs button.active{color:var(--blue);border-color:var(--blue)}
+.price-card{position:relative}
+.price-card.popular{border:2px solid var(--blue)}
+/* Tables / jobs */
+.job-card{border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;background:#fff;margin-bottom:14px}
+.filters{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.filters input,.filters select{flex:1;min-width:200px}
+/* Forms */
+form label{display:block;font-weight:600;color:var(--ink);font-size:.92rem;margin:12px 0 4px}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid #CBD5E1;border-radius:10px;font:inherit}
+textarea{min-height:120px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-success{display:none;background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;padding:12px 16px;border-radius:10px;margin-top:14px;font-weight:600}
+.form-success.show{display:block}
+.upload-box{border:2px dashed #CBD5E1;border-radius:12px;padding:24px;text-align:center;background:var(--pale2)}
+.stat-band{background:var(--navy);color:#fff;padding:36px 0}
+.stat-band h3{color:#fff;font-size:1.8rem}
+.stat-band p{color:#CBD5E1}
+@media(max-width:960px){
+  .hero-inner,.layout-2,.search-grid{grid-template-columns:1fr}
+  .grid-5,.grid-4,.grid-8{grid-template-columns:repeat(2,1fr)}
+  .grid-3{grid-template-columns:repeat(2,1fr)}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .main-nav{display:none;width:100%;flex-direction:column}
+  .main-nav.open{display:flex}
+  .nav-toggle{display:block}
+  .header-row{flex-wrap:wrap}
+  .header-actions{margin-left:auto}
+  h1{font-size:2rem}
+}
+@media(max-width:600px){
+  .grid-5,.grid-4,.grid-8,.grid-3,.grid-2,.form-row{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr}
+  .hero-img img{height:260px}
+}
+/* Admin layout (added on top of the public design system) */
+.admin-top{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60}
+.admin-top .container{display:flex;align-items:center;gap:18px;padding:12px 20px;flex-wrap:wrap}
+.admin-search{flex:1;min-width:220px}
+.admin-search input{margin:0}
+.admin-shell{display:grid;grid-template-columns:272px 1fr;align-items:start}
+.admin-sidebar{background:#0A2240;color:#CBD5E1;padding:20px 14px;position:sticky;top:61px;min-height:calc(100vh - 61px)}
+.admin-sidebar h4{color:#fff;margin:16px 8px 8px;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase}
+.admin-sidebar a{display:block;color:#CBD5E1;padding:9px 12px;border-radius:8px;font-weight:600;font-size:.93rem}
+.admin-sidebar a:hover{background:#14365E;color:#fff;text-decoration:none}
+.admin-sidebar a.active{background:#2563EB;color:#fff}
+.admin-main{padding:28px 28px 8px;min-width:0}
+.admin-main .breadcrumb{margin-bottom:8px}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:18px 0}
+.stat-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}
+.stat-card .label{color:var(--muted);font-size:.85rem;font-weight:600}
+.stat-card .value{color:var(--navy);font-size:1.7rem;font-weight:800;line-height:1.2}
+.stat-card .delta{font-size:.85rem;font-weight:700}
+.up{color:#16A34A}.down{color:#DC2626}
+table.data{width:100%;border-collapse:collapse;background:#fff}
+table.data th,table.data td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);font-size:.92rem;vertical-align:top}
+table.data th{background:var(--pale);color:var(--navy)}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.78rem;font-weight:700}
+.pill.green{background:#DCFCE7;color:#166534}.pill.amber{background:#FEF3C7;color:#92400E}
+.pill.red{background:#FEE2E2;color:#991B1B}.pill.blue{background:#DBEAFE;color:#1E40AF}
+.pill.grey{background:#F1F5F9;color:#475569}
+.bar{height:8px;background:#E2E8F0;border-radius:99px;overflow:hidden;min-width:90px}
+.bar i{display:block;height:100%;background:#2563EB;border-radius:99px}
+.switch{position:relative;display:inline-block;width:48px;height:26px;flex:0 0 auto}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#CBD5E1;border-radius:99px;transition:.2s;cursor:pointer}
+.slider:before{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.switch input:checked + .slider{background:#2563EB}
+.switch input:checked + .slider:before{transform:translateX(22px)}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid var(--pale)}
+.toggle-row:last-child{border-bottom:0}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0;align-items:center}
+.toolbar input,.toolbar select{flex:1;min-width:180px}
+@media(max-width:960px){.admin-shell{grid-template-columns:1fr}.admin-sidebar{position:static;min-height:0}.stat-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.stat-grid{grid-template-columns:1fr}}
+</style></head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Public Website</a><a href="../../sitemap.html">Sitemap</a><a href="index.html">Section Index</a></span></div></div>
+<div class="admin-top"><div class="container">
+<a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
+<div class="admin-search"><input placeholder="Search properties, users, leads, invoices, payments..." name="search" aria-label="Properties, users, leads, invoices, payments"></div>
+<a class="btn small" href="index.html">+ Create</a><span>🔔 5 &nbsp; ✉ 12 &nbsp; <strong>Rohit Sharma</strong> — Super Manager</span>
+</div></div>
+<div class="admin-shell">
+<aside class="admin-sidebar"><h4>Super Manager</h4><a href="index.html" class="">▦ Section Index</a><a href="../../index.html">⌂ Public Website Home</a><a href="../../sitemap.html">🗺 Sitemap</a><h4>Pages in this section</h4><a href="activity-logs.html" class="">Activity Logs</a><a href="agent-management.html" class="">Agent Management</a><a href="crm-pipeline.html" class="">CRM Pipeline</a><a href="complaints.html" class="">Complaints</a><a href="lead-assignment.html" class="">Lead Assignment</a><a href="lead-operations.html" class="">Lead Operations</a><a href="lead-transfer.html" class="">Lead Transfer</a><a href="performance.html" class="">Performance</a><a href="property-approval.html" class="">Property Approval</a><a href="property-operations.html" class="">Property Operations</a><a href="regional-operations.html" class="">Regional Operations</a><a href="reports.html" class="">Reports</a><a href="site-visit-operations.html" class="">Site Visit Operations</a><a href="super-manager-dashboard.html" class="">Super Manager Dashboard</a><a href="support.html" class="active">Support</a><a href="team-management.html" class="">Team Management</a><a href="user-operations.html" class="">User Operations</a><a href="verification-queue.html" class="">Verification Queue</a>
+<div class="card" style="background:#14365E;border-color:#14365E;color:#E2E8F0;margin-top:20px"><h4 style="margin-top:0">Need Help?</h4><p style="color:#CBD5E1">support@primepropertys.com<br>+91 98765 43210</p></div></aside>
+<main id="main-content">
+<div class="breadcrumb"><a href="../../index.html">Home</a> › <a href="index.html">Super Manager</a> › Ticket Details</div>
+<h1>Ticket Details</h1>
+<p class="lead">Detail, replies and actions for one support ticket.</p>
+<div class="card" id="pp-live-ticket-details">
+<p id="pp-live-ticket-details-notice"></p>
+<div id="pp-live-ticket-details-body"></div>
+</div>
+<div class="card">
+<h3>Assign ticket</h3>
+<form data-api="ticket-assign">
+<label for="pp-ticket-assign-agent">Agent / staff</label>
+<select data-api-field="assigned_to" name="assigned_to" id="pp-ticket-assign-agent"><option value="">Loading users…</option></select>
+<button class="btn" type="submit">Assign</button>
+<div class="form-success"></div>
+</form>
+</div>
+<div class="card">
+<h3>Reply</h3>
+<form data-api="ticket-reply">
+<label for="pp-ticket-reply-message">Message</label>
+<textarea data-api-field="message" name="message" id="pp-ticket-reply-message" placeholder="Write a reply" required></textarea>
+<button class="btn" type="submit">Send reply</button>
+<div class="form-success"></div>
+</form>
+</div>
+
+</main>
+</div>
+<footer class="site-footer"><div class="container footer-grid">
+<div><a class="logo" href="../../index.html" style="color:#fff">Prime<span>Propertys</span></a><p>PrimePropertys is your trusted partner in finding the perfect property.</p></div>
+<div><h4>Section</h4><p><a href="index.html">Super Manager</a><br><a href="../../index.html">Public Website</a><br><a href="../../sitemap.html">Sitemap</a></p></div>
+<div><h4>Contact Us</h4><p>📞 +91 98765 43210<br>✉ support@primepropertys.com<br>📍 B-27, Sector 63, Noida, Uttar Pradesh - 201301</p></div>
+</div><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with love in India</span></div></footer>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Mobile nav
+  var toggle = document.querySelector('.nav-toggle');
+  var nav = document.querySelector('.main-nav');
+  if (toggle && nav) toggle.addEventListener('click', function () { nav.classList.toggle('open'); });
+
+  // Active nav link
+  var here = window.location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.main-nav a').forEach(function (a) {
+    if (a.getAttribute('href') === here) a.classList.add('active');
+  });
+});
+
+/* Stage H, Phase 4 — header session state (runs on every page).
+   (a) The static headers' "Sign In" links point at contact.html; point
+   them at the real login page. The correct relative prefix is derived
+   from the header's own index.html link, so it works at any depth and
+   under any hosting subpath.
+   (b) When a session exists, show the user's name and a real Logout
+   action in .header-actions (or the header row as fallback). */
+document.addEventListener('DOMContentLoaded', function () {
+  var homeLink = document.querySelector('a.logo, .main-nav a[href$="index.html"]');
+  var prefix = '';
+  if (homeLink) {
+    var href = homeLink.getAttribute('href') || 'index.html';
+    prefix = href.replace(/index\.html$/, '');
+  }
+  document.querySelectorAll('a').forEach(function (a) {
+    if (a.textContent.trim() === 'Sign In') a.setAttribute('href', prefix + 'login.html');
+  });
+  if (!window.PP || !window.PP.me) return;
+  window.PP.me().then(function (m) {
+    if (!m.ok || !m.data || !m.data.user) return;
+    var actions = document.querySelector('.header-actions') || document.querySelector('.header-row') || document.querySelector('header');
+    if (!actions) return;
+    var chip = document.createElement('span');
+    chip.textContent = (m.data.user.full_name || m.data.user.email) + ' (' + m.data.user.role + ')';
+    chip.style.fontWeight = '600';
+    chip.style.marginLeft = '12px';
+    actions.appendChild(chip);
+    var out = document.createElement('button');
+    out.textContent = 'Logout';
+    out.style.marginLeft = '8px';
+    out.style.cursor = 'pointer';
+    out.addEventListener('click', function () {
+      window.PP.logout().then(function () { window.location.href = prefix + 'index.html'; });
+    });
+    actions.appendChild(out);
+  });
+});
+document.addEventListener('DOMContentLoaded', function () {
+  // Home search tabs
+  document.querySelectorAll('.search-tab').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('.search-tab').forEach(function (t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      var note = document.getElementById('search-note');
+      if (note) note.textContent = 'Showing ' + tab.textContent.trim() + ' properties across India.';
+    });
+  });
+
+  // Pricing: Monthly / Yearly toggle
+  document.querySelectorAll('[data-billing]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('[data-billing]').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      var mode = btn.getAttribute('data-billing');
+      document.querySelectorAll('.billing-note').forEach(function (n) {
+        n.textContent = n.getAttribute('data-' + mode) || n.textContent;
+      });
+    });
+  });
+
+  // Pricing: audience tabs
+  document.querySelectorAll('[data-audience]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('[data-audience]').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      var note = document.getElementById('audience-note');
+      if (note) note.textContent = 'Plans for ' + btn.textContent.trim() + ' — same transparent pricing, tailored features.';
+    });
+  });
+});
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.acc-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item = btn.closest('.acc-item');
+      var container = btn.closest('.accordion') || document;
+      container.querySelectorAll('.acc-item').forEach(function (i) { if (i !== item) i.classList.remove('open'); });
+      if (item) item.classList.toggle('open');
+    });
+  });
+});
+document.addEventListener('DOMContentLoaded', function () {
+  // FAQ / Help search filtering
+  function bindFilter(inputId, selector) {
+    var input = document.getElementById(inputId);
+    if (!input) return;
+    input.addEventListener('input', function () {
+      var q = input.value.trim().toLowerCase();
+      document.querySelectorAll(selector).forEach(function (el) {
+        el.style.display = (!q || el.textContent.toLowerCase().indexOf(q) !== -1) ? '' : 'none';
+      });
+    });
+  }
+  bindFilter('faqSearch', '.acc-item');
+  bindFilter('helpSearch', '.topic-card, .acc-item');
+
+  // Careers filtering
+  var jobSearch = document.getElementById('jobSearch');
+  var jobDept = document.getElementById('jobDept');
+  var jobLoc = document.getElementById('jobLoc');
+  function filterJobs() {
+    var q = jobSearch ? jobSearch.value.trim().toLowerCase() : '';
+    var d = jobDept ? jobDept.value : '';
+    var l = jobLoc ? jobLoc.value : '';
+    document.querySelectorAll('.job-card').forEach(function (job) {
+      var ok = (!q || job.textContent.toLowerCase().indexOf(q) !== -1) &&
+               (!d || job.getAttribute('data-dept') === d) &&
+               (!l || job.getAttribute('data-location') === l);
+      job.style.display = ok ? '' : 'none';
+    });
+  }
+  if (jobSearch) jobSearch.addEventListener('input', filterJobs);
+  if (jobDept) jobDept.addEventListener('change', filterJobs);
+  if (jobLoc) jobLoc.addEventListener('change', filterJobs);
+});
+(function () {
+  var base = (typeof window.PP_API_BASE === 'string' ? window.PP_API_BASE : '').replace(/\/$/, '');
+  function request(path, opts) {
+    opts = opts || {};
+    if (typeof fetch === 'undefined') {
+      return Promise.resolve({ ok: false, status: 0, error: { code: 'NO_FETCH', message: 'This browser cannot reach the server.' } });
+    }
+    return fetch(base + path, {
+      method: opts.method || 'GET',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    }).then(function (res) {
+      return res.text().then(function (text) {
+        var data = null;
+        try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
+        if (!res.ok) {
+          return { ok: false, status: res.status, error: (data && data.error) || { code: 'BAD_RESPONSE', message: 'Server se sahi jawab nahi mila.' } };
+        }
+        return { ok: true, status: res.status, data: data };
+      });
+    }).catch(function () {
+      return { ok: false, status: 0, error: { code: 'API_UNREACHABLE', message: 'Server se connect nahi ho pa raha hai. Please try again later.' } };
+    });
+  }
+  function get(path) { return request(path, { method: 'GET' }); }
+  function post(path, body) { return request(path, { method: 'POST', body: body }); }
+  window.PP = window.PP || {};
+  window.PP.apiBase = base;
+  window.PP.request = request;
+  window.PP.get = get;
+  window.PP.post = post;
+  window.PP.me = function () { return get('/api/auth/me'); };
+  window.PP.login = function (email, password) { return post('/api/auth/login', { email: email, password: password }); };
+  window.PP.register = function (fields) { return post('/api/auth/register', fields); };
+  window.PP.logout = function () { return post('/api/auth/logout', {}); };
+  window.PP.listProperties = function (params) {
+    var q = [];
+    if (params) Object.keys(params).forEach(function (k) { if (params[k] !== undefined && params[k] !== '') q.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k])); });
+    return get('/api/properties' + (q.length ? '?' + q.join('&') : ''));
+  };
+  window.PP.getProperty = function (id) { return get('/api/properties/' + encodeURIComponent(id)); };
+  window.PP.submitInquiry = function (fields) { return post('/api/inquiries', fields); };
+  window.PP.submitContact = function (fields) { return post('/api/contact', fields); };
+  window.PP.savedList = function () { return get('/api/saved'); };
+  window.PP.notifications = function () { return get('/api/notifications'); };
+})();
+document.addEventListener('DOMContentLoaded', function () {
+  /* Role dashboards, relative to the site root (login/register pages
+     live at the root). Seller has no dedicated dashboard section, so
+     sellers land on the home page after login. */
+  var DASHBOARDS = {
+    Buyer: 'sections/buyer-portal/buyer-dashboard.html',
+    Owner: 'sections/owner-portal/owner-dashboard.html',
+    Agent: 'sections/agent-portal/agent-dashboard.html',
+    Builder: 'sections/builder-portal/builder-dashboard.html',
+    Investor: 'sections/investor-portal/investor-dashboard.html',
+    Admin: 'sections/super-admin/super-admin-dashboard.html',
+    'Super Admin': 'sections/super-admin/super-admin-dashboard.html',
+    Support: 'sections/super-admin/super-admin-dashboard.html'
+  };
+  function goToDashboard() {
+    if (!window.PP || !window.PP.me) return;
+    window.PP.me().then(function (m) {
+      var role = (m.data && m.data.user && m.data.user.role) || '';
+      window.location.href = DASHBOARDS[role] || 'index.html';
+    });
+  }
+  var authStatus = document.getElementById('pp-auth-status');
+  if (authStatus && window.PP && window.PP.me) {
+    window.PP.me().then(function (m) {
+      if (m.ok && m.data && m.data.user) {
+        var u = m.data.user;
+        authStatus.textContent = 'Logged in as ' + (u.full_name || u.email) + ' (' + u.role + ').';
+        var a = document.createElement('a');
+        a.href = DASHBOARDS[u.role] || 'index.html';
+        a.textContent = ' Go to dashboard →';
+        authStatus.appendChild(a);
+      }
+    });
+  }
+  function showNote(form, text, isError) {
+    var box = form.querySelector('.pp-form-msg');
+    if (!box) {
+      box = document.createElement('div');
+      box.className = 'pp-form-msg';
+      box.style.marginTop = '10px';
+      box.style.fontWeight = '600';
+      form.appendChild(box);
+    }
+    box.textContent = text;
+    box.style.color = isError ? '#f87171' : '#4ade80';
+    return box;
+  }
+  function field(form, name) {
+    var el = form.querySelector('[name="' + name + '"]');
+    return el ? el.value.trim() : '';
+  }
+  function showSuccess(form, text) {
+    var msg = form.querySelector('.form-success') || form.parentElement.querySelector('.form-success');
+    if (msg) {
+      msg.classList.add('show');
+      msg.textContent = text;
+    } else {
+      showNote(form, text, false);
+    }
+  }
+  function collectMapped(form) {
+    var out = {};
+    form.querySelectorAll('[data-api-field]').forEach(function (el) {
+      out[el.getAttribute('data-api-field')] = (el.value || '').trim();
+    });
+    if (!out.full_name) out.full_name = field(form, 'full-name');
+    if (!out.phone) out.phone = field(form, 'mobile-number');
+    if (!out.email) out.email = field(form, 'email') || field(form, 'email-address');
+    if (!out.message) {
+      var ta = form.querySelector('textarea');
+      out.message = ta ? ta.value.trim() : '';
+    }
+    return out;
+  }
+  document.querySelectorAll('form').forEach(function (form) {
+    if (form.hasAttribute('onsubmit')) return;
+    if (form.getAttribute('data-api') === 'inquiry') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.submitInquiry) {
+          showNote(form, 'Form wiring load nahi hui — kuch bhi save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var params = new URLSearchParams(window.location.search);
+        var propertyId = parseInt(params.get('property_id') || form.getAttribute('data-property-id') || '', 10);
+        if (!propertyId || propertyId <= 0) {
+          showNote(form, 'Is enquiry ke liye koi property chuni nahi gayi hai. Kisi property listing se Enquire dabakar aayein — tabhi ye form submit hoga.', true);
+          return;
+        }
+        var f = collectMapped(form);
+        var message = f.message || '';
+        var dateEl = form.querySelector('input[type="date"][name="date"]');
+        var timeEl = form.querySelector('input[type="time"]');
+        if (dateEl && dateEl.value) {
+          message = 'Site visit requested on ' + dateEl.value + (timeEl && timeEl.value ? ' at ' + timeEl.value : '') + '. ' + message;
+        }
+        var payload = { property_id: propertyId, full_name: f.full_name, phone: f.phone, message: message };
+        if (f.email) payload.email = f.email;
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.submitInquiry(payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            var text = 'Thank you! Your enquiry has been received.';
+            if (r.data && r.data.is_duplicate) text += ' (Note: ye enquiry pehle bhi darj hai.)';
+            showSuccess(form, text);
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Enquiry save nahi hui. Please try again later.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'contact') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.submitContact) {
+          showNote(form, 'Form wiring load nahi hui — kuch bhi save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.submitContact({
+          full_name: field(form, 'full-name'),
+          email: field(form, 'email-address'),
+          phone: field(form, 'mobile-number'),
+          subject: field(form, 'field'),
+          message: field(form, 'message-here')
+        }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            var msg = form.querySelector('.form-success') || form.parentElement.querySelector('.form-success');
+            if (msg) {
+              msg.classList.add('show');
+              msg.textContent = 'Thank you! Your message has been received.';
+            } else {
+              showNote(form, 'Thank you! Your message has been received.', false);
+            }
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Message save nahi hua. Please try again later.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'assign') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — assign nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var leadId = parseInt(field(form, 'lead-id'), 10);
+        var assignee = parseInt(field(form, 'assigned-to'), 10);
+        if (!leadId || leadId <= 0 || !assignee || assignee <= 0) {
+          showNote(form, 'Lead ID aur agent dono chunein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/leads/' + leadId + '/assign', { assigned_to: assignee }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Lead assigned successfully.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Assign failed. Please try again.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'transfer') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — transfer nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var leadId = parseInt(field(form, 'lead-id'), 10);
+        var assignee = parseInt(field(form, 'assigned-to'), 10);
+        if (!leadId || leadId <= 0 || !assignee || assignee <= 0) {
+          showNote(form, 'Lead ID aur agent dono chunein.', true);
+          return;
+        }
+        var reason = field(form, 'reason');
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/leads/' + leadId + '/assign', { assigned_to: assignee }).then(function (r) {
+          if (!r.ok) {
+            if (btn) btn.disabled = false;
+            showNote(form, (r.error && r.error.message) || 'Transfer failed. Please try again.', true);
+            return;
+          }
+          if (!reason) {
+            if (btn) btn.disabled = false;
+            showSuccess(form, 'Lead transferred successfully.');
+            form.reset();
+            return;
+          }
+          window.PP.post('/api/leads/' + leadId + '/notes', { note: 'Transfer reason: ' + reason }).then(function (n) {
+            if (btn) btn.disabled = false;
+            if (n.ok) showSuccess(form, 'Lead transferred successfully (reason saved).');
+            else showSuccess(form, 'Lead transferred, but the reason note could not be saved: ' + ((n.error && n.error.message) || 'unknown error') + '.');
+            form.reset();
+          });
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'visit-request') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — visit request nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        var propertyId = parseInt(payload.property_id || '', 10);
+        if (!propertyId || propertyId <= 0) {
+          showNote(form, 'Koi property chunein.', true);
+          return;
+        }
+        if (!payload.scheduled_at) {
+          showNote(form, 'Visit ki date aur time chunein.', true);
+          return;
+        }
+        payload.property_id = propertyId;
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/site-visits', payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Visit request bhej di gayi hai. List dekhne ke liye page reload karein.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Visit request nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'visit-feedback') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.request) {
+          showNote(form, 'Form wiring load nahi hui — feedback save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var params = new URLSearchParams(window.location.search);
+        var visitId = parseInt(params.get('visit_id') || '', 10);
+        if (!visitId || visitId <= 0) {
+          showNote(form, 'Is feedback ke liye koi visit chuni nahi gayi hai. Visit details se aayein (?visit_id= ke saath).', true);
+          return;
+        }
+        var ratingEl = form.querySelector('input[name="rating-1-5"]');
+        var feedbackEl = form.querySelector('input[name="feedback"], textarea[name="feedback"]');
+        var payload = {};
+        var rating = ratingEl ? parseInt((ratingEl.value || '').trim(), 10) : NaN;
+        if (rating >= 1 && rating <= 5) payload.rating = rating;
+        var feedback = feedbackEl ? (feedbackEl.value || '').trim() : '';
+        if (feedback) payload.feedback = feedback;
+        if (!payload.rating && !payload.feedback) {
+          showNote(form, 'Rating (1-5) ya feedback me se kam se kam ek bharein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.request('/api/site-visits/' + visitId, { method: 'PATCH', body: payload }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Feedback save ho gaya hai. Dhanyavaad!');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Feedback save nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'visit-assign') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post || !window.PP.request) {
+          showNote(form, 'Form wiring load nahi hui — assignment nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        var visitId = parseInt(payload.visit_id || '', 10);
+        var assignee = parseInt(payload.assigned_to || '', 10);
+        if (!visitId || visitId <= 0 || !assignee || assignee <= 0) {
+          showNote(form, 'Visit aur agent dono chunein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/site-visits/' + visitId + '/assign', { assigned_to: assignee }).then(function (r) {
+          if (!r.ok) {
+            if (btn) btn.disabled = false;
+            showNote(form, (r.error && r.error.message) || 'Assignment nahi ho pa raha hai.', true);
+            return;
+          }
+          if (!payload.scheduled_at) {
+            if (btn) btn.disabled = false;
+            showSuccess(form, 'Agent assigned successfully.');
+            form.reset();
+            return;
+          }
+          window.PP.request('/api/site-visits/' + visitId, { method: 'PATCH', body: { scheduled_at: payload.scheduled_at } }).then(function (n) {
+            if (btn) btn.disabled = false;
+            if (n.ok) showSuccess(form, 'Agent assigned successfully (date/time bhi update ho gaya).');
+            else showSuccess(form, 'Agent assigned, but the date/time could not be updated: ' + ((n.error && n.error.message) || 'unknown error') + '.');
+            form.reset();
+          });
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'ticket') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — ticket create nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        if (!payload.subject || !payload.message) {
+          showNote(form, 'Subject aur message dono bharein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/tickets', payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Ticket raise ho gaya hai. Support team jald jawab degi.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Ticket create nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'ticket-reply') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — reply save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var params = new URLSearchParams(window.location.search);
+        var ticketId = parseInt(params.get('ticket_id') || '', 10);
+        if (!ticketId || ticketId <= 0) {
+          showNote(form, 'Is reply ke liye koi ticket chuna nahi gaya hai. Ticket details se aayein (?ticket_id= ke saath).', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        if (!payload.message) {
+          showNote(form, 'Reply message bharein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/tickets/' + ticketId + '/replies', payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Reply save ho gaya hai. Thread dekhne ke liye page reload karein.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Reply save nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'ticket-assign') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — assignment nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var params = new URLSearchParams(window.location.search);
+        var ticketId = parseInt(params.get('ticket_id') || '', 10);
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        var assignee = parseInt(payload.assigned_to || '', 10);
+        if (!ticketId || ticketId <= 0 || !assignee || assignee <= 0) {
+          showNote(form, 'Ticket aur user dono chunein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/tickets/' + ticketId + '/assign', { assigned_to: assignee }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Ticket assigned successfully. Detail dekhne ke liye page reload karein.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Assignment nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'login') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.login) {
+          showNote(form, 'Form wiring load nahi hui — login nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.login(field(form, 'email'), field(form, 'password')).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (!r.ok) {
+            showNote(form, (r.error && r.error.message) || 'Login failed. Please try again.', true);
+            return;
+          }
+          showSuccess(form, 'Login successful! Redirecting to your dashboard...');
+          goToDashboard();
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'register') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.register) {
+          showNote(form, 'Form wiring load nahi hui — account nahi bana. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var payload = {
+          full_name: field(form, 'full-name'),
+          email: field(form, 'email'),
+          password: field(form, 'password'),
+          role: field(form, 'role')
+        };
+        var phone = field(form, 'mobile-number');
+        if (phone) payload.phone = phone;
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.register(payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (!r.ok) {
+            showNote(form, (r.error && r.error.message) || 'Account nahi bana. Please try again.', true);
+            return;
+          }
+          showSuccess(form, 'Account created! Redirecting to your dashboard...');
+          goToDashboard();
+        });
+      });
+      return;
+    }
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var msg = form.querySelector('.form-success') || form.parentElement.querySelector('.form-success');
+      if (msg) {
+        msg.classList.add('show');
+        if (!msg.querySelector('.demo-note')) {
+          var note = document.createElement('small');
+          note.className = 'demo-note';
+          note.textContent = ' Demo preview — no data was saved yet. This form is not connected to the server yet.';
+          msg.appendChild(note);
+        }
+      }
+    });
+  });
+});
+document.addEventListener('DOMContentLoaded', function () {
+  // Footer year, only if a year span is present
+  var yearEl = document.getElementById('year');
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
+});
+// Admin: filter any table on the page from the toolbar search box.
+document.addEventListener('DOMContentLoaded', function () {
+  var box = document.querySelector('.admin-filter');
+  if (box) box.addEventListener('input', function () {
+    var q = box.value.trim().toLowerCase();
+    document.querySelectorAll('table.data tbody tr').forEach(function (r) {
+      r.style.display = (!q || r.textContent.toLowerCase().indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+  // Matrix: clicking a cell cycles its access level label.
+  document.querySelectorAll('.matrix-cell').forEach(function (c) {
+    c.addEventListener('click', function () {
+      var levels = ['Full', 'View', 'Edit', 'None'];
+      var cur = levels.indexOf(c.textContent.trim());
+      c.textContent = levels[(cur + 1) % levels.length];
+    });
+  });
+});
+
+/* Stage H, Phase 4 — super-admin dashboard live summary (guarded by
+   #pp-live-admin). Counts come from the real API; each call is handled
+   on its own so a 403 on one (e.g. a non-admin visitor) does not hide
+   the others. Anonymous visitors get an honest login notice. */
+document.addEventListener('DOMContentLoaded', function () {
+  var root = document.getElementById('pp-live-admin');
+  if (!root || !window.PP || !window.PP.me) return;
+  var notice = document.getElementById('pp-live-admin-notice');
+  window.PP.me().then(function (m) {
+    if (!m.ok || !m.data || !m.data.user) {
+      if (notice) {
+        notice.textContent = 'Is dashboard ke liye login zaroori hai. ';
+        var a = document.createElement('a');
+        a.href = '../../login.html';
+        a.textContent = 'Login karein →';
+        notice.appendChild(a);
+      }
+      return;
+    }
+    var box = document.getElementById('pp-live-admin-summary');
+    if (!box) return;
+    var h = document.createElement('h3');
+    h.textContent = 'Live Summary (real data)';
+    box.appendChild(h);
+    function line(text) {
+      var p = document.createElement('p');
+      p.textContent = text;
+      box.appendChild(p);
+    }
+    window.PP.get('/api/contact?limit=1').then(function (r) {
+      line(r.ok ? 'Contact messages: ' + ((r.data && r.data.pagination && r.data.pagination.total) || 0) : 'Contact messages: admin access required.');
+    });
+    window.PP.get('/api/leads?limit=1').then(function (r) {
+      line(r.ok ? 'Leads: ' + ((r.data && r.data.pagination && r.data.pagination.total) || (r.data && r.data.data && r.data.data.length) || 0) : 'Leads: load nahi ho pa rahe hain.');
+    });
+    window.PP.notifications().then(function (r) {
+      line(r.ok ? 'Your unread notifications: ' + (r.data.unread_count || 0) : 'Notifications: load nahi ho pa rahi hain.');
+    });
+    window.PP.get('/api/contact?limit=5').then(function (r) {
+      if (!r.ok || !r.data || !r.data.data || !r.data.data.length) return;
+      var sub = document.createElement('h4');
+      sub.textContent = 'Recent contact messages';
+      box.appendChild(sub);
+      r.data.data.forEach(function (c) {
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.setAttribute('style', 'padding:14px;margin:10px 0');
+        var t = document.createElement('strong');
+        t.textContent = (c.full_name || 'Anonymous') + ' — ' + (c.subject || '');
+        card.appendChild(t);
+        var meta = document.createElement('p');
+        meta.textContent = (c.message || '').slice(0, 200);
+        card.appendChild(meta);
+        box.appendChild(card);
+      });
+    });
+  });
+});
+
+/* Support tickets — live ticket lists (complaints + support
+   pages) and the ticket details workspace. Tables carry
+   the pp-live-ticket-table id; demo rows are replaced by
+   live rows, and anonymous visitors get an honest login row.
+   The subject links to the details page, which also hosts
+   the assign dropdown (populated here, submitted by the
+   forms.js ticket-assign case). */
+document.addEventListener('DOMContentLoaded', function () {
+  if (!window.PP || !window.PP.me) return;
+  function loginNotice(el) {
+    if (!el) return;
+    el.textContent = 'Is page ke liye login zaroori hai. ';
+    var a = document.createElement('a');
+    a.href = '../../login.html';
+    a.textContent = 'Login karein →';
+    el.appendChild(a);
+  }
+  function authed() {
+    return window.PP.me().then(function (m) {
+      return (m.ok && m.data && m.data.user) ? m.data.user : null;
+    });
+  }
+  var STATUS_PILL = { open: 'amber', in_progress: 'blue', resolved: 'green', closed: '' };
+  var PRIO_PILL = { low: '', medium: 'amber', high: 'red' };
+  function pill(text, cls) {
+    var s = document.createElement('span');
+    s.className = 'pill ' + (cls || '');
+    s.textContent = text;
+    return s;
+  }
+  function noticeRow(table, text) {
+    var tbody = table.querySelector('tbody');
+    if (!tbody) return;
+    tbody.textContent = '';
+    var tr = document.createElement('tr');
+    var td = document.createElement('td');
+    td.setAttribute('colspan', '5');
+    td.textContent = text;
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+  }
+  document.querySelectorAll('table#pp-live-ticket-table').forEach(function (table) {
+    authed().then(function (u) {
+      if (!u) { noticeRow(table, 'Is page ke liye login zaroori hai. Login karke dobara aayein.'); return; }
+      window.PP.get('/api/tickets?limit=100').then(function (r) {
+        if (!r.ok) { noticeRow(table, (r.error && r.error.message) || 'Tickets load nahi ho pa rahi hain.'); return; }
+        var tbody = table.querySelector('tbody');
+        if (!tbody) return;
+        tbody.textContent = '';
+        var items = (r.data && r.data.data) || [];
+        if (!items.length) { noticeRow(table, 'No tickets yet.'); return; }
+        items.forEach(function (t) {
+          if (!t || !Number.isInteger(t.id)) return;
+          var tr = document.createElement('tr');
+          var c0 = document.createElement('td');
+          c0.textContent = '#T-' + t.id;
+          tr.appendChild(c0);
+          var c1 = document.createElement('td');
+          var a = document.createElement('a');
+          a.setAttribute('href', 'ticket-details.html?ticket_id=' + t.id);
+          a.textContent = t.subject || ('Ticket #' + t.id);
+          c1.appendChild(a);
+          tr.appendChild(c1);
+          var c2 = document.createElement('td');
+          c2.textContent = t.requester_name || '';
+          tr.appendChild(c2);
+          var c3 = document.createElement('td');
+          c3.appendChild(pill(t.priority, PRIO_PILL[t.priority]));
+          tr.appendChild(c3);
+          var c4 = document.createElement('td');
+          c4.appendChild(pill(t.status, STATUS_PILL[t.status]));
+          tr.appendChild(c4);
+          tbody.appendChild(tr);
+        });
+      });
+    });
+  });
+  /* Ticket details workspace: detail + replies + status actions. */
+  if (document.getElementById('pp-live-ticket-details')) {
+    var params = new URLSearchParams(window.location.search);
+    var ticketId = parseInt(params.get('ticket_id') || '', 10);
+    var box = document.getElementById('pp-live-ticket-details-body');
+    var notice = document.getElementById('pp-live-ticket-details-notice');
+    if (!ticketId) {
+      if (notice) notice.textContent = 'Koi ticket chuna nahi gaya hai. Ticket list se kisi ticket par click karke aayein.';
+      return;
+    }
+    authed().then(function (u) {
+      if (!u) { loginNotice(notice); return; }
+      window.PP.get('/api/users').then(function (r) {
+        var sel = document.getElementById('pp-ticket-assign-agent');
+        if (!sel) return;
+        sel.textContent = '';
+        var items = (r.ok && r.data && r.data.data) || [];
+        if (!items.length) {
+          var o0 = document.createElement('option');
+          o0.value = '';
+          o0.textContent = 'User list needs admin/support access';
+          sel.appendChild(o0);
+          return;
+        }
+        var def = document.createElement('option');
+        def.value = '';
+        def.textContent = 'Select a user';
+        sel.appendChild(def);
+        items.forEach(function (x) {
+          var o = document.createElement('option');
+          o.value = x.id;
+          o.textContent = (x.full_name || x.email) + ' (' + x.role + ')';
+          sel.appendChild(o);
+        });
+      });
+      function load() {
+        window.PP.get('/api/tickets/' + ticketId).then(function (r) {
+          if (!r.ok || !r.data) {
+            if (box) box.textContent = (r.error && r.error.message) || 'Ticket load nahi ho pa rahi hai.';
+            return;
+          }
+          render(r.data);
+        });
+      }
+      function render(t) {
+        box.textContent = '';
+        var h = document.createElement('h3');
+        h.textContent = '#T-' + t.id + ' — ' + t.subject;
+        box.appendChild(h);
+        var meta = document.createElement('p');
+        meta.textContent = 'Raised by: ' + (t.requester_name || '') +
+          ' • Priority: ' + t.priority + ' • Status: ' + t.status +
+          ' • Assigned to: ' + (t.assignee_name || 'unassigned');
+        box.appendChild(meta);
+        var msg = document.createElement('p');
+        msg.textContent = t.message;
+        box.appendChild(msg);
+        var rh = document.createElement('h3');
+        rh.textContent = 'Replies';
+        box.appendChild(rh);
+        if (!(t.replies || []).length) box.appendChild(document.createTextNode('No replies yet.'));
+        (t.replies || []).forEach(function (rp) {
+          var p = document.createElement('p');
+          p.textContent = (rp.author_name || '') + ': ' + rp.message;
+          box.appendChild(p);
+        });
+        var note = document.createElement('p');
+        box.appendChild(note);
+        [['in_progress', 'Start progress'], ['resolved', 'Resolve'], ['closed', 'Close'], ['in_progress', 'Reopen']].forEach(function (pair) {
+          var btn = document.createElement('button');
+          btn.className = 'btn small outline';
+          btn.textContent = pair[1];
+          btn.addEventListener('click', function () {
+            window.PP.request('/api/tickets/' + ticketId, { method: 'PATCH', body: { status: pair[0] } }).then(function (rr) {
+              if (rr.ok) load();
+              else note.textContent = (rr.error && rr.error.message) || 'Status change nahi ho pa raha hai.';
+            });
+          });
+          box.appendChild(btn);
+          box.appendChild(document.createTextNode(' '));
+        });
+      }
+      load();
+    });
+  }
+});
+</script></body></html>

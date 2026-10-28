@@ -204,7 +204,21 @@ table.data th{color:#0A2240;background:#EEF3FA}
 <nav class="main-nav"><a href="../../index.html">Home</a><a href="../../services.html">Services</a><a href="../../pricing.html">Pricing</a><a href="../../contact.html">Contact Us</a><a href="index.html">Support & Home Services</a><a href="../../sitemap.html">Sitemap</a></nav>
 <div class="header-actions"><a class="btn outline small" href="../../contact.html">Sign In</a><a class="btn red small" href="../../services.html">Post Property</a></div>
 </div></header>
-<div class="app-layout"><aside class="side"><a class="back" href="../../index.html">← Main Website</a><h4>Support & Home Services</h4><a href="complaint-tracking.html">Complaint Tracking</a><a href="contact-support.html" class="active">Contact Support</a><a href="emergency-support.html">Emergency Support</a><a href="faq.html">FAQ</a><a href="footer.html">Footer</a><a href="header-navigation.html">Header & Navigation</a><a href="home-services-categories.html">Home Services Categories</a><a href="my-service-requests.html">My Service Requests</a><a href="search-support.html">Search Support</a><a href="service-request-form.html">Service Request / Complaint Form</a><a href="support-complaints-hero.html">Support & Complaints Hero</a></aside><main id="main-content" tabindex="-1" class="main"><div class="breadcrumb"><a href="../../index.html">Home</a> &gt; <a href="index.html">Support & Home Services</a> &gt; Contact Support</div><h1>Contact Support</h1><p class="lead">Our support team is ready to help you — by chat, email, call or WhatsApp.</p><div class="grid grid-2"><div class="card"><h3>💬 Live Chat</h3><p>Chat with our support team. Average response: 2 minutes.</p><a class="btn small" href="service-request-form.html">Start Chat (Demo) →</a></div><div class="card"><h3>✉️ Email Support</h3><p>help@primepropertys.in<br>We reply within 24 hours.</p><a class="btn small outline" href="service-request-form.html">Raise a Ticket →</a></div><div class="card"><h3>📞 Call Support</h3><p>+91 98765 43210<br>Mon – Sat: 9:00 AM – 8:00 PM. Emergency support: 24/7.</p><a class="btn small outline" href="emergency-support.html">Emergency Support →</a></div><div class="card"><h3>💚 WhatsApp Support</h3><p>+91 98765 43210<br>Chat with us on WhatsApp for quick help.</p><a class="btn small outline" href="faq.html">Read FAQs First →</a></div></div></main></div>
+<div class="app-layout"><aside class="side"><a class="back" href="../../index.html">← Main Website</a><h4>Support & Home Services</h4><a href="complaint-tracking.html">Complaint Tracking</a><a href="contact-support.html" class="active">Contact Support</a><a href="emergency-support.html">Emergency Support</a><a href="faq.html">FAQ</a><a href="footer.html">Footer</a><a href="header-navigation.html">Header & Navigation</a><a href="home-services-categories.html">Home Services Categories</a><a href="my-service-requests.html">My Service Requests</a><a href="search-support.html">Search Support</a><a href="service-request-form.html">Service Request / Complaint Form</a><a href="support-complaints-hero.html">Support & Complaints Hero</a></aside><main id="main-content" tabindex="-1" class="main"><div class="breadcrumb"><a href="../../index.html">Home</a> &gt; <a href="index.html">Support & Home Services</a> &gt; Contact Support</div><h1>Contact Support</h1><p class="lead">Our support team is ready to help you — by chat, email, call or WhatsApp.</p><div class="grid grid-2"><div class="card"><h3>💬 Live Chat</h3><p>Chat with our support team. Average response: 2 minutes.</p><a class="btn small" href="service-request-form.html">Start Chat (Demo) →</a></div><div class="card"><h3>✉️ Email Support</h3><p>help@primepropertys.in<br>We reply within 24 hours.</p><a class="btn small outline" href="service-request-form.html">Raise a Ticket →</a></div><div class="card"><h3>📞 Call Support</h3><p>+91 98765 43210<br>Mon – Sat: 9:00 AM – 8:00 PM. Emergency support: 24/7.</p><a class="btn small outline" href="emergency-support.html">Emergency Support →</a></div><div class="card"><h3>💚 WhatsApp Support</h3><p>+91 98765 43210<br>Chat with us on WhatsApp for quick help.</p><a class="btn small outline" href="faq.html">Read FAQs First →</a></div></div>
+<div class="card" id="pp-live-ticket-form">
+<h3>Raise a Ticket (live)</h3>
+<form data-api="ticket">
+<label for="pp-ticket-subject">Subject</label>
+<input data-api-field="subject" name="subject" id="pp-ticket-subject" placeholder="e.g. Payment not reflecting" required>
+<label for="pp-ticket-priority">Priority</label>
+<select data-api-field="priority" name="priority" id="pp-ticket-priority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select>
+<label for="pp-ticket-message">Message</label>
+<textarea data-api-field="message" name="message" id="pp-ticket-message" placeholder="Describe the issue" required></textarea>
+<button class="btn" type="submit">Raise ticket</button>
+<div class="form-success"></div>
+</form>
+</div>
+</main></div>
 <footer class="site-footer"><div class="container footer-grid">
 <div><a class="logo" href="../../index.html" style="color:#fff">Prime<span>Propertys</span></a><p>Buy, Sell, Rent or Invest in residential and commercial properties across India. Your trusted property partner.</p></div>
 <div><h4>Explore</h4><p><a href="../../index.html">Home</a><br><a href="../../services.html">Services</a><br><a href="../../pricing.html">Pricing</a></p></div>
@@ -709,6 +723,102 @@ document.addEventListener('DOMContentLoaded', function () {
             else showSuccess(form, 'Agent assigned, but the date/time could not be updated: ' + ((n.error && n.error.message) || 'unknown error') + '.');
             form.reset();
           });
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'ticket') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — ticket create nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        if (!payload.subject || !payload.message) {
+          showNote(form, 'Subject aur message dono bharein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/tickets', payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Ticket raise ho gaya hai. Support team jald jawab degi.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Ticket create nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'ticket-reply') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — reply save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var params = new URLSearchParams(window.location.search);
+        var ticketId = parseInt(params.get('ticket_id') || '', 10);
+        if (!ticketId || ticketId <= 0) {
+          showNote(form, 'Is reply ke liye koi ticket chuna nahi gaya hai. Ticket details se aayein (?ticket_id= ke saath).', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        if (!payload.message) {
+          showNote(form, 'Reply message bharein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/tickets/' + ticketId + '/replies', payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Reply save ho gaya hai. Thread dekhne ke liye page reload karein.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Reply save nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'ticket-assign') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — assignment nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var params = new URLSearchParams(window.location.search);
+        var ticketId = parseInt(params.get('ticket_id') || '', 10);
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        var assignee = parseInt(payload.assigned_to || '', 10);
+        if (!ticketId || ticketId <= 0 || !assignee || assignee <= 0) {
+          showNote(form, 'Ticket aur user dono chunein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/tickets/' + ticketId + '/assign', { assigned_to: assignee }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Ticket assigned successfully. Detail dekhne ke liye page reload karein.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Assignment nahi ho pa raha hai.', true);
+          }
         });
       });
       return;
