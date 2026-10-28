@@ -1036,3 +1036,60 @@ accessible name — placeholder text only, which is not a label.
   (rating 5) -> stats (total 1, completed 1).
 - Backup before this change:
   `~/workspace/primepropertys-backup-visits/`.
+
+## Visit-booking finish (post-Stage-J slice, 2026-10-28)
+
+### Design decisions made for this slice (user said "ok next")
+- Assignment mirrors lead assignment: POST
+  /api/site-visits/:id/assign is a visits:manage action
+  (Admin, Super Admin only — like leads:assign), the
+  assignee may be any user, and the assignee gains
+  visibility of the visit (list + detail + stats +
+  analytics filters all use the same three-way rule:
+  requester, property owner, assignee).
+- Analytics is computed from existing visits only (like
+  the CRM reports slice): total, by-status, approved /
+  completed / cancelled rates as shares of the visible
+  total (one decimal), top 5 properties, agent totals +
+  completed counts, upcoming-7-days count. Visits carry
+  no source field, so no by-source breakdown is claimed
+  — the demo "Visits by Source" paragraph was replaced
+  by the live breakdown rather than faked.
+
+### What was built
+- Migration 010: site_visits.assigned_to + index.
+- server/src/visits.js: assignVisit + visitAnalytics;
+  list/stats/analytics share one visibility filter;
+  routes POST /api/site-visits/:id/assign and
+  GET /api/site-visits/analytics (before the detail
+  route, same catch as stats).
+- assign-agent.html wired: visit + agent dropdowns from
+  the real API (agent list is admin-gated, like lead
+  assignment), optional date/time reschedules with
+  honest partial-failure reporting (forms.js
+  data-api="visit-assign"); the demo Agents card is now
+  a live agent-performance list from the analytics
+  endpoint.
+- visit-analytics.html wired: the 4 KPI cards fill from
+  live analytics and the demo status/source card is now
+  a live breakdown (by-status line, top properties,
+  agent performance, upcoming count).
+- The site-visit section is now fully wired except
+  index.html (a landing page with no data) and the
+  calendar page (already live via follow-ups since CRM
+  Phase 2).
+
+### Verified
+- Tests: 50/50 pass (49 + 1 new in test/visits.js:
+  manage-only assign, unknown assignee rejected,
+  assignee visibility, analytics totals/rates/
+  by-property/by-assignee).
+- Build idempotent; all modules `node --check` PASS.
+- Audit: 339 entries (was 340: the assign-agent form
+  is now wired), 0 broken internal links.
+- Live flow on a fresh database (port 8943, temp DB
+  deleted afterwards): request -> assign (200) ->
+  agent sees detail (200) -> analytics (total 1,
+  requested 1, top property + assignee rows correct).
+- Backup before this change:
+  `~/workspace/primepropertys-backup-visits2/`.
