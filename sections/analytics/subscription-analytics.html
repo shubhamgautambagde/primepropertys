@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Subscription Analytics | PrimePropertys</title>
+<meta name="description" content="Subscription Analytics — PrimePropertys, India&#x27;s real estate portal."><style>
+/* PrimePropertys — Public Website | Design system from the UI screenshots */
+:root{
+  --navy:#0A2240; --navy2:#0E2F56; --blue:#2563EB; --blue-dark:#1D4ED8;
+  --red:#E11D48; --ink:#1F2937; --muted:#64748B; --body:#475569;
+  --line:#E2E8F0; --pale:#EEF3FA; --pale2:#F8FAFC; --white:#fff;
+  --green:#16A34A; --amber:#D97706; --radius:14px; --shadow:0 8px 30px rgba(10,34,64,.08);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--body);background:var(--white);line-height:1.6}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+img{max-width:100%;display:block;border-radius:12px}
+h1,h2,h3,h4{color:var(--navy);line-height:1.25;margin:0 0 .5rem}
+h1{font-size:2.4rem} h2{font-size:1.7rem} h3{font-size:1.15rem}
+p{margin:0 0 1rem}
+.container{max-width:1200px;margin:0 auto;padding:0 20px}
+.section{padding:48px 0}
+.section.pale{background:var(--pale)}
+.center{text-align:center}
+.eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
+.underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
+.lead{font-size:1.1rem;color:var(--body)}
+/* Top bar + header */
+.topbar{background:var(--navy);color:#CBD5E1;font-size:.85rem}
+.topbar .container{display:flex;justify-content:space-between;gap:16px;padding-top:8px;padding-bottom:8px;flex-wrap:wrap}
+.topbar a{color:#E2E8F0;margin-left:16px}
+.site-header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+.header-row{display:flex;align-items:center;gap:24px;padding:14px 20px}
+.logo{font-size:1.55rem;font-weight:800;color:var(--navy);white-space:nowrap}
+.logo span{color:var(--red)}
+.logo small{display:block;font-size:.7rem;font-weight:500;color:var(--muted);letter-spacing:.02em}
+.main-nav{display:flex;gap:18px;flex-wrap:wrap;margin-left:auto}
+.main-nav a{color:var(--ink);font-weight:600;font-size:.95rem}
+.main-nav a.active{color:var(--blue)}
+.header-actions{display:flex;gap:10px;white-space:nowrap}
+.nav-toggle{display:none;margin-left:auto;background:var(--navy);color:#fff;border:0;border-radius:8px;padding:8px 12px;font-size:1rem;cursor:pointer}
+/* Buttons */
+.btn{display:inline-block;background:var(--blue);color:#fff !important;border:1px solid var(--blue);padding:11px 20px;border-radius:10px;font-weight:700;cursor:pointer;text-decoration:none !important}
+.btn:hover{background:var(--blue-dark)}
+.btn.red{background:var(--red);border-color:var(--red)}
+.btn.red:hover{background:#BE123C}
+.btn.navy{background:var(--navy);border-color:var(--navy)}
+.btn.outline{background:#fff;color:var(--blue) !important;border-color:var(--blue)}
+.btn.white{background:#fff;color:var(--navy) !important;border-color:#fff}
+.btn.white-outline{background:transparent;color:#fff !important;border-color:#fff}
+.btn.small{padding:7px 14px;font-size:.9rem;border-radius:8px}
+/* Hero */
+.hero{background:linear-gradient(180deg,#EEF3FA,#fff);padding:40px 0 30px}
+.hero-inner{display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center}
+.hero-inner img{height:340px;width:100%;object-fit:cover}
+.hero-home{background:var(--navy);color:#fff;padding:0}
+.hero-home h1{color:#fff;font-size:2.8rem}
+.hero-home p{color:#E2E8F0}
+.hero-img{position:relative}
+.hero-img img{height:420px;width:100%;object-fit:cover;border-radius:0}
+.breadcrumb{font-size:.9rem;color:var(--muted);margin-bottom:12px}
+.breadcrumb a{color:var(--muted)}
+.meta{font-size:.9rem;color:var(--muted);background:#fff;border:1px solid var(--line);display:inline-block;padding:6px 12px;border-radius:999px;margin:4px 6px 4px 0}
+/* Search */
+.search-box{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:20px;margin-top:-40px;position:relative;z-index:2}
+.search-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.search-tab{border:1px solid var(--line);background:#fff;padding:9px 16px;border-radius:999px;font-weight:700;cursor:pointer}
+.search-tab.active{background:var(--red);color:#fff;border-color:var(--red)}
+.search-grid{display:grid;grid-template-columns:repeat(4,1fr) auto;gap:12px;align-items:end}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.pill{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:.85rem;background:var(--pale2);color:var(--ink)}
+/* Grids + cards */
+.grid{display:grid;gap:20px}
+.grid-2{grid-template-columns:repeat(2,1fr)} .grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-4{grid-template-columns:repeat(4,1fr)} .grid-5{grid-template-columns:repeat(5,1fr)}
+.grid-8{grid-template-columns:repeat(4,1fr)}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:0 2px 10px rgba(10,34,64,.04)}
+.card img{height:170px;width:100%;object-fit:cover;margin-bottom:12px}
+.icon{font-size:1.6rem}
+.price{color:var(--blue);font-weight:800;font-size:1.25rem}
+.badge{display:inline-block;background:var(--green);color:#fff;font-size:.75rem;font-weight:700;padding:3px 9px;border-radius:999px}
+.badge.blue{background:var(--blue)} .badge.red{background:var(--red)} .badge.amber{background:var(--amber)}
+.stat-band{background:var(--navy);color:#fff;padding:36px 0}
+.stat-band h3{color:#fff;font-size:1.8rem}
+.stat-band p{color:#CBD5E1}
+.check{color:var(--green);font-weight:700}
+.check-list{list-style:none;padding:0;margin:0}
+.check-list li{padding:6px 0;border-bottom:1px solid var(--pale)}
+.check-list li:last-child{border-bottom:0}
+/* Forms */
+form label{display:block;font-weight:600;color:var(--ink);font-size:.92rem;margin:12px 0 4px}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid #CBD5E1;border-radius:10px;font:inherit}
+textarea{min-height:120px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-success{display:none;background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;padding:12px 16px;border-radius:10px;margin-top:14px;font-weight:600}
+.form-success.show{display:block}
+.upload-box{border:2px dashed #CBD5E1;border-radius:12px;padding:24px;text-align:center;background:var(--pale2)}
+/* Accordion */
+.acc-item{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;background:#fff}
+.acc-btn{width:100%;text-align:left;background:#fff;border:0;padding:16px 18px;font:inherit;font-weight:700;color:var(--navy);cursor:pointer;display:flex;justify-content:space-between;gap:12px}
+.acc-body{display:none;padding:0 18px 16px}
+.acc-item.open .acc-body{display:block}
+/* Pricing */
+.toggle{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px}
+.toggle button{border:0;background:transparent;padding:8px 18px;border-radius:999px;font-weight:700;cursor:pointer}
+.toggle button.active{background:var(--blue);color:#fff}
+.audience-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px 0}
+.audience-tabs button{border:0;border-bottom:3px solid transparent;background:transparent;padding:10px 14px;font-weight:700;cursor:pointer;color:var(--ink)}
+.audience-tabs button.active{color:var(--blue);border-color:var(--blue)}
+.price-card{position:relative}
+.price-card.popular{border:2px solid var(--blue)}
+/* Two-column policy layout */
+.layout-2{display:grid;grid-template-columns:2fr 1fr;gap:28px;align-items:start}
+.policy-section{display:flex;gap:16px;padding:22px 0;border-bottom:1px solid var(--line)}
+.policy-num{flex:0 0 44px;height:44px;border-radius:50%;background:var(--pale);color:var(--blue);display:flex;align-items:center;justify-content:center;font-weight:800}
+.sidebar .card{margin-bottom:20px}
+.quick-links{list-style:none;padding:0;margin:0}
+.quick-links li{border-bottom:1px solid var(--pale);padding:8px 0}
+.quick-links li:last-child{border-bottom:0}
+.contact-strip{background:var(--pale);border-radius:12px;padding:20px;margin-top:24px}
+/* Tables / jobs */
+.job-card{border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;background:#fff;margin-bottom:14px}
+.filters{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.filters input,.filters select{flex:1;min-width:200px}
+/* Footer */
+.site-footer{background:var(--navy);color:#CBD5E1;margin-top:48px}
+.site-footer h4{color:#fff}
+.site-footer a{color:#CBD5E1}
+.footer-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1.3fr;gap:28px;padding:44px 20px}
+.footer-bottom{border-top:1px solid #1E3A5F;padding:16px 20px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.newsletter-row{display:flex;gap:8px}
+.newsletter-row input{flex:1}
+@media(max-width:960px){
+  .hero-inner,.layout-2,.search-grid{grid-template-columns:1fr}
+  .grid-5,.grid-4,.grid-8{grid-template-columns:repeat(2,1fr)}
+  .grid-3{grid-template-columns:repeat(2,1fr)}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .main-nav{display:none;width:100%;flex-direction:column}
+  .main-nav.open{display:flex}
+  .nav-toggle{display:block}
+  .header-row{flex-wrap:wrap}
+  .header-actions{margin-left:auto}
+  h1{font-size:2rem}
+}
+@media(max-width:600px){
+  .grid-5,.grid-4,.grid-8,.grid-3,.grid-2,.form-row{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr}
+  .hero-img img{height:260px}
+}
+
+
+.app{display:grid;grid-template-columns:250px 1fr;align-items:start}
+.sidebar{background:#0A2240;color:#CBD5E1;padding:22px 16px;min-height:640px;position:sticky;top:61px}
+.sidebar h4{color:#fff;margin-bottom:12px}
+.sidebar ul{list-style:none;padding:0;margin:0}
+.sidebar a{color:#CBD5E1;display:block;padding:9px 12px;border-radius:8px;font-weight:600;font-size:.93rem}
+.sidebar a:hover{color:#fff;text-decoration:none}
+.sidebar a.active{background:#2563EB;color:#fff}
+.sidebar .help{margin-top:22px;background:#0E2F56;border-radius:12px;padding:16px;color:#CBD5E1;font-size:.9rem}
+.sidebar .help b{color:#fff}
+.app-main{padding:30px 24px;min-width:0}
+.breadcrumb{font-size:.9rem;color:#64748B;margin-bottom:10px}
+.bar{height:10px;background:#EEF3FA;border-radius:99px;overflow:hidden}
+.bar>i{display:block;height:100%;background:#2563EB;border-radius:99px}
+.bar-row{display:grid;grid-template-columns:180px 1fr 90px;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid #F1F5F9}
+.bar-row:last-child{border-bottom:0}
+.chat{border:1px solid #E2E8F0;border-radius:14px;padding:20px;background:#F8FAFC}
+.chat-out{background:#fff;border:1px solid #E2E8F0;border-left:4px solid #2563EB;border-radius:10px;padding:16px;margin-top:14px}
+.stat-num{font-size:1.7rem;font-weight:800;color:#0A2240}
+.stat-delta{color:#16A34A;font-weight:700;font-size:.9rem}
+.funnel-step{border-radius:10px;padding:14px 18px;color:#fff;margin-bottom:8px;font-weight:700}
+table.data{width:100%;border-collapse:collapse;font-size:.92rem}
+table.data th{text-align:left;color:#0A2240;border-bottom:2px solid #E2E8F0;padding:10px 8px}
+table.data td{padding:10px 8px;border-bottom:1px solid #F1F5F9}
+.tag{display:inline-block;background:#EEF3FA;color:#2563EB;border-radius:99px;padding:3px 10px;font-size:.8rem;font-weight:700}
+.article img{height:170px;width:100%;object-fit:cover}
+.field-palette{display:flex;flex-wrap:wrap;gap:8px}
+.field-palette span{border:1px solid #E2E8F0;background:#fff;border-radius:99px;padding:7px 13px;font-size:.88rem;font-weight:600}
+@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{position:static;min-height:0}.bar-row{grid-template-columns:1fr}}
+
+</style></head>
+<body><div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Download App</a><a href="../../index.html">Shortlist (3)</a><a href="../../index.html">INR ▾</a><a href="../../sitemap.html">Help &amp; Support</a></span></div></div>
+<header class="site-header"><div class="container header-row">
+<a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
+<button class="nav-toggle" aria-label="Menu">☰</button>
+<nav class="main-nav"><a href="../../index.html">Home</a><a href="index.html">Analytics &amp; Reports</a><a href="../../sitemap.html">Sitemap</a></nav>
+<div class="header-actions"><a class="btn outline small" href="../../contact.html">Sign In</a><a class="btn red small" href="../../services.html">Post Property</a></div>
+</div></header>
+<div class="app"><aside class="sidebar"><h4>Analytics &amp; Reports</h4>
+<ul><li><a href="index.html">Section Home</a></li><li><a href="analytics-dashboard.html">Analytics Dashboard</a></li><li><a href="agent-analytics.html">Agent Analytics</a></li><li><a href="builder-analytics.html">Builder Analytics</a></li><li><a href="conversion-funnel.html">Conversion Funnel</a></li><li><a href="custom-reports.html">Custom Reports</a></li><li><a href="export-center.html">Export Center</a></li><li><a href="lead-analytics.html">Lead Analytics</a></li><li><a href="marketing-analytics.html">Marketing Analytics</a></li><li><a href="news-analytics.html">News Analytics</a></li><li><a href="owner-analytics.html">Owner Analytics</a></li><li><a href="project-analytics.html">Project Analytics</a></li><li><a href="property-analytics.html">Property Analytics</a></li><li><a href="revenue-analytics.html">Revenue Analytics</a></li><li><a href="seo-analytics.html">SEO Analytics</a></li><li><a href="site-visit-analytics.html">Site Visit Analytics</a></li><li><a href="subscription-analytics.html" class="active">Subscription Analytics</a></li><li><a href="user-analytics.html">User Analytics</a></li></ul>
+<div class="help"><b>Need Help?</b><br>support@primepropertys.com<br>+91 98765 43210</div></aside><main class="app-main">
+<div class="breadcrumb"><a href="../../index.html">Home</a> &gt; <a href="index.html">Analytics &amp; Reports</a> &gt; Subscription Analytics</div>
+<h1>Subscription Analytics</h1><p class="lead">Plans, renewals, churn and subscription revenue.</p>
+<div class="grid grid-4"><div class="card"><p>Active Subscriptions</p><div class="stat-num">8,642</div><span class="stat-delta">▲ 9.4%</span></div><div class="card"><p>New This Month</p><div class="stat-num">1,284</div><span class="stat-delta">▲ 12.1%</span></div><div class="card"><p>Renewal Rate</p><div class="stat-num">78.4%</div><span class="stat-delta">▲ 2.2 pts</span></div><div class="card"><p>Churn Rate</p><div class="stat-num">4.2%</div><span class="stat-delta">▼ 0.6 pts</span></div></div><section class="section" style="padding:20px 0"><div class="grid grid-2"><div class="card"><h3>Breakdown</h3><div class="bar-row"><span>PRO Plan</span><div class="bar"><i style="width:88%"></i></div><b>3,842 subs</b></div><div class="bar-row"><span>BASIC Plan</span><div class="bar"><i style="width:68%"></i></div><b>2,968 subs</b></div><div class="bar-row"><span>PREMIUM Plan</span><div class="bar"><i style="width:42%"></i></div><b>1,832 subs</b></div></div><div class="card"><table class="data"><tr><th>Plan</th><th>Active</th><th>Revenue</th></tr><tr><td>PRO ₹1,199/mo</td><td>3,842</td><td>₹46,06,000</td></tr><tr><td>BASIC ₹499/mo</td><td>2,968</td><td>₹14,81,000</td></tr><tr><td>PREMIUM ₹2,499/mo</td><td>1,832</td><td>₹45,78,000</td></tr></table></div></div></section><section class="section" style="padding:10px 0"><div class="card"><h3>About this report</h3><p>Period: 12 May 2024 – 18 May 2024. Figures are shown against the previous 7 days. Use Filters on the right of the header in the original dashboard to change the period, city or team.</p><form data-backend="not-connected"><button class="btn" type="submit">⬇ Export this report</button><div class="form-success">Export started — your file will download shortly.</div></form></div></section>
+</main></div>
+<footer class="site-footer"><div class="container footer-grid">
+<div><a class="logo" href="../../index.html" style="color:#fff">Prime<span>Propertys</span></a><p>Buy, Sell, Rent or Invest in residential and commercial properties across India. Your trusted property partner.</p></div>
+<div><h4>Quick Links</h4><p><a href="../../index.html">Home</a><br><a href="index.html">Analytics &amp; Reports</a><br><a href="../../sitemap.html">Sitemap</a></p></div>
+<div><h4>Section</h4><p><a href="index.html">All Analytics &amp; Reports pages</a></p></div>
+<div><h4>Support</h4><p><a href="../../help-center.html">Help Center</a><br><a href="../../contact.html">Contact Us</a></p></div>
+<div><h4>Contact Us</h4><p>📞 +91 98765 43210<br>✉️ support@primepropertys.com<br>📍 B-27, Sector 63, Noida, Uttar Pradesh - 201301</p></div>
+</div><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with love in India</span></div></footer>
+<script>
+// PrimePropertys — shared behaviour. No backend: forms show an inline success message.
+document.addEventListener('DOMContentLoaded', function () {
+  // Mobile nav
+  var toggle = document.querySelector('.nav-toggle');
+  var nav = document.querySelector('.main-nav');
+  if (toggle && nav) toggle.addEventListener('click', function () { nav.classList.toggle('open'); });
+
+  // Active nav link
+  var here = window.location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.main-nav a').forEach(function (a) {
+    if (a.getAttribute('href') === here) a.classList.add('active');
+  });
+
+  // Home search tabs
+  document.querySelectorAll('.search-tab').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('.search-tab').forEach(function (t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      var note = document.getElementById('search-note');
+      if (note) note.textContent = 'Showing ' + tab.textContent.trim() + ' properties across India.';
+    });
+  });
+
+  // Accordion: one open at a time per container
+  document.querySelectorAll('.acc-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item = btn.closest('.acc-item');
+      var container = btn.closest('.accordion') || document;
+      container.querySelectorAll('.acc-item').forEach(function (i) { if (i !== item) i.classList.remove('open'); });
+      item.classList.toggle('open');
+    });
+  });
+
+  // Pricing: Monthly / Yearly toggle
+  document.querySelectorAll('[data-billing]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('[data-billing]').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      var mode = btn.getAttribute('data-billing');
+      document.querySelectorAll('.billing-note').forEach(function (n) {
+        n.textContent = n.getAttribute('data-' + mode) || n.textContent;
+      });
+    });
+  });
+
+  // Pricing: audience tabs
+  document.querySelectorAll('[data-audience]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('[data-audience]').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      var note = document.getElementById('audience-note');
+      if (note) note.textContent = 'Plans for ' + btn.textContent.trim() + ' — same transparent pricing, tailored features.';
+    });
+  });
+
+  // FAQ / Help search filtering
+  function bindFilter(inputId, selector) {
+    var input = document.getElementById(inputId);
+    if (!input) return;
+    input.addEventListener('input', function () {
+      var q = input.value.trim().toLowerCase();
+      document.querySelectorAll(selector).forEach(function (el) {
+        el.style.display = (!q || el.textContent.toLowerCase().indexOf(q) !== -1) ? '' : 'none';
+      });
+    });
+  }
+  bindFilter('faqSearch', '.acc-item');
+  bindFilter('helpSearch', '.topic-card, .acc-item');
+
+  // Careers filtering
+  var jobSearch = document.getElementById('jobSearch');
+  var jobDept = document.getElementById('jobDept');
+  var jobLoc = document.getElementById('jobLoc');
+  function filterJobs() {
+    var q = jobSearch ? jobSearch.value.trim().toLowerCase() : '';
+    var d = jobDept ? jobDept.value : '';
+    var l = jobLoc ? jobLoc.value : '';
+    document.querySelectorAll('.job-card').forEach(function (job) {
+      var ok = (!q || job.textContent.toLowerCase().indexOf(q) !== -1) &&
+               (!d || job.getAttribute('data-dept') === d) &&
+               (!l || job.getAttribute('data-location') === l);
+      job.style.display = ok ? '' : 'none';
+    });
+  }
+  if (jobSearch) jobSearch.addEventListener('input', filterJobs);
+  if (jobDept) jobDept.addEventListener('change', filterJobs);
+  if (jobLoc) jobLoc.addEventListener('change', filterJobs);
+
+  // Forms: no backend is connected yet (Stage H). Never claim a save/send
+  // that did not happen, and never clear the user's input on a failed save.
+  // Client-side tool forms (onsubmit="return false") keep their own behaviour.
+  document.querySelectorAll('form').forEach(function (form) {
+    if (form.hasAttribute('onsubmit')) return;
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var msg = form.querySelector('.form-success') || form.parentElement.querySelector('.form-success');
+      if (msg) {
+        msg.classList.add('show');
+        if (!msg.querySelector('.demo-note')) {
+          var note = document.createElement('small');
+          note.className = 'demo-note';
+          note.textContent = ' Demo preview — no data was saved yet. This form will be connected to a real server in Stage H.';
+          msg.appendChild(note);
+        }
+      }
+    });
+  });
+
+  // Footer year, only if a year span is present
+  var yearEl = document.getElementById('year');
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
+});
+
+</script></body></html>
