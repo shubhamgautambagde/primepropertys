@@ -204,7 +204,7 @@ table.data th{color:#0A2240;background:#EEF3FA}
 <nav class="main-nav"><a href="../../index.html">Home</a><a href="../../services.html">Services</a><a href="../../pricing.html">Pricing</a><a href="../../contact.html">Contact Us</a><a href="index.html">Payments</a><a href="../../sitemap.html">Sitemap</a></nav>
 <div class="header-actions"><a class="btn outline small" href="../../contact.html">Sign In</a><a class="btn red small" href="../../services.html">Post Property</a></div>
 </div></header>
-<div class="app-layout"><aside class="side"><a class="back" href="../../index.html">← Main Website</a><h4>Payments</h4><a href="billing-profile.html">Billing Profile</a><a href="invoice-details.html">Invoice Details</a><a href="invoice-list.html">Invoice List</a><a href="payment-checkout.html">Payment Checkout</a><a href="payment-failed.html">Payment Failed</a><a href="payment-history.html">Payment History</a><a href="payment-processing.html">Payment Processing</a><a href="payment-success.html">Payment Success</a><a href="refund-request.html" class="active">Refund Request</a><a href="refund-status.html">Refund Status</a><a href="tax-information.html">Tax Information</a></aside><main id="main-content" tabindex="-1" class="main"><div class="breadcrumb"><a href="../../index.html">Home</a> &gt; <a href="index.html">Payments</a> &gt; Refund Request</div><h1>Refund Request</h1><p class="lead">Request a refund for a paid service. Refunds are initiated within 7–10 business days to the original payment method, where eligible.</p><div class="card"><form data-backend="not-connected"><label>Select Invoice / Transaction</label><select name="field" aria-label="Field"><option>INV-2025-000123 — ₹11,239.00 — Professional Yearly Plan</option><option>INV-2025-000122 — ₹1,999.00 — Additional Leads (100)</option></select><label>Reason for Refund</label><select name="field-2" aria-label="Field 2"><option>Service not delivered due to a technical issue</option><option>Duplicate / failed payment</option><option>Not satisfied within the eligible period</option><option>Other</option></select><label>Refund Amount (₹)</label><input type="number" placeholder="11239" name="11239" aria-label="11239"><label>Describe the issue</label><textarea placeholder="Please describe the issue in detail..." name="please-describe-the-issue-in-detail" aria-label="Please describe the issue in detail"></textarea><label>Refund To</label><select name="field-2" aria-label="Field 2"><option>Original payment method — Visa •••• 4242</option><option>UPI — rohit@okhdfc</option></select><button class="btn" type="submit">Submit Refund Request</button><div class="form-success">Refund request submitted. Track it on the Refund Status page.</div></form></div><p style="margin-top:16px">Non-refundable: services already availed or consumed, featured listings or promotions after activation, and transaction / gateway fees. See the <a href="../../refund-policy.html">Refund Policy</a>.</p></main></div>
+<div class="app-layout"><aside class="side"><a class="back" href="../../index.html">← Main Website</a><h4>Payments</h4><a href="billing-profile.html">Billing Profile</a><a href="invoice-details.html">Invoice Details</a><a href="invoice-list.html">Invoice List</a><a href="payment-checkout.html">Payment Checkout</a><a href="payment-failed.html">Payment Failed</a><a href="payment-history.html">Payment History</a><a href="payment-processing.html">Payment Processing</a><a href="payment-success.html">Payment Success</a><a href="refund-request.html" class="active">Refund Request</a><a href="refund-status.html">Refund Status</a><a href="tax-information.html">Tax Information</a></aside><main id="main-content" tabindex="-1" class="main"><div class="breadcrumb"><a href="../../index.html">Home</a> &gt; <a href="index.html">Payments</a> &gt; Refund Request</div><h1>Refund Request</h1><p class="lead">Request a refund for a paid service. Refunds are initiated within 7–10 business days to the original payment method, where eligible.</p><div class="card"><form data-api="refund-request"><label>Select Invoice / Transaction</label><select name="field" aria-label="Field" id="pp-live-refund-payment" data-api-field="payment_id"><option value="">Loading your payments…</option><option>INV-2025-000123 — ₹11,239.00 — Professional Yearly Plan</option><option>INV-2025-000122 — ₹1,999.00 — Additional Leads (100)</option></select><label>Reason for Refund</label><select name="field-2" aria-label="Field 2" data-api-field="reason"><option>Service not delivered due to a technical issue</option><option>Duplicate / failed payment</option><option>Not satisfied within the eligible period</option><option>Other</option></select><label>Refund Amount (₹)</label><input type="number" placeholder="11239" name="11239" aria-label="11239" data-api-field="refund_amount_rupees"><label>Describe the issue</label><textarea placeholder="Please describe the issue in detail..." name="please-describe-the-issue-in-detail" aria-label="Please describe the issue in detail" data-api-field="description"></textarea><label>Refund To</label><select name="field-2" aria-label="Field 2" data-api-field="refund_to"><option>Original payment method — Visa •••• 4242</option><option>UPI — rohit@okhdfc</option></select><button class="btn" type="submit">Submit Refund Request</button><div class="form-success">Refund request submitted. Track it on the Refund Status page.</div></form></div><p style="margin-top:16px">Non-refundable: services already availed or consumed, featured listings or promotions after activation, and transaction / gateway fees. See the <a href="../../refund-policy.html">Refund Policy</a>.</p></main></div>
 <footer class="site-footer"><div class="container footer-grid">
 <div><a class="logo" href="../../index.html" style="color:#fff">Prime<span>Propertys</span></a><p>Buy, Sell, Rent or Invest in residential and commercial properties across India. Your trusted property partner.</p></div>
 <div><h4>Explore</h4><p><a href="../../index.html">Home</a><br><a href="../../services.html">Services</a><br><a href="../../pricing.html">Pricing</a></p></div>
@@ -953,6 +953,119 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       return;
     }
+    if (form.getAttribute('data-api') === 'payment-checkout') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — payment record save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var raw = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          raw[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        var methodText = (raw.method || '').toLowerCase();
+        var method = 'other';
+        if (methodText.indexOf('upi') !== -1) method = 'upi';
+        else if (methodText.indexOf('net banking') !== -1) method = 'netbanking';
+        else if (methodText.indexOf('wallet') !== -1) method = 'wallet';
+        else if (methodText.indexOf('emi') !== -1) method = 'emi';
+        else if (methodText.indexOf('card') !== -1) method = 'card';
+        var payload = {
+          description: form.getAttribute('data-description') || 'Payment',
+          amount_paise: parseInt(form.getAttribute('data-amount-paise') || '', 10),
+          method: method,
+          billing: {
+            full_name: raw.billing_full_name || '',
+            company: raw.billing_company || '',
+            address: raw.billing_address || '',
+            city: '',
+            pincode: '',
+            gstin: raw.billing_gstin || ''
+          }
+        };
+        if (!payload.amount_paise || payload.amount_paise <= 0) {
+          showNote(form, 'Is checkout page par amount set nahi hai — payment record save nahi hua.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/payments', payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Payment recorded as pending (ID PAY-' + (r.data && r.data.data && r.data.data.id) + '). Koi gateway charge nahi hua hai — staff verification ke baad ye confirm hoga.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Payment record save nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'billing-profile') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.request) {
+          showNote(form, 'Form wiring load nahi hui — billing profile save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        if (!payload.full_name) {
+          showNote(form, 'Billing name bharein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.request('/api/billing-profile', { method: 'PUT', body: payload }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Billing profile saved.');
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Billing profile save nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'refund-request') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — refund request save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var raw = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          raw[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        var paymentId = parseInt(raw.payment_id || '', 10);
+        var rupees = parseFloat(raw.refund_amount_rupees || '');
+        var reason = (raw.reason || '') + (raw.description ? ' — ' + raw.description : '');
+        if (!paymentId || paymentId <= 0 || !rupees || rupees <= 0 || !reason || !raw.refund_to) {
+          showNote(form, 'Payment, reason, amount aur refund-to sab chunein/bharein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/payments/' + paymentId + '/refund-request', {
+          reason: reason.slice(0, 500),
+          refund_amount_paise: Math.round(rupees * 100),
+          refund_to: raw.refund_to
+        }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Refund request submitted. Ise Refund Status page par track karein.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Refund request save nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
     if (form.getAttribute('data-api') === 'login') {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -1022,5 +1135,204 @@ document.addEventListener('DOMContentLoaded', function () {
   // Footer year, only if a year span is present
   var yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
+});
+document.addEventListener('DOMContentLoaded', function () {
+  if (!window.PP || !window.PP.me) return;
+  function inr(paise) {
+    return 'Rs ' + (paise / 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function fmtDate(s) {
+    try { return new Date(s).toLocaleDateString('en-IN'); } catch (e) { return s || ''; }
+  }
+  function host(table) {
+    return table.querySelector('tbody') || table;
+  }
+  function clearRows(table) {
+    var h = host(table);
+    var rows = h.querySelectorAll('tr');
+    var start = table.querySelector('tbody') ? 0 : 1;
+    for (var i = rows.length - 1; i >= start; i--) rows[i].remove();
+  }
+  function noticeRow(table, text, cols) {
+    clearRows(table);
+    var tr = document.createElement('tr');
+    var td = document.createElement('td');
+    td.setAttribute('colspan', String(cols));
+    td.textContent = text;
+    tr.appendChild(td);
+    host(table).appendChild(tr);
+  }
+  function loginRow(table, cols) {
+    noticeRow(table, 'Is page ke liye login zaroori hai. Login karke dobara aayein.', cols);
+  }
+  function row(cells) {
+    var tr = document.createElement('tr');
+    cells.forEach(function (c) {
+      var td = document.createElement('td');
+      if (typeof c === 'string') td.textContent = c;
+      else td.appendChild(c);
+      tr.appendChild(td);
+    });
+    return tr;
+  }
+  function renderList(table, cols, makeRow) {
+    window.PP.me().then(function (m) {
+      if (!m.ok || !m.data || !m.data.user) { loginRow(table, cols); return; }
+      window.PP.get('/api/payments?limit=100').then(function (r) {
+        if (!r.ok) { noticeRow(table, (r.error && r.error.message) || 'Payments load nahi ho pa rahe hain.', cols); return; }
+        var items = (r.data && r.data.data) || [];
+        if (!items.length) { noticeRow(table, 'No payments yet.', cols); return; }
+        clearRows(table);
+        var h = host(table);
+        items.forEach(function (p) {
+          if (!p || !Number.isInteger(p.id)) return;
+          h.appendChild(makeRow(p));
+        });
+      });
+    });
+  }
+  var payTable = document.getElementById('pp-live-payment-table');
+  if (payTable) {
+    renderList(payTable, 6, function (p) {
+      return row(['PAY-' + p.id, fmtDate(p.created_at), p.description, p.method, inr(p.amount_paise), p.status]);
+    });
+  }
+  var invTable = document.getElementById('pp-live-invoice-table');
+  if (invTable) {
+    renderList(invTable, 6, function (p) {
+      var a = document.createElement('a');
+      a.setAttribute('href', 'invoice-details.html?payment_id=' + p.id);
+      a.textContent = 'View';
+      return row(['INV-' + p.id, p.description, fmtDate(p.created_at), inr(p.amount_paise), p.status, a]);
+    });
+  }
+  var invItems = document.getElementById('pp-live-invoice-items');
+  if (invItems) {
+    var notice = document.getElementById('pp-live-invoice-details-notice');
+    var body = document.getElementById('pp-live-invoice-details-body');
+    var params = new URLSearchParams(window.location.search);
+    var pid = parseInt(params.get('payment_id') || '', 10);
+    window.PP.me().then(function (m) {
+      if (!m.ok || !m.data || !m.data.user) {
+        if (notice) notice.textContent = 'Is page ke liye login zaroori hai. Login karke dobara aayein.';
+        return;
+      }
+      if (!pid || pid <= 0) {
+        if (notice) notice.textContent = 'Koi payment chuna nahi gaya. Invoice List se kisi invoice par View dabayein.';
+        return;
+      }
+      window.PP.get('/api/payments/' + pid).then(function (r) {
+        if (!r.ok) {
+          if (notice) notice.textContent = (r.error && r.error.message) || 'Invoice load nahi ho pa raha hai.';
+          return;
+        }
+        var p = r.data && r.data.data;
+        if (!p) return;
+        if (body) {
+          var h = document.createElement('h3');
+          h.textContent = 'Invoice INV-' + p.id + ' — ' + p.description;
+          body.appendChild(h);
+          var meta = document.createElement('p');
+          meta.textContent = 'Date: ' + fmtDate(p.created_at) + ' • Method: ' + p.method + ' • Status: ' + p.status + ' • Total: ' + inr(p.amount_paise);
+          body.appendChild(meta);
+          var note = document.createElement('p');
+          note.textContent = p.status === 'verified'
+            ? 'Ye payment staff se verified hai.'
+            : 'Ye payment abhi ' + p.status + ' hai — koi gateway charge claim nahi kiya gaya hai.';
+          body.appendChild(note);
+        }
+        var table = invItems;
+        clearRows(table);
+        host(table).appendChild(row([p.description, '1', inr(p.amount_paise), inr(p.amount_paise)]));
+      });
+    });
+  }
+  var refundBox = document.getElementById('pp-live-refund-status');
+  if (refundBox) {
+    var rnotice = document.getElementById('pp-live-refund-status-notice');
+    var rbody = document.getElementById('pp-live-refund-status-body');
+    var rparams = new URLSearchParams(window.location.search);
+    var rpid = parseInt(rparams.get('payment_id') || '', 10);
+    window.PP.me().then(function (m) {
+      if (!m.ok || !m.data || !m.data.user) {
+        if (rnotice) rnotice.textContent = 'Is page ke liye login zaroori hai. Login karke dobara aayein.';
+        return;
+      }
+      function showRefund(p) {
+        if (!rbody) return;
+        var h = document.createElement('h3');
+        h.textContent = 'Refund — PAY-' + p.id + ' (' + p.description + ')';
+        rbody.appendChild(h);
+        var meta = document.createElement('p');
+        meta.textContent = 'Status: ' + p.status +
+          (p.refund_amount_paise ? ' • Refund amount: ' + inr(p.refund_amount_paise) : '') +
+          (p.refund_to ? ' • Refund to: ' + p.refund_to : '') +
+          (p.refund_reason ? ' • Reason: ' + p.refund_reason : '');
+        rbody.appendChild(meta);
+      }
+      if (rpid && rpid > 0) {
+        window.PP.get('/api/payments/' + rpid).then(function (r) {
+          if (!r.ok) { if (rnotice) rnotice.textContent = (r.error && r.error.message) || 'Refund status load nahi ho pa raha hai.'; return; }
+          showRefund(r.data.data);
+        });
+        return;
+      }
+      window.PP.get('/api/payments?limit=100').then(function (r) {
+        if (!r.ok) { if (rnotice) rnotice.textContent = (r.error && r.error.message) || 'Refund status load nahi ho pa raha hai.'; return; }
+        var items = ((r.data && r.data.data) || []).filter(function (p) {
+          return p.status === 'refund_requested' || p.status === 'refunded';
+        });
+        if (!items.length) {
+          if (rnotice) rnotice.textContent = 'Koi refund request nahi mila. Kisi payment ka refund dekhne ke liye uska payment_id kholein.';
+          return;
+        }
+        items.forEach(showRefund);
+      });
+    });
+  }
+  var refundSelect = document.getElementById('pp-live-refund-payment');
+  if (refundSelect) {
+    window.PP.me().then(function (m) {
+      if (!m.ok || !m.data || !m.data.user) return;
+      window.PP.get('/api/payments?limit=100').then(function (r) {
+        if (!r.ok) return;
+        var items = ((r.data && r.data.data) || []).filter(function (p) {
+          return p.status === 'pending' || p.status === 'verified';
+        });
+        refundSelect.textContent = '';
+        if (!items.length) {
+          var o0 = document.createElement('option');
+          o0.value = '';
+          o0.textContent = 'No refundable payment found';
+          refundSelect.appendChild(o0);
+          return;
+        }
+        var o = document.createElement('option');
+        o.value = '';
+        o.textContent = 'Select a payment…';
+        refundSelect.appendChild(o);
+        items.forEach(function (p) {
+          var opt = document.createElement('option');
+          opt.value = String(p.id);
+          opt.textContent = 'PAY-' + p.id + ' — ' + inr(p.amount_paise) + ' — ' + p.description;
+          refundSelect.appendChild(opt);
+        });
+      });
+    });
+  }
+  var billingForm = document.querySelector('form[data-api="billing-profile"]');
+  if (billingForm) {
+    window.PP.me().then(function (m) {
+      if (!m.ok || !m.data || !m.data.user) return;
+      window.PP.get('/api/billing-profile').then(function (r) {
+        if (!r.ok || !r.data || !r.data.data) return;
+        var d = r.data.data;
+        billingForm.querySelectorAll('[data-api-field]').forEach(function (el) {
+          var k = el.getAttribute('data-api-field');
+          if (d[k] !== undefined && d[k] !== null) el.value = d[k];
+        });
+      });
+    });
+  }
 });
 </script></body></html>
