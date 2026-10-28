@@ -22,19 +22,52 @@ document.addEventListener('DOMContentLoaded', function () {
     if (style) el.setAttribute('style', style);
     return el;
   }
-  window.PP.listProperties({ limit: 20 }).then(function (r) {
+  /* Triage slice: honour search filters carried in the URL by the
+     home-page and advanced-search forms (site-search case in
+     forms.js). API filters pass through; bedrooms, possession and
+     area are client-side because the public list has no such
+     filters. The lead line reports the filtered count when a
+     client filter is active, never the unfiltered total. */
+  var urlParams = new URLSearchParams(window.location.search);
+  var clientFilters = {
+    bedrooms: urlParams.get('bedrooms') ? parseInt(urlParams.get('bedrooms'), 10) : null,
+    bedroomsMin: urlParams.get('bedrooms_min') ? parseInt(urlParams.get('bedrooms_min'), 10) : null,
+    possession: urlParams.get('possession_status') || null,
+    areaMin: urlParams.get('area_min') ? parseInt(urlParams.get('area_min'), 10) : null,
+    areaMax: urlParams.get('area_max') ? parseInt(urlParams.get('area_max'), 10) : null
+  };
+  var hasClientFilter = clientFilters.bedrooms !== null || clientFilters.bedroomsMin !== null ||
+    clientFilters.possession !== null || clientFilters.areaMin !== null || clientFilters.areaMax !== null;
+  // Client filters apply after the fetch, so fetch the API maximum
+  // when any is active — otherwise a narrow filter over 20 rows
+  // would falsely report no matches.
+  var apiParams = { limit: hasClientFilter ? 100 : 20 };
+  ['city', 'property_type', 'listing_type', 'min_price', 'max_price'].forEach(function (k) {
+    if (urlParams.get(k)) apiParams[k] = urlParams.get(k);
+  });
+  window.PP.listProperties(apiParams).then(function (r) {
     if (!r.ok) {
       if (notice) { notice.textContent = 'Live listings load nahi ho pa rahi hain — ye page demo preview dikh raha hai.'; notice.style.color = '#f87171'; }
       return;
     }
     var items = (r.data && r.data.data) || [];
     var total = (r.data && r.data.pagination && r.data.pagination.total) || 0;
+    if (hasClientFilter) {
+      items = items.filter(function (p) {
+        if (clientFilters.bedrooms !== null && p.bedrooms !== clientFilters.bedrooms) return false;
+        if (clientFilters.bedroomsMin !== null && (p.bedrooms === null || p.bedrooms < clientFilters.bedroomsMin)) return false;
+        if (clientFilters.possession !== null && p.possession_status !== clientFilters.possession) return false;
+        if (clientFilters.areaMin !== null && (p.area_sqft === null || p.area_sqft < clientFilters.areaMin)) return false;
+        if (clientFilters.areaMax !== null && (p.area_sqft === null || p.area_sqft > clientFilters.areaMax)) return false;
+        return true;
+      });
+    }
     if (!items.length) {
-      if (notice) { notice.textContent = 'Abhi koi published property nahi hai.'; notice.style.color = '#94a3b8'; }
+      if (notice) { notice.textContent = hasClientFilter ? 'Is filter se koi published property nahi mili.' : 'Abhi koi published property nahi hai.'; notice.style.color = '#94a3b8'; }
       return;
     }
     var lead = document.querySelector('p.lead');
-    if (lead) lead.textContent = total + ' published properties (live data).';
+    if (lead) lead.textContent = (hasClientFilter ? items.length + ' properties match your filters (live data).' : total + ' published properties (live data).');
     items.forEach(function (p) {
       if (!Number.isInteger(p.id)) return;
       var specs = [];

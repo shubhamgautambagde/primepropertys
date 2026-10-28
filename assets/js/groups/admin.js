@@ -240,3 +240,136 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 });
+
+/* Triage slice — live admin user tables (super-admin + super-manager
+   share this group). All eight user tables had identical demo rows
+   with View/Edit placeholder links; one renderer serves them all, with
+   a per-page filter from data-admin-filter on the table:
+   all | unverified | agents | team. The Status column shows the
+   account status plus the email-verification state (the list
+   endpoint exposes email_verified_at to users:manage holders).
+   View/Edit both open user-details.html?user_id=, where the detail
+   view hosts the real edit form (role + status via PATCH
+   /api/users/:id). User editing has no other endpoint; role
+   changes to your own account are refused server-side. */
+document.addEventListener('DOMContentLoaded', function () {
+  if (!window.PP || !window.PP.me || !window.PP.get) return;
+  var table = document.getElementById('pp-live-admin-users');
+  if (!table) return;
+  var filter = table.getAttribute('data-admin-filter') || 'all';
+  var page = window.location.pathname.split('/').pop() || '';
+  function hostEl() { return table.querySelector('tbody') || table; }
+  function clearRows() {
+    var rows = hostEl().querySelectorAll('tr');
+    var start = table.querySelector('tbody') ? 0 : 1;
+    for (var i = rows.length - 1; i >= start; i--) rows[i].remove();
+  }
+  function noticeRow(text, cols) {
+    clearRows();
+    var tr = document.createElement('tr');
+    var td = document.createElement('td');
+    td.setAttribute('colspan', String(cols));
+    td.textContent = text;
+    tr.appendChild(td);
+    hostEl().appendChild(tr);
+  }
+  function row(cells) {
+    var tr = document.createElement('tr');
+    cells.forEach(function (c) {
+      var td = document.createElement('td');
+      if (typeof c === 'string') td.textContent = c;
+      else td.appendChild(c);
+      tr.appendChild(td);
+    });
+    return tr;
+  }
+  function statusText(u) {
+    return u.status + (u.email_verified_at ? ' • Verified' : ' • Unverified');
+  }
+  function renderList(users) {
+    var list = users;
+    if (filter === 'unverified') list = users.filter(function (u) { return !u.email_verified_at; });
+    else if (filter === 'agents') list = users.filter(function (u) { return u.role === 'Agent'; });
+    else if (filter === 'team') list = users.filter(function (u) {
+      return ['Admin', 'Super Admin', 'Support', 'Agent'].indexOf(u.role) !== -1;
+    });
+    if (!list.length) { noticeRow(filter === 'all' ? 'No users yet.' : 'Is filter se koi user nahi mila.', 5); return; }
+    clearRows();
+    var h = hostEl();
+    list.forEach(function (u) {
+      if (!u || !Number.isInteger(u.id)) return;
+      var view = document.createElement('a');
+      view.setAttribute('href', 'user-details.html?user_id=' + u.id);
+      view.textContent = 'View';
+      var edit = document.createElement('a');
+      edit.setAttribute('href', 'user-details.html?user_id=' + u.id);
+      edit.textContent = 'Edit';
+      var actions = document.createElement('span');
+      actions.appendChild(view);
+      actions.appendChild(document.createTextNode(' · '));
+      actions.appendChild(edit);
+      h.appendChild(row([u.full_name || '—', u.role, u.email, statusText(u), actions]));
+    });
+  }
+  function renderDetail(user) {
+    table.style.display = 'none';
+    var box = document.createElement('div');
+    box.setAttribute('style', 'margin:16px 0');
+    var h = document.createElement('h3');
+    h.textContent = user.full_name || user.email;
+    box.appendChild(h);
+    var meta = document.createElement('p');
+    meta.textContent = user.email + ' • Role: ' + user.role + ' • Status: ' + statusText(user) +
+      ' • Joined: ' + (user.created_at ? new Date(user.created_at).toLocaleDateString('en-IN') : '—');
+    box.appendChild(meta);
+    var form = document.createElement('form');
+    var roleLabel = document.createElement('label');
+    roleLabel.textContent = 'Role';
+    var roleSel = document.createElement('select');
+    ['Super Admin', 'Admin', 'Support', 'Buyer', 'Seller', 'Owner', 'Agent', 'Builder', 'Investor'].forEach(function (r) {
+      var o = document.createElement('option');
+      o.value = r; o.textContent = r;
+      if (r === user.role) o.selected = true;
+      roleSel.appendChild(o);
+    });
+    var statusLabel = document.createElement('label');
+    statusLabel.textContent = 'Status';
+    var statusSel = document.createElement('select');
+    ['active', 'suspended'].forEach(function (s) {
+      var o = document.createElement('option');
+      o.value = s; o.textContent = s;
+      if (s === user.status) o.selected = true;
+      statusSel.appendChild(o);
+    });
+    var btn = document.createElement('button');
+    btn.className = 'btn'; btn.type = 'submit'; btn.textContent = 'Save Changes';
+    var note = document.createElement('p');
+    form.appendChild(roleLabel); form.appendChild(roleSel);
+    form.appendChild(statusLabel); form.appendChild(statusSel);
+    form.appendChild(btn); form.appendChild(note);
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      window.PP.request('/api/users/' + user.id, { method: 'PATCH', body: { role: roleSel.value, status: statusSel.value } }).then(function (r2) {
+        note.textContent = r2.ok ? 'User updated.' : ((r2.error && r2.error.message) || 'Update nahi ho pa raha hai.');
+      });
+    });
+    box.appendChild(form);
+    table.parentElement.insertBefore(box, table.nextSibling);
+  }
+  window.PP.me().then(function (m) {
+    if (!m.ok || !m.data || !m.data.user) { noticeRow('Is page ke liye login zaroori hai. Login karke dobara aayein.', 5); return; }
+    var params = new URLSearchParams(window.location.search);
+    var uid = parseInt(params.get('user_id') || '', 10);
+    if (page === 'user-details.html' && uid && uid > 0) {
+      window.PP.get('/api/users/' + uid).then(function (r) {
+        if (!r.ok || !r.data) { noticeRow((r.error && r.error.message) || 'User load nahi ho pa raha hai.', 5); return; }
+        renderDetail(r.data.data || r.data);
+      });
+      return;
+    }
+    window.PP.get('/api/users').then(function (r) {
+      if (!r.ok) { noticeRow((r.error && r.error.message) || 'Users load nahi ho pa rahe hain. (users:manage permission chahiye.)', 5); return; }
+      renderList((r.data && r.data.data) || []);
+    });
+  });
+});

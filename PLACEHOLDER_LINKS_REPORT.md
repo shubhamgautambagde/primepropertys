@@ -45,6 +45,17 @@ would actually resolve it.
 | investor-portal | 9 |
 | site-visit | 6 |
 
+## What the triage slice resolved (2026-10-28)
+- **View (54) + Edit (48):** resolved at runtime. The 8 super-admin /
+  super-manager user tables now render live from GET /api/users with
+  per-page filters, and their View/Edit links open
+  user-details.html?user_id= with a real edit form (PATCH
+  /api/users/:id). The static demo rows remain in source, so the
+  audit still lists those files — the links a user clicks are real.
+- **Use Template (19):** resolved by the campaigns slice (links
+  navigate with ?template_id=); remaining flags on those pages are
+  Compose New / Mark all as read (see TRIAGE.md).
+
 ## What would resolve each group
 
 - View / Edit (102): wire the super-admin and super-manager tables to live data, then point each row action at its real detail/edit page with the record ID.

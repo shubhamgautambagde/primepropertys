@@ -1676,3 +1676,79 @@ without live markers after the home-services slice:
   admin publish 200.
 - Backup before this change:
   `~/workspace/primepropertys-backup-wizard/`.
+
+## Remaining forms + admin tables triage (autopilot slice 5, 2026-10-28)
+
+### Wired from existing endpoints (no new domains invented)
+- Newsletter, second footer variant (36 forms, 35 files): root and blog
+  footers use `<form class="newsletter-row" data-backend>` with a bare
+  email input — a different shape from the section footers wired in
+  the newsletter slice. Same endpoint, same case.
+- Settings, second location (3 forms): super-admin ai-settings +
+  system-settings and security-center security-settings hold the same
+  4-field form; submit works via the shared case, but prefill/Reset
+  need the settings group file, which the build only inlines on
+  system-settings pages — documented in TRIAGE.md, not faked.
+- Report forms (2) + emergency support (1) -> tickets, with the
+  honest screenshot caveat (binary upload is not implemented).
+- FAQ / help search (2) -> client-side accordion filter.
+- Site search (4): index, advanced search, investment search, mobile
+  search -> search-results.html with URL params; the search-results
+  renderer now honours API filters plus client-side bedrooms /
+  possession / area filters (fetching up to 100 rows when a client
+  filter is active). ROI filtering is honestly unavailable.
+- Section search (13): form-builder (7), news (4), support
+  search-support, owner my-properties -> client-side row/card filter.
+- Change password (5): agent, builder, buyer, manager-staff, owner
+  security forms -> POST /api/auth/change-password (already existed,
+  unwired). Investor security cannot use it (no current-password
+  field) and stays unwired.
+- Calculators (3): investor ROI / yield / appreciation already
+  computed in buyer.js; the forms only lacked a data-api tag, so
+  Enter-submit did nothing. They now carry one, delegating to the
+  existing functions.
+- Admin user tables (8): one renderer in admin.js over GET /api/users
+  (list now exposes email_verified_at to users:manage holders) with
+  per-page filters; View/Edit open user-details.html?user_id= with a
+  real edit form via new PATCH /api/users/:id (own-role changes
+  refused). This resolves the View/Edit placeholder links at runtime;
+  static demo rows remain in source, so the audit still lists those
+  files.
+
+### New server surface (kept minimal, tested)
+- GET /api/users/:id and PATCH /api/users/:id, both users:manage-
+  gated; PATCH validates role against the 9 platform roles and status
+  against active/suspended, refuses own-role changes, never returns
+  password hashes. Tests in server/test/users-admin.js (port 8960).
+
+### Audit gotcha fixed in passing
+- A header comment in the new admin.js code contained the literal
+  text href="#" — the audit scans inlined script as markup, so all
+  83 admin.js pages flagged as false positives. The comment was
+  rewritten; counts below are clean.
+
+### Everything else: documented, not faked
+- TRIAGE.md (site root + audit dir) classifies every remaining form
+  and link group: needs a new domain (projects, reviews, tasks,
+  coupons/boosts, subscriptions, stored forms, SEO records, AI
+  provider, analytics, chat, profiles, prefs, uploads, reminders,
+  custom roles) or needs a product decision (WhatsApp number policy,
+  detail render, share/plan/video assets, callback context,
+  sale/rent choice on add-property forms, account deletion).
+- FRONTEND_BACKEND_MAPPING.md regenerated from source (44 wired
+  cases, 138 unwired occurrences); PLACEHOLDER_LINKS_REPORT.md notes
+  the View/Edit runtime resolution.
+
+### Verified
+- Tests: 59/59 pass (58 + 1 new users-admin test).
+- Build idempotent; all modules `node --check` PASS.
+- Audit: 187 entries (was 250; form files 195 -> 132,
+  not-connected occurrences 201 -> 138, placeholder-link files 52,
+  0 broken links).
+- Live flow on a fresh database (port 8961, temp DB deleted
+  afterwards): users list 200 with verified field, detail, patch
+  role, self-role 400, newsletter 201, change-password 200 + login
+  with the new password, property publish, search filters
+  (city+type hit, other city empty).
+- Backup before this change:
+  `~/workspace/primepropertys-backup-triage/`.

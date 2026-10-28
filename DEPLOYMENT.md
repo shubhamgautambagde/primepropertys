@@ -142,7 +142,7 @@ is documented in the file itself.
 
 ## Final verification (Stage J)
 
-- `npm test` in `server/`: 58/58 pass, including
+- `npm test` in `server/`: 59/59 pass, including
   `test/journey.js` — one test that walks the whole product:
   admin creates a draft property (invisible publicly),
   publishes it (visible), a buyer enquires, the admin
@@ -233,6 +233,13 @@ The 341 entries are not 341 defects to fix blindly:
   refused with 400: secrets are never stored here and belong in
   environment variables on the server. No secret field exists in
   the settings markup, so none was invented.
+- Triage is done: the remaining forms were either wired from existing
+  endpoints (newsletter second variant, settings second location, report +
+  emergency tickets, FAQ/help search, site search with URL params,
+  section search, change password, investor calculators, live admin user
+  tables with a real user edit endpoint) or documented in TRIAGE.md with
+  the domain or decision that blocks them. Nothing was faked to clear
+  the audit: audit 187 entries, 0 broken links.
 - The post-property wizard is done: 27 steps share one draft —
   answers accumulate in the browser until the description step
   creates the draft, then every later step PATCHes it by
