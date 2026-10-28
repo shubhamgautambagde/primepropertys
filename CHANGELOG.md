@@ -1526,3 +1526,67 @@ without live markers after the home-services slice:
   (status queued) -> lists correct.
 - Backup before this change:
   `~/workspace/primepropertys-backup-campaigns/`.
+
+## Settings core (autopilot slice 3, 2026-10-28)
+
+### Key finding that changed the design
+- All 28 system-settings forms are byte-identical copies of one
+  generic form (Site/Service Name, Support Email, Contact Number,
+  Default Country + Save + Reset). The page titles differ (Email
+  Settings, Payment Settings, 2FA, ...), but NO page-specific
+  field — no SMTP host, no API key, no payment secret, no OTP
+  secret — exists anywhere in the markup. The earlier "settings
+  hold secrets" concern was based on titles, not fields, so no
+  secret-handling design was needed for what the pages actually
+  contain, and no secret field was invented.
+- Real defect found in the same forms: the Reset button was
+  type="submit", so it would SAVE instead of resetting.
+
+### What was built
+- Migration 016: site_settings (key/value) + settings:manage
+  permission (Super Admin, Admin). The four rows are seeded with
+  the values the pages themselves already display as current
+  values (value="..." attributes): the site's own identity, not
+  sample user data.
+- server/src/settings.js + routes GET/PUT /api/settings
+  (settings:manage-gated). The four-key allowlist IS the security
+  mechanism: any other key (smtp_password, api_key, payment
+  secret, otp secret, webhook secret, ...) is refused with 400,
+  so a secret can never be smuggled into this store through a
+  form, an API call, or a future page edit. Email format is
+  validated with the shared isValidEmail helper. GET also reports
+  the email backend (value only, never a secret).
+- Pages wired (new assets/js/groups/settings.js mapped in
+  tools/section-map.json — system-settings remapped from admin.js,
+  verified safe: no settings page holds an admin.js-guarded id):
+  all 28 forms save + prefill the same four settings; Reset is
+  now type="button" and restores the last saved values instead
+  of submitting.
+- Two latent server bugs fixed in passing, both found by this
+  slice's tests: (1) the /api/settings dispatch used `m`, which
+  is undefined in handleApi (handler functions define it, the
+  dispatcher does not) — anonymous requests crashed into a 400
+  "Malformed request"; now uses req.method. (2) PUT request
+  bodies were never parsed (only POST/PATCH were read), so PUT
+  endpoints always saw an empty body — this also silently broke
+  PUT /api/billing-profile from the payments slice, which now
+  works too (verified live).
+- Deliberately left alone: maintenance-mode + logo-favicon +
+  index (admin-style listing/landing pages, no settings forms —
+  triage item) and any page-specific settings UI (does not exist
+  in the markup; not invented).
+
+### Verified
+- Tests: 57/57 pass (56 + 1 new in server/test/settings.js:
+  seeded defaults, staff-only 403, anonymous 401, six
+  secret-looking keys refused, invalid email refused, update +
+  persistence + untouched keys).
+- Build idempotent; all modules `node --check` PASS.
+- Audit: 275 entries (was 303; not-connected markers 254 -> 226,
+  exactly the 28 wired settings forms), 0 broken links.
+- Live flow on a fresh database (port 8956, temp DB deleted
+  afterwards): anon GET 401 -> seeded values correct -> secret
+  key refused 400 -> update 200 -> reread shows the new value;
+  billing PUT 200 + reread city Nagpur (latent fix confirmed).
+- Backup before this change:
+  `~/workspace/primepropertys-backup-settings/`.

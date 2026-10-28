@@ -142,7 +142,7 @@ is documented in the file itself.
 
 ## Final verification (Stage J)
 
-- `npm test` in `server/`: 56/56 pass, including
+- `npm test` in `server/`: 57/57 pass, including
   `test/journey.js` — one test that walks the whole product:
   admin creates a draft property (invisible publicly),
   publishes it (visible), a buyer enquires, the admin
@@ -224,6 +224,15 @@ The 341 entries are not 341 defects to fix blindly:
   notification logs. Ad-platform metrics (impressions, clicks,
   spend, platform conversions) do not exist and are shown as
   dashes, never invented.
+- Site settings are done: GET/PUT /api/settings with a four-key
+  allowlist (site name, support email, contact number, default
+  country) — all 28 system-settings forms hold the same four
+  fields, so they all read/write the same row, with prefill and
+  a Reset that restores saved values instead of submitting.
+  Any other key (SMTP/API/payment/OTP secrets and the like) is
+  refused with 400: secrets are never stored here and belong in
+  environment variables on the server. No secret field exists in
+  the settings markup, so none was invented.
 - Payments (needs a real provider and credentials — never
   invented), support tickets, campaigns, settings forms.
 - Hosting decision: Node hosting vs PHP-only hosting. If
