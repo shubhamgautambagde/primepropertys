@@ -27,6 +27,12 @@ p{margin:0 0 1rem}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
 .section.pale{background:var(--pale)}
@@ -189,6 +195,7 @@ textarea{min-height:120px}
 @media(max-width:960px){.portal{flex-direction:column}.portal-sidebar{flex:none}.chat{grid-template-columns:1fr}.portal-main{padding:16px}}
 </style></head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Download App</a><a href="../../index.html">Shortlist (3)</a><a href="../../index.html">INR ▾</a><a href="../../sitemap.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row">
 <a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
@@ -198,7 +205,7 @@ textarea{min-height:120px}
 <div class="portal">
 <aside class="portal-sidebar"><h4>Central CRM</h4><a href="crm-dashboard.html" class="">CRM Dashboard</a><a href="all-leads.html" class="">All Leads</a><a href="new-leads.html" class="">New Leads</a><a href="contacted-leads.html" class="">Contacted Leads</a><a href="interested-leads.html" class="">Interested Leads</a><a href="site-visit-leads.html" class="">Site Visit Leads</a><a href="negotiation-leads.html" class="">Negotiation Leads</a><a href="closed-leads.html" class="">Closed Leads</a><a href="lost-leads.html" class="">Lost Leads</a><a href="reactivated-leads-1.html" class="">Reactivated Leads 1</a><a href="reactivated-leads-2.html" class="">Reactivated Leads 2</a><a href="lead-details.html" class="">Lead Details</a><a href="lead-timeline.html" class="">Lead Timeline</a><a href="lead-assignment.html" class="">Lead Assignment</a><a href="lead-transfer.html" class="">Lead Transfer</a><a href="lead-scoring.html" class="">Lead Scoring</a><a href="lead-source.html" class="">Lead Source</a><a href="lead-tags.html" class="">Lead Tags</a><a href="lead-sla.html" class="">Lead SLA</a><a href="lead-escalation.html" class="">Lead Escalation</a><a href="lead-notes.html" class="">Lead Notes</a><a href="lead-documents.html" class="">Lead Documents</a><a href="follow-up.html" class="">Follow-up</a><a href="follow-up-calendar.html" class="">Follow-up Calendar</a><a href="call-history.html" class="">Call History</a><a href="meeting-history.html" class="active">Meeting History</a><a href="conversion-funnel.html" class="">Conversion Funnel</a><a href="property-wise-leads.html" class="">Property-wise Leads</a><a href="source-wise-leads.html" class="">Source-wise Leads</a><a href="crm-reports.html" class="">CRM Reports</a><a href="crm-export.html" class="">CRM Export</a><a href="agent-performance.html" class="">Agent Performance</a><a href="team-performance.html" class="">Team Performance</a>
 <div class="help-card"><h4>Need Help?</h4><p>support@primepropertys.com<br>+91 98765 43210</p><a class="btn small" href="../../help-center.html">Contact Support</a></div></aside>
-<main class="portal-main">
+<main id="main-content" tabindex="-1" class="portal-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> › <a href="index.html">Central CRM</a> › Meeting History</div>
 <h1>Meeting History</h1><p class="lead">Meetings held with leads, owners and builders.</p>
 <div class="card"><table class="data-table"><thead><tr><th>Meeting</th><th>Lead</th><th>Agent</th><th>Date & Time</th><th>Status</th></tr></thead><tbody><tr><td>Site visit discussion</td><td>Amit Verma</td><td>Rohit Verma</td><td>14 Aug 2025, 02:30 PM</td><td><span class="pill green">Completed</span></td></tr><tr><td>Price negotiation</td><td>Priya Singh</td><td>Karan Joshi</td><td>13 Aug 2025, 11:00 AM</td><td><span class="pill green">Completed</span></td></tr></tbody></table></div>
