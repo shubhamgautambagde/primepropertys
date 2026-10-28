@@ -60,11 +60,29 @@ export function createProperty(db, user, body) {
   const v = validatePropertyInput(body, false);
   if (!v.ok) return err(400, 'INVALID_PARAMETER', v.errors.join('; '));
   const c = v.clean;
+  // Wizard fields (migration 017): the create call accepts them so
+  // the wizard can create a draft carrying every earlier step's
+  // answers in one request. Flags default to 0, the rest to NULL.
+  const wizCols = ['facing', 'property_age', 'possession_status', 'furnishing_status',
+    'floor_number', 'total_floors', 'unit_number', 'approval_by', 'balconies',
+    'servant_room', 'is_corner', 'is_gated', 'has_lift', 'has_reserved_parking',
+    'open_parking', 'covered_parking', 'builtup_area_sqft', 'carpet_area_sqft',
+    'plot_area_sqft', 'area_unit', 'price_per_sqft_inr', 'price_negotiable',
+    'maintenance_monthly_inr', 'deposit', 'ownership', 'transaction_type',
+    'amenities', 'video_url', 'video_url_2', 'tour_360_url', 'floor_plan_title',
+    'floor_plan_title_2', 'owner_name', 'owner_type', 'owner_phone', 'owner_email',
+    'contact_phone_calls', 'contact_whatsapp', 'contact_email', 'contact_site_visits',
+    'contact_time', 'response_language', 'hide_number', 'pincode', 'address_line',
+    'project_name', 'super_builtup_area_sqft', 'terrace_area_sqft', 'garden_area_sqft',
+    'dimensions', 'area_notes', 'availability'];
+  const wizFlags = new Set(['is_corner', 'is_gated', 'has_lift', 'has_reserved_parking',
+    'contact_phone_calls', 'contact_whatsapp', 'contact_email', 'contact_site_visits', 'hide_number']);
   const info = db.prepare(`INSERT INTO properties
-    (owner_id, title, description, property_type, listing_type, price_inr, city, locality, area_sqft, bedrooms, bathrooms, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft')`).run(
+    (owner_id, title, description, property_type, listing_type, price_inr, city, locality, area_sqft, bedrooms, bathrooms, status, ${wizCols.join(', ')})
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft', ${wizCols.map(() => '?').join(', ')})`).run(
     user.id, c.title, c.description || '', c.property_type, c.listing_type, c.price_inr,
-    c.city, c.locality || '', c.area_sqft ?? null, c.bedrooms ?? null, c.bathrooms ?? null);
+    c.city, c.locality || '', c.area_sqft ?? null, c.bedrooms ?? null, c.bathrooms ?? null,
+    ...wizCols.map((k) => (c[k] ?? (wizFlags.has(k) ? 0 : null))));
   const prop = db.prepare('SELECT * FROM properties WHERE id = ?').get(Number(info.lastInsertRowid));
   prop.images = [];
   return { status: 201, body: prop };

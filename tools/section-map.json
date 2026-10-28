@@ -46,6 +46,7 @@
     "agent-portal": "agent",
     "support-home-services": "services",
     "payments": "payments",
-    "marketing": "marketing"
+    "marketing": "marketing",
+    "post-property": "post-property"
   }
 }

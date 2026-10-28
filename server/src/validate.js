@@ -60,6 +60,52 @@ export function validatePropertyInput(body, partial = false) {
   optInt('bedrooms', 0, 50);
   optInt('bathrooms', 0, 50);
 
+  // Post-property wizard fields (migration 017). All optional:
+  // the wizard PATCHes them step by step onto a draft.
+  const optStrs = {
+    facing: 50, property_age: 50, possession_status: 50, furnishing_status: 50,
+    unit_number: 50, approval_by: 100, area_unit: 20, price_negotiable: 50,
+    deposit: 100, ownership: 100, transaction_type: 100, video_url: 500,
+    video_url_2: 500, tour_360_url: 500, floor_plan_title: 200,
+    floor_plan_title_2: 200, owner_name: 200, owner_type: 100,
+    owner_phone: 50, contact_time: 50, response_language: 50,
+    pincode: 20, address_line: 500, project_name: 200, dimensions: 200,
+    area_notes: 1000, availability: 50,
+  };
+  for (const [field, max] of Object.entries(optStrs)) optStr(field, max);
+  const optInts = {
+    floor_number: [0, 200], total_floors: [0, 200], balconies: [0, 50],
+    servant_room: [0, 20], open_parking: [0, 100], covered_parking: [0, 100],
+    builtup_area_sqft: [0, 1_000_000], carpet_area_sqft: [0, 1_000_000],
+    super_builtup_area_sqft: [0, 1_000_000], terrace_area_sqft: [0, 1_000_000],
+    garden_area_sqft: [0, 1_000_000],
+    plot_area_sqft: [0, 1_000_000], price_per_sqft_inr: [0, 100_000_000],
+    maintenance_monthly_inr: [0, 100_000_000],
+  };
+  for (const [field, [min, max]] of Object.entries(optInts)) optInt(field, min, max);
+  // 0/1 flags: accept 0, 1, true, false.
+  const flags = ['is_corner', 'is_gated', 'has_lift', 'has_reserved_parking',
+    'contact_phone_calls', 'contact_whatsapp', 'contact_email',
+    'contact_site_visits', 'hide_number'];
+  for (const field of flags) {
+    if (b[field] === undefined || b[field] === null || b[field] === '') continue;
+    if (b[field] === true || b[field] === 1 || b[field] === '1') clean[field] = 1;
+    else if (b[field] === false || b[field] === 0 || b[field] === '0') clean[field] = 0;
+    else errors.push(`${field} must be 0 or 1`);
+  }
+  if (b.owner_email !== undefined && b.owner_email !== null && b.owner_email !== '') {
+    if (typeof b.owner_email !== 'string' || b.owner_email.length > 200 ||
+        !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(b.owner_email)) {
+      errors.push('owner_email must be a valid email address up to 200 characters');
+    } else clean.owner_email = b.owner_email.trim();
+  }
+  if (b.amenities !== undefined && b.amenities !== null && b.amenities !== '') {
+    const list = Array.isArray(b.amenities) ? b.amenities : null;
+    if (!list || list.some((a) => typeof a !== 'string' || !a.trim() || a.length > 100) || list.length > 50) {
+      errors.push('amenities must be an array of up to 50 names, each up to 100 characters');
+    } else clean.amenities = JSON.stringify([...new Set(list.map((a) => a.trim()))]);
+  }
+
   return { ok: errors.length === 0, errors, clean };
 }
 
