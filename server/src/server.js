@@ -15,6 +15,7 @@ import {
 import * as P from './properties.js';
 import * as L from './leads.js';
 import * as C from './contact.js';
+import * as N from './newsletter.js';
 import * as V from './visits.js';
 import * as T from './tickets.js';
 import * as S from './services.js';
@@ -438,6 +439,15 @@ function handleApi(req, res, url, body, user, token) {
     }
     if (req.method === 'GET') return respond(res, C.listContactMessages(db, user, url));
     return apiError(res, 405, 'METHOD_NOT_ALLOWED', 'Method not allowed for this route');
+  }
+  if (path === '/api/newsletter/subscribe' && req.method === 'POST') {
+    const ip = req.socket.remoteAddress || '';
+    if (N.newsletterRateLimited(ip)) return apiError(res, 429, 'TOO_MANY_ATTEMPTS', 'Too many subscription attempts from this address. Try again later.');
+    N.recordNewsletterAttempt(ip);
+    return respond(res, N.subscribe(db, body));
+  }
+  if (path === '/api/newsletter/unsubscribe' && req.method === 'POST') {
+    return respond(res, N.unsubscribe(db, body));
   }
   if (path === '/api/users' && req.method === 'GET') return respond(res, listUsers(db, user));
   if (path === '/api/followups' && req.method === 'GET') return respond(res, L.listFollowupsVisible(db, user, url));
