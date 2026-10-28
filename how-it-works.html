@@ -775,6 +775,117 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       return;
     }
+    if (form.getAttribute('data-api') === 'service-request') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — request submit nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        var urg = (payload.urgency || '').toLowerCase();
+        if (urg.indexOf('high') !== -1) payload.urgency = 'high';
+        else if (urg.indexOf('low') !== -1) payload.urgency = 'low';
+        else payload.urgency = 'normal';
+        if (!payload.category || !payload.issue_type || !payload.address || !payload.preferred_date || !payload.time_slot || !payload.description) {
+          showNote(form, 'Category, issue type, address, date, time slot aur description sab bharein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/service-requests', payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Service request submitted! Your request ID is HSR-' + (r.data && r.data.id) + '.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Request submit nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'service-assign') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — assignment nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var params = new URLSearchParams(window.location.search);
+        var requestId = parseInt(params.get('request_id') || '', 10);
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        var assignee = parseInt(payload.assigned_to || '', 10);
+        if (!requestId || requestId <= 0 || !assignee || assignee <= 0) {
+          showNote(form, 'Request aur user dono chunein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/service-requests/' + requestId + '/assign', { assigned_to: assignee }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Technician assigned successfully. Detail dekhne ke liye page reload karein.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Assignment nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'service-schedule') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.request) {
+          showNote(form, 'Form wiring load nahi hui — schedule save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var params = new URLSearchParams(window.location.search);
+        var requestId = parseInt(params.get('request_id') || '', 10);
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        if (!requestId || requestId <= 0 || !payload.scheduled_at) {
+          showNote(form, 'Request aur visit ki date/time dono chunein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.request('/api/service-requests/' + requestId, { method: 'PATCH', body: { scheduled_at: payload.scheduled_at } }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Visit scheduled successfully. Detail dekhne ke liye page reload karein.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Schedule save nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'service-track') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var input = form.querySelector('input');
+        var raw = input ? (input.value || '') : '';
+        var groups = raw.match(/\d+/g);
+        var id = groups ? parseInt(groups[groups.length - 1], 10) : NaN;
+        if (!id || id <= 0) {
+          showNote(form, 'Ek numeric request ID daalein, jaise HSR-12.', true);
+          return;
+        }
+        window.location.href = 'complaint-tracking.html?request_id=' + id;
+      });
+      return;
+    }
     if (form.getAttribute('data-api') === 'login') {
       form.addEventListener('submit', function (e) {
         e.preventDefault();

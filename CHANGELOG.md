@@ -1156,3 +1156,73 @@ accessible name — placeholder text only, which is not a label.
   (200).
 - Backup before this change:
   `~/workspace/primepropertys-backup-tickets/`.
+
+## Home service requests (post-Stage-J slice, 2026-10-28)
+
+### Design decisions made for this slice (user said "ok next")
+- Service requests are their own domain, not tickets:
+  the form's fields (category, issue type, address,
+  preferred date/slot, urgency, description) define
+  the model. Photo upload stays visual-only: binary
+  multipart upload is not implemented anywhere in the
+  server (same honest limit as property images).
+- Statuses follow the tracking page's own timeline:
+  requested (raised) -> assigned -> scheduled (visit
+  scheduled) -> in_progress -> completed (resolved),
+  plus cancelled from any open state. Timestamps make
+  the timeline real: assigned_at, scheduled_at (the
+  staff-confirmed visit time — preferred_date +
+  time_slot stay the user's original ask),
+  completed_at.
+- Visibility mirrors tickets: requester, assignee,
+  and services:manage holders (Admin, Super Admin,
+  Support). Status changes are manage/assignee-only,
+  except a requester may cancel their own request
+  from any open state. Stats use the list page's own
+  card language: In Progress = assigned + scheduled +
+  in_progress; Resolved = completed; Closed =
+  cancelled.
+- The section had no JS group (js_map had no
+  support-home-services entry), so a new
+  assets/js/groups/services.js was added and mapped
+  in tools/section-map.json — the same mechanism the
+  other sections use.
+
+### What was built
+- Migration 012: service_requests + services:manage
+  permission (Super Admin, Admin, Support).
+- server/src/services.js + routes: POST
+  /api/service-requests, GET list (visibility-scoped,
+  ?status=/?category= filters), GET detail, PATCH
+  (status / scheduled_at with the rules above), POST
+  :id/assign (services:manage only), GET stats.
+- Pages wired: service-request-form (all 7 fields,
+  urgency text mapped to low/normal/high; success
+  message now carries the real HSR-<id>, not the
+  demo's HSR-2025-00024), my-service-requests (live
+  stats cards + live table with View links),
+  complaint-tracking (live detail + derived timeline
+  + status buttons + assign card + schedule card +
+  the track form now navigates to ?request_id=,
+  accepting HSR-12 or plain 12).
+
+### Verified
+- Tests: 52/52 pass (51 + 1 new in
+  server/test/services.js: lifecycle, visibility 404
+  for strangers, manage-only assign, schedule
+  transition + timestamp, stats mapping, cancel
+  rules). One test expectation was corrected during
+  the run (requester cancelling a completed request
+  is 403 — not their action — while staff get 400
+  for the invalid transition, matching the
+  visits/tickets gate order).
+- Build idempotent; all modules `node --check` PASS.
+- Audit: 337 entries (was 339: the service-request
+  and track forms are now wired), 0 broken links.
+- Live flow on a fresh database (port 8948, temp DB
+  deleted afterwards): create (201, requested) ->
+  assign -> schedule (status scheduled, confirmed
+  time stored) -> in_progress -> completed -> stats
+  (total 1, resolved 1).
+- Backup before this change:
+  `~/workspace/primepropertys-backup-services/`.

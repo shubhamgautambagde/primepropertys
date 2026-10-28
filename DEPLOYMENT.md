@@ -142,7 +142,7 @@ is documented in the file itself.
 
 ## Final verification (Stage J)
 
-- `npm test` in `server/`: 51/51 pass, including
+- `npm test` in `server/`: 52/52 pass, including
   `test/journey.js` — one test that walks the whole product:
   admin creates a draft property (invisible publicly),
   publishes it (visible), a buyer enquires, the admin
@@ -186,8 +186,11 @@ The 341 entries are not 341 defects to fix blindly:
 - Support tickets are done: create/list/detail/status/
   assign/reply endpoints plus the wired complaints,
   support, contact-support, and ticket-details pages.
-  Home service requests are a separate domain (see
-  below) and were not folded into tickets.
+- Home service requests are done: create/list/detail/
+  status/schedule/assign/stats endpoints plus the wired
+  service-request-form, my-service-requests, and
+  complaint-tracking pages (photo upload stays
+  visual-only — binary upload is not implemented).
 - Payments (needs a real provider and credentials — never
   invented), support tickets, campaigns, settings forms.
 - Hosting decision: Node hosting vs PHP-only hosting. If
