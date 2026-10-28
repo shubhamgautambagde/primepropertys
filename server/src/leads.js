@@ -261,6 +261,58 @@ export function completeFollowup(db, user, idText, followupIdText) {
   return { status: 200, body: { ok: true } };
 }
 
+/* CRM Stage, Phase 5: lead tags. Same visibility rule as notes and
+   follow-ups: anyone who can see the lead can tag it. Tag names are
+   free-form and deduped case-insensitively; re-adding an attached
+   tag is a no-op success (200), not an error. */
+export function listTags(db, user) {
+  if (!user) return err(401, 'UNAUTHORIZED', 'Login required');
+  const rows = db.prepare('SELECT * FROM tags ORDER BY name COLLATE NOCASE ASC').all();
+  return { status: 200, body: { data: rows } };
+}
+
+export function listLeadTags(db, user, idText) {
+  if (!user) return err(401, 'UNAUTHORIZED', 'Login required');
+  const lead = loadLead(db, idText);
+  if (!lead || !canSee(db, user, lead)) return err(404, 'NOT_FOUND', 'Lead not found');
+  const rows = db.prepare(`SELECT t.id, t.name, lt.created_at FROM lead_tags lt
+    JOIN tags t ON t.id = lt.tag_id WHERE lt.lead_id = ?
+    ORDER BY t.name COLLATE NOCASE ASC`).all(lead.id);
+  return { status: 200, body: { data: rows } };
+}
+
+export function addLeadTag(db, user, idText, body) {
+  if (!user) return err(401, 'UNAUTHORIZED', 'Login required');
+  const lead = loadLead(db, idText);
+  if (!lead || !canSee(db, user, lead)) return err(404, 'NOT_FOUND', 'Lead not found');
+  const name = typeof body.name === 'string' ? body.name.trim().replace(/\s+/g, ' ') : '';
+  if (!name || name.length > 50) return err(400, 'INVALID_PARAMETER', 'name is required (up to 50 characters)');
+  let tag = db.prepare('SELECT * FROM tags WHERE name = ? COLLATE NOCASE').get(name);
+  if (!tag) {
+    const info = db.prepare('INSERT INTO tags (name) VALUES (?)').run(name);
+    tag = db.prepare('SELECT * FROM tags WHERE id = ?').get(Number(info.lastInsertRowid));
+  }
+  const existing = db.prepare('SELECT 1 FROM lead_tags WHERE lead_id = ? AND tag_id = ?').get(lead.id, tag.id);
+  if (existing) return { status: 200, body: tag };
+  db.prepare('INSERT INTO lead_tags (lead_id, tag_id, created_by) VALUES (?, ?, ?)').run(lead.id, tag.id, user.id);
+  logActivity(db, lead.id, user.id, 'tag_added', `Tag: ${tag.name}`);
+  return { status: 201, body: tag };
+}
+
+export function removeLeadTag(db, user, idText, tagIdText) {
+  if (!user) return err(401, 'UNAUTHORIZED', 'Login required');
+  const lead = loadLead(db, idText);
+  if (!lead || !canSee(db, user, lead)) return err(404, 'NOT_FOUND', 'Lead not found');
+  const tid = Number(tagIdText);
+  if (!Number.isInteger(tid)) return err(400, 'INVALID_PARAMETER', 'Invalid tag id');
+  const link = db.prepare(`SELECT t.name FROM lead_tags lt
+    JOIN tags t ON t.id = lt.tag_id WHERE lt.lead_id = ? AND lt.tag_id = ?`).get(lead.id, tid);
+  if (!link) return err(404, 'NOT_FOUND', 'Tag not attached to this lead');
+  db.prepare('DELETE FROM lead_tags WHERE lead_id = ? AND tag_id = ?').run(lead.id, tid);
+  logActivity(db, lead.id, user.id, 'tag_removed', `Tag removed: ${link.name}`);
+  return { status: 200, body: { ok: true } };
+}
+
 function csvCell(v) {
   if (v === null || v === undefined) return '';
   const s = String(v);

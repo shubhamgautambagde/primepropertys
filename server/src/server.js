@@ -288,6 +288,12 @@ function handleLeadRoutes(req, res, url, body, user) {
   if (assign && m === 'POST') return respond(res, L.assignLead(db, user, assign[1], body));
   const notes = path.match(/^\/api\/leads\/([^/]+)\/notes$/);
   if (notes && m === 'POST') return respond(res, L.addNote(db, user, notes[1], body));
+  if (path === '/api/tags' && m === 'GET') return respond(res, L.listTags(db, user));
+  const leadTags = path.match(/^\/api\/leads\/([^/]+)\/tags$/);
+  if (leadTags && m === 'GET') return respond(res, L.listLeadTags(db, user, leadTags[1]));
+  if (leadTags && m === 'POST') return respond(res, L.addLeadTag(db, user, leadTags[1], body));
+  const leadTagOne = path.match(/^\/api\/leads\/([^/]+)\/tags\/([^/]+)$/);
+  if (leadTagOne && m === 'DELETE') return respond(res, L.removeLeadTag(db, user, leadTagOne[1], leadTagOne[2]));
   const detail = path.match(/^\/api\/leads\/([^/]+)$/);
   if (detail) {
     if (m === 'GET') return respond(res, L.getLead(db, user, detail[1]));
@@ -308,7 +314,7 @@ function handleApi(req, res, url, body, user, token) {
   /* Stats must precede the /api/leads/ branch: without this, 'stats'
      would match the lead-detail route and 404. */
   if (path === '/api/leads/stats' && req.method === 'GET') return respond(res, L.leadStats(db, user));
-  if (path === '/api/inquiries' || path === '/api/inquiries/mine' || path === '/api/leads' || path.startsWith('/api/leads/') ||
+  if (path === '/api/inquiries' || path === '/api/inquiries/mine' || path === '/api/leads' || path.startsWith('/api/leads/') || path === '/api/tags' ||
       path === '/api/notifications' || path.startsWith('/api/notifications/')) {
     return handleLeadRoutes(req, res, url, body, user);
   }

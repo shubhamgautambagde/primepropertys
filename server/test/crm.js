@@ -134,3 +134,47 @@ test('leads stats: scoped totals, funnel sums to total, anonymous blocked', asyn
   assert.equal(adm.funnel.reduce((sum, f) => sum + f.count, 0), adm.total);
   assert.ok(adm.by_property.some((p) => p.property_title === 'Stats House'));
 });
+
+test('lead tags: add/list/dedupe/remove, visibility-scoped', async () => {
+  const owner = await register('tagown@example.com', 'Owner');
+  const stranger = await register('tagstr@example.com', 'Buyer');
+  const prop = await (await api('/api/properties', {
+    method: 'POST', cookie: owner.cookie,
+    body: { title: 'Tag House', property_type: 'House', listing_type: 'sale', price_inr: 5000000, city: 'Nagpur' },
+  })).json();
+  await api(`/api/properties/${prop.id}/publish`, { method: 'POST', cookie: await adminCookie() });
+  const lead = await (await api('/api/inquiries', {
+    method: 'POST',
+    body: { property_id: prop.id, full_name: 'Tag Lead', phone: '9876543210' },
+  })).json();
+
+  assert.equal((await api(`/api/leads/${lead.id}/tags`)).status, 401);
+  assert.equal((await api(`/api/leads/${lead.id}/tags`, { cookie: stranger.cookie })).status, 404);
+  const added = await api(`/api/leads/${lead.id}/tags`, {
+    method: 'POST', cookie: owner.cookie, body: { name: 'Hot Lead' },
+  });
+  assert.equal(added.status, 201);
+  // Case-insensitive duplicate reuses the tag and stays a single link.
+  const dup = await api(`/api/leads/${lead.id}/tags`, {
+    method: 'POST', cookie: owner.cookie, body: { name: 'hot lead' },
+  });
+  assert.equal(dup.status, 200);
+  assert.equal((await dup.json()).id, (await added.json()).id);
+  const list = await (await api(`/api/leads/${lead.id}/tags`, { cookie: owner.cookie })).json();
+  assert.equal(list.data.length, 1);
+  assert.equal(list.data[0].name, 'Hot Lead');
+  const all = await (await api('/api/tags', { cookie: owner.cookie })).json();
+  assert.ok(all.data.some((t) => t.name === 'Hot Lead'));
+  assert.equal((await api(`/api/leads/${lead.id}/tags`, {
+    method: 'POST', cookie: owner.cookie, body: { name: '' },
+  })).status, 400);
+  const removed = await api(`/api/leads/${lead.id}/tags/${list.data[0].id}`, {
+    method: 'DELETE', cookie: owner.cookie,
+  });
+  assert.equal(removed.status, 200);
+  assert.equal((await api(`/api/leads/${lead.id}/tags/${list.data[0].id}`, {
+    method: 'DELETE', cookie: owner.cookie,
+  })).status, 404);
+  const after = await (await api(`/api/leads/${lead.id}/tags`, { cookie: owner.cookie })).json();
+  assert.equal(after.data.length, 0);
+});
