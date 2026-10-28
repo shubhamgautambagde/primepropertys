@@ -189,7 +189,7 @@ table.data th{color:var(--navy);background:var(--pale)}
 <a class="skip-link" href="#main-content">Skip to main content</a><div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Home</a><a href="../../sitemap.html">Sitemap</a><a href="../../help-center.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row"><a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a><input class="portal-search" placeholder="Search properties, locations..." name="search" aria-label="Properties, locations"><div class="header-actions"><span>🔔</span><strong>John Doe</strong><span>Buyer</span></div></div></header>
 <div class="portal"><aside class="sidebar"><h4>Buyer Portal</h4><a href="buyer-dashboard.html">Buyer Dashboard</a><a href="active-sessions.html">Active Sessions</a><a href="buyer-profile.html">Buyer Profile</a><a href="compare.html">Compare</a><a href="contact-unlock-history.html">Contact Unlock History</a><a href="credits.html">Credits</a><a href="delete-account.html">Delete Account</a><a href="documents.html">Documents</a><a href="edit-profile.html">Edit Profile</a><a href="login-history.html">Login History</a><a href="messages.html">Messages</a><a href="my-enquiries.html">My Enquiries</a><a href="my-leads.html">My Leads</a><a href="my-offers.html">My Offers</a><a href="my-site-visits.html">My Site Visits</a><a href="negotiations.html">Negotiations</a><a href="notifications.html">Notifications</a><a href="payment-history.html" class="active">Payment History</a><a href="privacy-settings.html">Privacy Settings</a><a href="recently-viewed.html">Recently Viewed</a><a href="recommendations.html">Recommendations</a><a href="reviews.html">Reviews</a><a href="saved-properties.html">Saved Properties</a><a href="saved-searches.html">Saved Searches</a><a href="security-settings.html">Security Settings</a><a href="site-visit-details.html">Site Visit Details</a><a href="subscription.html">Subscription</a><a href="verification.html">Verification</a><div class="promo"><h3>Need Help?</h3><p>Our property experts are here to help you find the best properties.</p><a class="btn small" href="../../index.html">Contact Support</a></div></aside>
-<main id="main-content" tabindex="-1" class="portal-main"><p class="breadcrumb"><a href="../../index.html">Home</a> &gt; Buyer Portal &gt; Payment History</p><div class="portal-head"><div><h1>Payment History</h1><p class="lead">Payments for credits, subscriptions and premium services.</p></div></div><table class="data"><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr><tr><td>15 May 2024</td><td>Pro Subscription — Monthly</td><td>₹ 1,199</td><td><span class="tag green">Paid</span></td></tr><tr><td>08 May 2024</td><td>120 Credits Pack</td><td>₹ 999</td><td><span class="tag green">Paid</span></td></tr><tr><td>02 Apr 2024</td><td>Featured Enquiry Boost</td><td>₹ 299</td><td><span class="tag green">Paid</span></td></tr></table></main></div>
+<main id="main-content" tabindex="-1" class="portal-main"><p class="breadcrumb"><a href="../../index.html">Home</a> &gt; Buyer Portal &gt; Payment History</p><div class="portal-head"><div><h1>Payment History</h1><p class="lead">Payments for credits, subscriptions and premium services.</p></div></div><table class="data" id="pp-live-buyer-payments-table"><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr><tr><td>15 May 2024</td><td>Pro Subscription — Monthly</td><td>₹ 1,199</td><td><span class="tag green">Paid</span></td></tr><tr><td>08 May 2024</td><td>120 Credits Pack</td><td>₹ 999</td><td><span class="tag green">Paid</span></td></tr><tr><td>02 Apr 2024</td><td>Featured Enquiry Boost</td><td>₹ 299</td><td><span class="tag green">Paid</span></td></tr></table></main></div>
 <footer class="site-footer"><div class="container footer-grid"><div><a class="logo" href="../../index.html" style="color:#fff">Prime<span>Propertys</span></a><p>Buy, Sell, Rent or Invest in residential and commercial properties across India. Your trusted property partner.</p></div><div><h4>Quick Links</h4><p><a href="../../index.html">Home</a><br><a href="../../about.html">About Us</a><br><a href="../../contact.html">Contact Us</a></p></div><div><h4>Support</h4><p><a href="../../help-center.html">Help Center</a><br><a href="../../faq.html">FAQ</a><br><a href="../../sitemap.html">Sitemap</a></p></div><div><h4>Legal</h4><p><a href="../../terms.html">Terms &amp; Conditions</a><br><a href="../../privacy-policy.html">Privacy Policy</a><br><a href="../../refund-policy.html">Refund Policy</a></p></div></div><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with love in India</span></div></footer>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -932,6 +932,119 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       return;
     }
+    if (form.getAttribute('data-api') === 'payment-checkout') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — payment record save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var raw = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          raw[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        var methodText = (raw.method || '').toLowerCase();
+        var method = 'other';
+        if (methodText.indexOf('upi') !== -1) method = 'upi';
+        else if (methodText.indexOf('net banking') !== -1) method = 'netbanking';
+        else if (methodText.indexOf('wallet') !== -1) method = 'wallet';
+        else if (methodText.indexOf('emi') !== -1) method = 'emi';
+        else if (methodText.indexOf('card') !== -1) method = 'card';
+        var payload = {
+          description: form.getAttribute('data-description') || 'Payment',
+          amount_paise: parseInt(form.getAttribute('data-amount-paise') || '', 10),
+          method: method,
+          billing: {
+            full_name: raw.billing_full_name || '',
+            company: raw.billing_company || '',
+            address: raw.billing_address || '',
+            city: '',
+            pincode: '',
+            gstin: raw.billing_gstin || ''
+          }
+        };
+        if (!payload.amount_paise || payload.amount_paise <= 0) {
+          showNote(form, 'Is checkout page par amount set nahi hai — payment record save nahi hua.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/payments', payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Payment recorded as pending (ID PAY-' + (r.data && r.data.data && r.data.data.id) + '). Koi gateway charge nahi hua hai — staff verification ke baad ye confirm hoga.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Payment record save nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'billing-profile') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.request) {
+          showNote(form, 'Form wiring load nahi hui — billing profile save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        if (!payload.full_name) {
+          showNote(form, 'Billing name bharein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.request('/api/billing-profile', { method: 'PUT', body: payload }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Billing profile saved.');
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Billing profile save nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'refund-request') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — refund request save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var raw = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          raw[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        var paymentId = parseInt(raw.payment_id || '', 10);
+        var rupees = parseFloat(raw.refund_amount_rupees || '');
+        var reason = (raw.reason || '') + (raw.description ? ' — ' + raw.description : '');
+        if (!paymentId || paymentId <= 0 || !rupees || rupees <= 0 || !reason || !raw.refund_to) {
+          showNote(form, 'Payment, reason, amount aur refund-to sab chunein/bharein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/payments/' + paymentId + '/refund-request', {
+          reason: reason.slice(0, 500),
+          refund_amount_paise: Math.round(rupees * 100),
+          refund_to: raw.refund_to
+        }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Refund request submitted. Ise Refund Status page par track karein.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Refund request save nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
     if (form.getAttribute('data-api') === 'login') {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -1316,6 +1429,50 @@ document.addEventListener('DOMContentLoaded', function () {
         tag.textContent = v.status;
         c3.appendChild(tag);
         tr.appendChild(c3);
+        h.appendChild(tr);
+      });
+    });
+  });
+});
+
+/* Payments — buyer payment-history page (guarded by
+   #pp-live-buyer-payments-table). Offline records only. */
+document.addEventListener('DOMContentLoaded', function () {
+  var table = document.getElementById('pp-live-buyer-payments-table');
+  if (!table || !window.PP || !window.PP.me) return;
+  function host() { return table.querySelector('tbody') || table; }
+  function clearRows() {
+    var rows = host().querySelectorAll('tr');
+    var start = table.querySelector('tbody') ? 0 : 1;
+    for (var i = rows.length - 1; i >= start; i--) rows[i].remove();
+  }
+  function noticeRow(text) {
+    clearRows();
+    var tr = document.createElement('tr');
+    var td = document.createElement('td');
+    td.setAttribute('colspan', '4');
+    td.textContent = text;
+    tr.appendChild(td);
+    host().appendChild(tr);
+  }
+  window.PP.me().then(function (m) {
+    if (!m.ok || !m.data || !m.data.user) { noticeRow('Is page ke liye login zaroori hai. Login karke dobara aayein.'); return; }
+    window.PP.get('/api/payments?limit=100').then(function (r) {
+      if (!r.ok) { noticeRow((r.error && r.error.message) || 'Payments load nahi ho pa rahe hain.'); return; }
+      var items = (r.data && r.data.data) || [];
+      if (!items.length) { noticeRow('No payments yet.'); return; }
+      clearRows();
+      var h = host();
+      items.forEach(function (p) {
+        if (!p || !Number.isInteger(p.id)) return;
+        var tr = document.createElement('tr');
+        [new Date(p.created_at).toLocaleDateString('en-IN'), p.description,
+         'Rs ' + (p.amount_paise / 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+         p.status].forEach(function (txt) {
+          var td = document.createElement('td');
+          td.textContent = txt;
+          tr.appendChild(td);
+        });
         h.appendChild(tr);
       });
     });
