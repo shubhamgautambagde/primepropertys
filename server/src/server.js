@@ -16,6 +16,7 @@ import * as P from './properties.js';
 import * as L from './leads.js';
 import * as C from './contact.js';
 import * as V from './visits.js';
+import * as T from './tickets.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const STATIC_ROOT = resolve(process.env.STATIC_ROOT || join(here, '..', '..'));
@@ -314,6 +315,23 @@ function handleVisitRoutes(req, res, url, body, user) {
   return apiError(res, 404, 'NOT_FOUND', 'Unknown API route');
 }
 
+function handleTicketRoutes(req, res, url, body, user) {
+  const path = url.pathname;
+  const m = req.method;
+  if (path === '/api/tickets' && m === 'POST') return respond(res, T.createTicket(db, user, body));
+  if (path === '/api/tickets' && m === 'GET') return respond(res, T.listTickets(db, user, url));
+  const assign = path.match(/^\/api\/tickets\/([^/]+)\/assign$/);
+  if (assign && m === 'POST') return respond(res, T.assignTicket(db, user, assign[1], body));
+  const replies = path.match(/^\/api\/tickets\/([^/]+)\/replies$/);
+  if (replies && m === 'POST') return respond(res, T.addReply(db, user, replies[1], body));
+  const detail = path.match(/^\/api\/tickets\/([^/]+)$/);
+  if (detail) {
+    if (m === 'GET') return respond(res, T.getTicket(db, user, detail[1]));
+    if (m === 'PATCH') return respond(res, T.updateTicketStatus(db, user, detail[1], body));
+  }
+  return apiError(res, 404, 'NOT_FOUND', 'Unknown API route');
+}
+
 function handleLeadRoutes(req, res, url, body, user) {
   const path = url.pathname;
   const m = req.method;
@@ -381,6 +399,9 @@ function handleApi(req, res, url, body, user, token) {
   }
   if (path === '/api/site-visits' || path.startsWith('/api/site-visits/')) {
     return handleVisitRoutes(req, res, url, body, user);
+  }
+  if (path === '/api/tickets' || path.startsWith('/api/tickets/')) {
+    return handleTicketRoutes(req, res, url, body, user);
   }
   if (path === '/api/properties' || path.startsWith('/api/properties/') ||
       path === '/api/saved' || path === '/api/recently-viewed') {
