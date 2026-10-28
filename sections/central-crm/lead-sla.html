@@ -195,7 +195,7 @@ textarea{min-height:120px}
 <div class="help-card"><h4>Need Help?</h4><p>support@primepropertys.com<br>+91 98765 43210</p><a class="btn small" href="../../help-center.html">Contact Support</a></div></aside>
 <main class="portal-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> › <a href="index.html">Central CRM</a> › Lead SLA</div>
-<h1>Lead SLA</h1><p class="lead">Response-time SLAs: first contact within 1 hour, follow-up within 24 hours.</p>
+<h1>Lead SLA</h1><p class="lead">Response-time SLAs: first contact within 1 hour, follow-up within 24 hours.</p><div id="pp-live-lead-sla"><div id="pp-live-lead-sla-notice" style="font-weight:600"></div><div id="pp-live-lead-sla-body"></div></div>
 <div class="card"><table class="data-table"><thead><tr><th>SLA Rule</th><th>Target</th><th>Met</th><th>Breached</th></tr></thead><tbody><tr><td>First contact</td><td>1 hour</td><td>92%</td><td>8%</td></tr><tr><td>Follow-up</td><td>24 hours</td><td>85%</td><td>15%</td></tr><tr><td>Site visit confirmation</td><td>4 hours</td><td>96%</td><td>4%</td></tr></tbody></table></div>
 </main></div>
 <footer class="site-footer"><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with love in India</span></div></footer>
@@ -1329,6 +1329,94 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
     render();
+  });
+});
+
+/* CRM Stage, Phase 6 — lead scoring, SLA, escalation. Scores and SLA
+   are computed server-side from existing data; pages only render
+   them. DOM construction only. */
+document.addEventListener('DOMContentLoaded', function () {
+  if (!window.PP || !window.PP.me) return;
+  function loginNotice(cid) {
+    var el = document.getElementById(cid + '-notice');
+    if (!el) return;
+    el.textContent = 'Is page ke liye login zaroori hai. ';
+    var a = document.createElement('a');
+    a.href = '../../login.html';
+    a.textContent = 'Login karein →';
+    el.appendChild(a);
+  }
+  function card(title, meta) {
+    var c = document.createElement('div');
+    c.className = 'card';
+    c.setAttribute('style', 'padding:14px;margin:10px 0');
+    var t = document.createElement('strong');
+    t.textContent = title;
+    c.appendChild(t);
+    if (meta) {
+      var p = document.createElement('p');
+      p.textContent = meta;
+      c.appendChild(p);
+    }
+    return c;
+  }
+  window.PP.me().then(function (m) {
+    if (!m.ok || !m.data || !m.data.user) {
+      ['pp-live-lead-scoring', 'pp-live-lead-sla', 'pp-live-lead-escalation'].forEach(function (cid) {
+        if (document.getElementById(cid)) loginNotice(cid);
+      });
+      return;
+    }
+    if (document.getElementById('pp-live-lead-scoring')) {
+      var box = document.getElementById('pp-live-lead-scoring-body');
+      window.PP.get('/api/leads/scores?limit=100').then(function (r) {
+        if (!box) return;
+        if (!r.ok) { box.textContent = 'Scores load nahi ho pa rahe hain.'; return; }
+        var items = (r.data && r.data.data) || [];
+        var h = document.createElement('h3');
+        h.textContent = 'Lead scores (live): ' + items.length;
+        box.appendChild(h);
+        if (!items.length) { box.appendChild(document.createTextNode('Koi lead nahi hai.')); return; }
+        items.forEach(function (l) {
+          var bd = (l.breakdown || []).map(function (b) { return b.reason + ' ' + b.points; }).join(' + ');
+          box.appendChild(card((l.full_name || ('Lead #' + l.id)) + ' — ' + l.score + ' (' + l.band + ')',
+            (l.property_title || '') + ' • stage: ' + l.status + ' • ' + bd));
+        });
+      });
+    }
+    if (document.getElementById('pp-live-lead-sla') || document.getElementById('pp-live-lead-escalation')) {
+      window.PP.get('/api/leads/sla').then(function (r) {
+        if (!r.ok) return;
+        var items = (r.data && r.data.data) || [];
+        var slaBox = document.getElementById('pp-live-lead-sla-body');
+        if (slaBox) {
+          var h = document.createElement('h3');
+          h.textContent = 'SLA status (live): ' + items.length + ' leads';
+          slaBox.appendChild(h);
+          items.forEach(function (l) {
+            slaBox.appendChild(card((l.full_name || ('Lead #' + l.id)) + ' — ' + l.sla_status,
+              'stage: ' + l.status +
+              ' • first response: ' + (l.first_response_hours === null ? 'abhi nahi' : l.first_response_hours + 'h') +
+              ' • follow-up 24h me: ' + (l.followup_within_24h ? 'haan' : 'nahi') +
+              ' • overdue follow-ups: ' + l.overdue_followups));
+          });
+        }
+        var escBox = document.getElementById('pp-live-lead-escalation-body');
+        if (escBox) {
+          var bad = items.filter(function (l) { return l.sla_status === 'breached'; });
+          var eh = document.createElement('h3');
+          eh.textContent = 'Escalated leads (SLA breach, live): ' + bad.length;
+          escBox.appendChild(eh);
+          if (!bad.length) { escBox.appendChild(document.createTextNode('Koi escalation nahi hai — sabhi leads SLA ke andar hain.')); return; }
+          bad.forEach(function (l) {
+            escBox.appendChild(card((l.full_name || ('Lead #' + l.id)) + ' — breached',
+              'stage: ' + l.status +
+              ' • first response: ' + (l.first_response_hours === null ? 'abhi nahi' : l.first_response_hours + 'h') +
+              ' • overdue follow-ups: ' + l.overdue_followups));
+          });
+        }
+      });
+    }
   });
 });
 </script></body></html>

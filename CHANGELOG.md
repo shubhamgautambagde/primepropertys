@@ -727,3 +727,54 @@ NOT pushed to GitHub; the live Pages site still serves Stage C state.
   007 + tests + this changelog), on top of head
   `a604d28dd734aa67239e97331e2a3938f8babaa6`.
 - Database files never pushed.
+
+## CRM Stage, Phase 6 — Lead scoring + SLA + escalation (2026-10-28)
+
+### What was built (user said "ok next"; scoring/SLA chosen because
+### both compute from existing data — no new product model needed)
+- `GET /api/leads/scores` (visibility-scoped, paginated): every
+  visible lead with a computed score, band and breakdown.
+  Scoring defaults, documented in leads.js: stage points new 10
+  / contacted 25 / interested 50 / site_visit 70 / negotiation
+  85; +5 per note (max 15); +5 per completed follow-up (max
+  15); capped at 100. Closed = 100 (Won), lost = 0 (Lost).
+  Honest scope: profile/budget-match signals are NOT in the
+  data yet (inquiries carry no buyer budget/profile fields),
+  so the score uses stage + engagement + activity only.
+- `GET /api/leads/sla` (visibility-scoped): every visible lead
+  with first-response time, follow-up signals and sla_status
+  (met / pending / breached / closed). Targets come from the
+  lead-sla page's own copy: first contact within 1 hour,
+  follow-up within 24 hours. A lead breaches when its first
+  response took over 1h, when no follow-up was created within
+  24h of the inquiry (and it is older than 24h), or when it
+  has an open follow-up past its due time. Closed/lost leads
+  stop SLA tracking but keep their real signals.
+- Pages wired (crm.js, DOM construction only): lead-scoring
+  (score + band + breakdown), lead-sla (full SLA table),
+  lead-escalation (breached leads only, with an honest
+  "no escalation" empty state).
+- Routing catch (same as stats): the scores/sla branches sit
+  BEFORE the lead-detail route, or 'scores'/'sla' would match
+  the :id route and 404.
+
+### Verified
+- Tests: **38/38 pass** (new scoring + SLA tests in test/crm.js,
+  including a backdated first-response breach and the closed
+  state).
+- Build: 64 pages updated, second run 0 changes (idempotent);
+  all modules `node --check` PASS.
+- Audit re-run: 0 broken internal links.
+- Live flow on a fresh database (port 8918, temp DB deleted
+  afterwards): fresh lead score 10 (Cool) with a correct
+  breakdown, SLA pending with no first response; after
+  contacted + note + follow-up, score 30 and SLA met
+  (first response 0h, follow-up within 24h); all three pages
+  serve with the new wiring.
+- Backup before this change:
+  `~/workspace/primepropertys-backup-stage-crm5/`.
+
+## Push to GitHub — CRM Phase 6 scoring + SLA live (2026-10-28)
+- Incremental push of the 69 files changed by the scoring/SLA
+  slice, on top of head `5da48eadd6d0d11b47f17b8cce8487e72cab4173`.
+  Database files never pushed.
