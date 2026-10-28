@@ -189,7 +189,7 @@ table.data th{color:var(--navy);background:var(--pale)}
 <a class="skip-link" href="#main-content">Skip to main content</a><div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Home</a><a href="../../sitemap.html">Sitemap</a><a href="../../help-center.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row"><a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a><input class="portal-search" placeholder="Search properties, locations..." name="search" aria-label="Properties, locations"><div class="header-actions"><span>🔔</span><strong>John Doe</strong><span>Buyer</span></div></div></header>
 <div class="portal"><aside class="sidebar"><h4>Buyer Portal</h4><a href="buyer-dashboard.html">Buyer Dashboard</a><a href="active-sessions.html">Active Sessions</a><a href="buyer-profile.html">Buyer Profile</a><a href="compare.html">Compare</a><a href="contact-unlock-history.html">Contact Unlock History</a><a href="credits.html">Credits</a><a href="delete-account.html">Delete Account</a><a href="documents.html">Documents</a><a href="edit-profile.html">Edit Profile</a><a href="login-history.html">Login History</a><a href="messages.html">Messages</a><a href="my-enquiries.html">My Enquiries</a><a href="my-leads.html">My Leads</a><a href="my-offers.html">My Offers</a><a href="my-site-visits.html" class="active">My Site Visits</a><a href="negotiations.html">Negotiations</a><a href="notifications.html">Notifications</a><a href="payment-history.html">Payment History</a><a href="privacy-settings.html">Privacy Settings</a><a href="recently-viewed.html">Recently Viewed</a><a href="recommendations.html">Recommendations</a><a href="reviews.html">Reviews</a><a href="saved-properties.html">Saved Properties</a><a href="saved-searches.html">Saved Searches</a><a href="security-settings.html">Security Settings</a><a href="site-visit-details.html">Site Visit Details</a><a href="subscription.html">Subscription</a><a href="verification.html">Verification</a><div class="promo"><h3>Need Help?</h3><p>Our property experts are here to help you find the best properties.</p><a class="btn small" href="../../index.html">Contact Support</a></div></aside>
-<main id="main-content" tabindex="-1" class="portal-main"><p class="breadcrumb"><a href="../../index.html">Home</a> &gt; Buyer Portal &gt; My Site Visits</p><div class="portal-head"><div><h1>My Site Visits</h1><p class="lead">Scheduled, completed and cancelled site visits.</p></div></div><table class="data"><tr><th>Property</th><th>Date & Time</th><th>Agent</th><th>Status</th></tr><tr><td>3 BHK Apartment, Hitech City</td><td>17 May 2024, 11:00 AM</td><td>Sunrise Realty</td><td><span class="tag blue">Scheduled</span></td></tr><tr><td>4 BHK Villa, Kondapur</td><td>18 May 2024, 03:00 PM</td><td>Ms. Priya Nair</td><td><span class="tag blue">Scheduled</span></td></tr><tr><td>Plot, Shankarpally</td><td>10 May 2024, 11:30 AM</td><td>Mr. Rajesh Sharma</td><td><span class="tag green">Completed</span></td></tr></table><p style="margin-top:16px"><a class="btn small" href="site-visit-details.html">View Site Visit Details →</a></p></main></div>
+<main id="main-content" tabindex="-1" class="portal-main"><p class="breadcrumb"><a href="../../index.html">Home</a> &gt; Buyer Portal &gt; My Site Visits</p><div class="portal-head"><div><h1>My Site Visits</h1><p class="lead">Scheduled, completed and cancelled site visits.</p></div></div><table class="data" id="pp-live-my-visits-table"><tr><th>Property</th><th>Date & Time</th><th>Agent</th><th>Status</th></tr><tr><td>3 BHK Apartment, Hitech City</td><td>17 May 2024, 11:00 AM</td><td>Sunrise Realty</td><td><span class="tag blue">Scheduled</span></td></tr><tr><td>4 BHK Villa, Kondapur</td><td>18 May 2024, 03:00 PM</td><td>Ms. Priya Nair</td><td><span class="tag blue">Scheduled</span></td></tr><tr><td>Plot, Shankarpally</td><td>10 May 2024, 11:30 AM</td><td>Mr. Rajesh Sharma</td><td><span class="tag green">Completed</span></td></tr></table><p style="margin-top:16px"><a class="btn small" href="site-visit-details.html">View Site Visit Details →</a></p></main></div>
 <footer class="site-footer"><div class="container footer-grid"><div><a class="logo" href="../../index.html" style="color:#fff">Prime<span>Propertys</span></a><p>Buy, Sell, Rent or Invest in residential and commercial properties across India. Your trusted property partner.</p></div><div><h4>Quick Links</h4><p><a href="../../index.html">Home</a><br><a href="../../about.html">About Us</a><br><a href="../../contact.html">Contact Us</a></p></div><div><h4>Support</h4><p><a href="../../help-center.html">Help Center</a><br><a href="../../faq.html">FAQ</a><br><a href="../../sitemap.html">Sitemap</a></p></div><div><h4>Legal</h4><p><a href="../../terms.html">Terms &amp; Conditions</a><br><a href="../../privacy-policy.html">Privacy Policy</a><br><a href="../../refund-policy.html">Refund Policy</a></p></div></div><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with love in India</span></div></footer>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -1223,6 +1223,67 @@ document.addEventListener('DOMContentLoaded', function () {
           card.appendChild(msg);
         }
         box.appendChild(card);
+      });
+    });
+  });
+});
+
+/* Portal my-lists — buyer "My Site Visits" page (guarded by
+   #pp-live-my-visits-table). Visits come from the real API
+   (visibility-scoped: the buyer sees only their own).
+   Agent shows a dash: visits carry no agent until one is
+   assigned (see the visit-booking slice). */
+document.addEventListener('DOMContentLoaded', function () {
+  var table = document.getElementById('pp-live-my-visits-table');
+  if (!table || !window.PP || !window.PP.me) return;
+  function host() {
+    return table.querySelector('tbody') || table;
+  }
+  function clearRows() {
+    var h = host();
+    var rows = h.querySelectorAll('tr');
+    var start = table.querySelector('tbody') ? 0 : 1;
+    for (var i = rows.length - 1; i >= start; i--) rows[i].remove();
+  }
+  function noticeRow(text) {
+    clearRows();
+    var tr = document.createElement('tr');
+    var td = document.createElement('td');
+    td.setAttribute('colspan', '4');
+    td.textContent = text;
+    tr.appendChild(td);
+    host().appendChild(tr);
+  }
+  function fmt(s) {
+    try { return new Date(s).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); } catch (e) { return s || ''; }
+  }
+  window.PP.me().then(function (m) {
+    if (!m.ok || !m.data || !m.data.user) { noticeRow('Is page ke liye login zaroori hai. Login karke dobara aayein.'); return; }
+    window.PP.get('/api/site-visits?limit=100').then(function (r) {
+      if (!r.ok) { noticeRow((r.error && r.error.message) || 'Visits load nahi ho pa rahi hain.'); return; }
+      var items = (r.data && r.data.data) || [];
+      if (!items.length) { noticeRow('No site visits yet.'); return; }
+      clearRows();
+      var h = host();
+      items.forEach(function (v) {
+        if (!v || !Number.isInteger(v.id)) return;
+        var tr = document.createElement('tr');
+        var c0 = document.createElement('td');
+        c0.textContent = (v.property_title || ('property #' + v.property_id)) + (v.property_city ? ', ' + v.property_city : '');
+        tr.appendChild(c0);
+        var c1 = document.createElement('td');
+        c1.textContent = fmt(v.scheduled_at);
+        tr.appendChild(c1);
+        var c2 = document.createElement('td');
+        c2.textContent = '—';
+        tr.appendChild(c2);
+        var c3 = document.createElement('td');
+        var tag = document.createElement('span');
+        tag.className = 'tag ' + (v.status === 'completed' ? 'green' : (v.status === 'confirmed' ? 'blue' : ''));
+        tag.textContent = v.status;
+        c3.appendChild(tag);
+        tr.appendChild(c3);
+        h.appendChild(tr);
       });
     });
   });
