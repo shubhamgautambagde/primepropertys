@@ -1093,3 +1093,66 @@ accessible name — placeholder text only, which is not a label.
   requested 1, top property + assignee rows correct).
 - Backup before this change:
   `~/workspace/primepropertys-backup-visits2/`.
+
+## Support tickets (post-Stage-J slice, 2026-10-28)
+
+### Design decisions made for this slice (user said "ok next")
+- Tickets are user-raised issues, separate from home
+  service requests (service-request-form.html is a
+  plumbing/electrical/etc. form, not a ticket form, so
+  it was left alone). Creation lives on
+  contact-support.html ("Raise a Ticket"); the admin
+  lists are super-manager/complaints.html and
+  support.html; detail is a new page,
+  super-manager/ticket-details.html (built from the
+  support.html shell so its nav and styling match).
+- Statuses: open -> in_progress -> resolved -> closed,
+  plus open -> closed and resolved -> in_progress
+  (reopen). Visibility mirrors visits: requester,
+  assignee, and tickets:manage holders (Admin, Super
+  Admin, and the Support role — tickets are their job).
+  Status changes are manage/assignee-only, except a
+  requester may close their own ticket from any open
+  state, including resolved (accepting the resolution);
+  reopening stays staff-only.
+- One design correction during testing: the first
+  version only let requesters close from open/
+  in_progress, which broke the natural resolve ->
+  close flow. The server was fixed, not the test.
+
+### What was built
+- Migration 011: support_tickets + ticket_replies +
+  tickets:manage permission (Super Admin, Admin,
+  Support).
+- server/src/tickets.js + routes: POST /api/tickets,
+  GET list (visibility-scoped, ?status=/?priority=
+  filters), GET detail (with the reply thread),
+  PATCH status, POST :id/assign (tickets:manage
+  only), POST :id/replies (anyone who can see it).
+- Pages wired: complaints + support tables (live
+  rows, subject links to the details page),
+  contact-support ticket form (data-api="ticket"),
+  ticket-details (detail + replies + status buttons +
+  assign dropdown + reply form).
+- Home service requests (service-request-form,
+  my-service-requests, complaint-tracking) are a
+  separate domain and were NOT folded into tickets.
+
+### Verified
+- Tests: 51/51 pass (50 + 1 new in
+  server/test/tickets.js: lifecycle, visibility 404
+  for strangers, manage-only assign, illegal
+  transitions, reply rules, requester close of a
+  resolved ticket, list filters).
+- Build idempotent (653 pages now, including the new
+  ticket-details.html); all modules `node --check`
+  PASS.
+- Audit: 339 entries (unchanged: the ticket pages
+  had no unwired forms before), 0 broken links.
+- Live flow on a fresh database (port 8946, temp DB
+  deleted afterwards): create (201, open) -> assign
+  -> in_progress -> reply (201) -> resolved ->
+  detail (thread present) -> buyer closes resolved
+  (200).
+- Backup before this change:
+  `~/workspace/primepropertys-backup-tickets/`.
