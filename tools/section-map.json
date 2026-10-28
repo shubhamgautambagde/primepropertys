@@ -34,7 +34,7 @@
     "buyer-portal": "buyer",
     "investor-portal": "buyer",
     "central-crm": "crm",
-    "communication": "crm",
+    "communication": "communication",
     "site-visit": "crm",
     "property-engine": "engine",
     "property-search": "search",
@@ -45,6 +45,7 @@
     "owner-portal": "owner",
     "agent-portal": "agent",
     "support-home-services": "services",
-    "payments": "payments"
+    "payments": "payments",
+    "marketing": "marketing"
   }
 }

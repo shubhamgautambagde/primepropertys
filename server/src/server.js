@@ -20,6 +20,7 @@ import * as V from './visits.js';
 import * as T from './tickets.js';
 import * as S from './services.js';
 import * as PAY from './payments.js';
+import * as CAMP from './campaigns.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const STATIC_ROOT = resolve(process.env.STATIC_ROOT || join(here, '..', '..'));
@@ -373,6 +374,25 @@ function handlePaymentRoutes(req, res, url, body, user) {
   return apiError(res, 404, 'NOT_FOUND', 'Unknown API route');
 }
 
+function handleCampaignRoutes(req, res, url, body, user) {
+  const path = url.pathname;
+  const m = req.method;
+  if (path === '/api/campaigns' && m === 'POST') return respond(res, CAMP.createCampaign(db, user, body));
+  if (path === '/api/campaigns' && m === 'GET') return respond(res, CAMP.listCampaigns(db, user, url));
+  const campaign = path.match(/^\/api\/campaigns\/([^/]+)$/);
+  if (campaign) {
+    if (m === 'GET') return respond(res, CAMP.getCampaign(db, user, campaign[1]));
+    if (m === 'PATCH') return respond(res, CAMP.updateCampaign(db, user, campaign[1], body));
+  }
+  if (path === '/api/message-templates' && m === 'POST') return respond(res, CAMP.createTemplate(db, user, body));
+  if (path === '/api/message-templates' && m === 'GET') return respond(res, CAMP.listTemplates(db, user, url));
+  const template = path.match(/^\/api\/message-templates\/([^/]+)$/);
+  if (template && m === 'GET') return respond(res, CAMP.getTemplate(db, user, template[1]));
+  if (path === '/api/queued-messages' && m === 'POST') return respond(res, CAMP.createQueuedMessage(db, user, body));
+  if (path === '/api/queued-messages' && m === 'GET') return respond(res, CAMP.listQueuedMessages(db, user, url));
+  return apiError(res, 404, 'NOT_FOUND', 'Unknown API route');
+}
+
 function handleLeadRoutes(req, res, url, body, user) {
   const path = url.pathname;
   const m = req.method;
@@ -449,6 +469,11 @@ function handleApi(req, res, url, body, user, token) {
   }
   if (path === '/api/payments' || path.startsWith('/api/payments/') || path === '/api/billing-profile') {
     return handlePaymentRoutes(req, res, url, body, user);
+  }
+  if (path === '/api/campaigns' || path.startsWith('/api/campaigns/') ||
+      path === '/api/message-templates' || path.startsWith('/api/message-templates/') ||
+      path === '/api/queued-messages' || path.startsWith('/api/queued-messages/')) {
+    return handleCampaignRoutes(req, res, url, body, user);
   }
   if (path === '/api/properties' || path.startsWith('/api/properties/') ||
       path === '/api/saved' || path === '/api/recently-viewed') {

@@ -1033,6 +1033,139 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       return;
     }
+    if (form.getAttribute('data-api') === 'campaign-create' || form.getAttribute('data-api') === 'campaign-edit') {
+      var isEdit = form.getAttribute('data-api') === 'campaign-edit';
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post || !window.PP.request) {
+          showNote(form, 'Form wiring load nahi hui — campaign save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        function num(v) {
+          var n = parseFloat(String(v || '').replace(/[^0-9.]/g, ''));
+          return isNaN(n) ? 0 : n;
+        }
+        var raw = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          raw[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        if (!raw.name) {
+          showNote(form, 'Campaign name bharein.', true);
+          return;
+        }
+        var payload = {
+          name: raw.name,
+          objective: raw.objective || '',
+          type: raw.type || '',
+          description: raw.description || '',
+          daily_budget_rupees: num(raw.daily_budget_rupees),
+          total_budget_rupees: num(raw.total_budget_rupees),
+          channels: raw.channels || ''
+        };
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        function done(r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            var id = r.data && r.data.data && r.data.data.id;
+            showSuccess(form, 'Campaign saved as draft (ID ' + id + '). Ad-platform metrics tabhi dikhenge jab koi ad platform connect hoga.');
+            if (!isEdit) form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Campaign save nahi ho pa raha hai.', true);
+          }
+        }
+        if (isEdit) {
+          var cid = parseInt(new URLSearchParams(window.location.search).get('campaign_id') || '', 10);
+          if (!cid || cid <= 0) {
+            if (btn) btn.disabled = false;
+            showNote(form, 'Koi campaign chuna nahi gaya. Campaigns list se kisi campaign par Edit dabayein.', true);
+            return;
+          }
+          window.PP.request('/api/campaigns/' + cid, { method: 'PATCH', body: payload }).then(done);
+        } else {
+          window.PP.post('/api/campaigns', payload).then(done);
+        }
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'campaign-filter') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (window.PP && window.PP.applyCampaignFilter) {
+          window.PP.applyCampaignFilter(form);
+        } else {
+          showNote(form, 'Filter wiring load nahi hui — page reload karke dobara try karein.', true);
+        }
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'template') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — template save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var raw = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          raw[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        if (!raw.name) {
+          showNote(form, 'Template name bharein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/message-templates', {
+          channel: form.getAttribute('data-channel') || 'email',
+          name: raw.name,
+          subject: raw.subject || '',
+          body: raw.body || ''
+        }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Template saved (ID ' + (r.data && r.data.data && r.data.data.id) + ').');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Template save nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'sms-message' || form.getAttribute('data-api') === 'whatsapp-message') {
+      var channel = form.getAttribute('data-api') === 'sms-message' ? 'sms' : 'whatsapp';
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — message queue nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var raw = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          raw[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        if (!raw.recipient || !raw.body) {
+          showNote(form, 'Recipient aur message dono bharein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        var payload = { channel: channel, recipient: raw.recipient, body: raw.body };
+        var tid = form.getAttribute('data-template-id');
+        if (tid) payload.template_id = parseInt(tid, 10);
+        window.PP.post('/api/queued-messages', payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Message queued (ID ' + (r.data && r.data.data && r.data.data.id) + ') — NOT sent: koi SMS/WhatsApp provider configure nahi hai. Notification Logs me iski status queued dikhegi.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Message queue nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
     if (form.getAttribute('data-api') === 'login') {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
