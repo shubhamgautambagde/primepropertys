@@ -142,7 +142,7 @@ is documented in the file itself.
 
 ## Final verification (Stage J)
 
-- `npm test` in `server/`: 53/53 pass, including
+- `npm test` in `server/`: 54/54 pass, including
   `test/journey.js` — one test that walks the whole product:
   admin creates a draft property (invisible publicly),
   publishes it (visible), a buyer enquires, the admin
@@ -198,6 +198,15 @@ The 341 entries are not 341 defects to fix blindly:
   surface. Buyer my-leads is deliberately left
   unwired: a buyer's "leads" have no distinct meaning
   (their enquiries already live on my-enquiries).
+- Newsletter subscriptions are done: subscribe /
+  unsubscribe endpoints plus all 70 footer newsletter
+  forms wired. Subscription stores consent only and
+  never claims an email was sent (no provider is
+  configured); token-based confirm/unsubscribe waits
+  for a provider. Audit docs added:
+  FRONTEND_BACKEND_MAPPING.md and
+  PLACEHOLDER_LINKS_REPORT.md (186 href="#" triaged,
+  none changed — no determinable destinations).
 - Payments (needs a real provider and credentials — never
   invented), support tickets, campaigns, settings forms.
 - Hosting decision: Node hosting vs PHP-only hosting. If

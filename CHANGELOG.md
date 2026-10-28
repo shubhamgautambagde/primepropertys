@@ -1289,3 +1289,69 @@ without live markers after the home-services slice:
   agent assigned 1.
 - Backup before this change:
   `~/workspace/primepropertys-backup-portal/`.
+
+## Newsletter subscriptions (brief Phase C, 2026-10-28)
+
+### What was built
+- Migration 013: newsletter_subscriptions (email UNIQUE
+  COLLATE NOCASE, status subscribed/unsubscribed,
+  consent_at, unsubscribed_at, timestamps) + status
+  index. No new permission and no list endpoint: the
+  slice stores consent only, exactly as the brief
+  scopes it.
+- server/src/newsletter.js + routes POST
+  /api/newsletter/subscribe and POST
+  /api/newsletter/unsubscribe: email validated with
+  the shared isValidEmail helper; 20 attempts/hour/IP
+  rate limit (same window style as contact/inquiry);
+  duplicate subscribe returns 200 already_subscribed
+  (case-insensitive); unsubscribed addresses can
+  resubscribe (200 resubscribed); unsubscribe always
+  answers neutrally so it cannot enumerate subscribers.
+- forms.js `newsletter` case + all 70 footer
+  newsletter forms wired (identified mechanically by
+  the newsletter-row pattern; every other
+  not-connected form on those pages untouched).
+- Audit docs completed for brief Phase A/B: new
+  FRONTEND_BACKEND_MAPPING.md (generated from the
+  actual source: forms.js cases resolved through
+  api.js helpers, real form tags only, server routes,
+  unwired counts by section with blocking reasons)
+  and PLACEHOLDER_LINKS_REPORT.md (the 186 raw
+  href="#" occurrences triaged: 184 listed + 2
+  resolved in Stage B; no link changed — every
+  remaining group lacks a determinable destination,
+  and the brief forbids inventing one).
+
+### Honest limits kept
+- Subscribing never claims an email was sent: no
+  email provider is configured. Token-based
+  confirm/unsubscribe is deliberately NOT built,
+  because tokens cannot be delivered without a
+  provider; the doc records that as the follow-up.
+- The brief's raw counts were verified against the
+  source before acting: 186 href="#" and 333
+  data-backend="not-connected" occurrences are both
+  still true (the audit's 52/282 count files and
+  unmarked forms, not raw occurrences).
+- Post-property wizard forms were inspected and NOT
+  wired: the wizard has no shared draft state and
+  needs binary uploads + OTP, which are product
+  decisions, not wiring jobs.
+
+### Verified
+- Tests: 54/54 pass (53 + 1 new in
+  server/test/newsletter.js: subscribe 201, duplicate
+  200, invalid 400, neutral unsubscribe, resubscribe,
+  database row check).
+- Build idempotent; all modules `node --check` PASS.
+- Audit: 312 entries (was 337; files with unwired
+  forms 282 -> 257 as 25 pages were fully cleared),
+  not-connected markers 333 -> 263 (exactly the 70
+  wired newsletter forms), 0 broken links.
+- Live flow on a fresh database (port 8952, temp DB
+  deleted afterwards): subscribe 201 -> duplicate 200
+  already_subscribed -> unsubscribe 200 -> resubscribe
+  200 -> database row status subscribed.
+- Backup before this change:
+  `~/workspace/primepropertys-backup-newsletter/`.

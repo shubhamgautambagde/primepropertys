@@ -886,6 +886,39 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       return;
     }
+    if (form.getAttribute('data-api') === 'newsletter') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — subscription save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        if (!payload.email || payload.email.indexOf('@') === -1) {
+          showNote(form, 'Ek valid email address daalein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/newsletter/subscribe', payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            if (r.data && r.data.already_subscribed) {
+              showSuccess(form, 'You are already subscribed.');
+            } else {
+              showSuccess(form, 'Subscribed successfully.');
+            }
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Subscription save nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
     if (form.getAttribute('data-api') === 'login') {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
