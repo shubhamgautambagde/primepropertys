@@ -578,6 +578,79 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       return;
     }
+    if (form.getAttribute('data-api') === 'visit-request') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — visit request nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        var propertyId = parseInt(payload.property_id || '', 10);
+        if (!propertyId || propertyId <= 0) {
+          showNote(form, 'Koi property chunein.', true);
+          return;
+        }
+        if (!payload.scheduled_at) {
+          showNote(form, 'Visit ki date aur time chunein.', true);
+          return;
+        }
+        payload.property_id = propertyId;
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/site-visits', payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Visit request bhej di gayi hai. List dekhne ke liye page reload karein.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Visit request nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'visit-feedback') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.request) {
+          showNote(form, 'Form wiring load nahi hui — feedback save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var params = new URLSearchParams(window.location.search);
+        var visitId = parseInt(params.get('visit_id') || '', 10);
+        if (!visitId || visitId <= 0) {
+          showNote(form, 'Is feedback ke liye koi visit chuni nahi gayi hai. Visit details se aayein (?visit_id= ke saath).', true);
+          return;
+        }
+        var ratingEl = form.querySelector('input[name="rating-1-5"]');
+        var feedbackEl = form.querySelector('input[name="feedback"], textarea[name="feedback"]');
+        var payload = {};
+        var rating = ratingEl ? parseInt((ratingEl.value || '').trim(), 10) : NaN;
+        if (rating >= 1 && rating <= 5) payload.rating = rating;
+        var feedback = feedbackEl ? (feedbackEl.value || '').trim() : '';
+        if (feedback) payload.feedback = feedback;
+        if (!payload.rating && !payload.feedback) {
+          showNote(form, 'Rating (1-5) ya feedback me se kam se kam ek bharein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.request('/api/site-visits/' + visitId, { method: 'PATCH', body: payload }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Feedback save ho gaya hai. Dhanyavaad!');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Feedback save nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
     if (form.getAttribute('data-api') === 'login') {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
