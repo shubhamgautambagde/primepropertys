@@ -1,0 +1,30 @@
+# PrimePropertys — robots.txt (Stage I, SEO slice)
+# Note: on GitHub Pages this file serves at /primepropertys/robots.txt,
+# which crawlers do not read (they read the domain-root robots.txt).
+# It takes effect when the site is hosted at a root domain (custom
+# domain or Node hosting). Paths below are root-domain form.
+# Public content (root pages, blog, news, property browse/detail)
+# stays crawlable; authenticated portal, CRM, admin and settings
+# sections are disallowed.
+User-agent: *
+Allow: /
+Disallow: /sections/buyer-portal/
+Disallow: /sections/agent-portal/
+Disallow: /sections/owner-portal/
+Disallow: /sections/builder-portal/
+Disallow: /sections/investor-portal/
+Disallow: /sections/super-admin/
+Disallow: /sections/super-manager/
+Disallow: /sections/manager-staff/
+Disallow: /sections/central-crm/
+Disallow: /sections/system-settings/
+Disallow: /sections/security-center/
+Disallow: /sections/communication/
+Disallow: /sections/analytics/
+Disallow: /sections/subscription/
+Disallow: /sections/payments/
+Disallow: /sections/site-visit/
+Disallow: /sections/support-home-services/
+Disallow: /sections/form-builder/
+
+Sitemap: https://shubhamgautambagde.github.io/primepropertys/sitemap.xml
