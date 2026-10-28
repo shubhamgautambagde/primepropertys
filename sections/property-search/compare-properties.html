@@ -196,7 +196,7 @@ table.compare img{height:120px;width:100%;object-fit:cover}
 <tr><td>Furnishing</td><td>Semi Furnished</td><td>Fully Furnished</td><td>Unfurnished</td></tr>
 <tr><td>Amenities</td><td>Gated Society, Pool, Gym</td><td>Lake View, Club House</td><td>RERA Registered, Garden</td></tr>
 <tr><td>Best For</td><td>Metro connectivity</td><td>Best price per sq.ft.</td><td>Lowest budget</td></tr>
-<tr><td></td><td><button class="btn small" type="button">View Details</button></td><td><button class="btn small" type="button">View Details</button></td><td><button class="btn small" type="button">View Details</button></td></tr></table><p style="margin-top:14px">Winner on value: <b>Thane West at ₹ 92.50 L</b> — lowest price, RERA registered, with possession in Dec 2026.</p></div></div></div></section></main><footer class="site-footer"><div class="container footer-grid"><div><h4>PrimePropertys</h4><p>Buy, Sell, Rent or Invest in residential and commercial properties across India. Your trusted property partner.</p></div><div><h4>Explore</h4><p><a href="buy-properties.html">Buy Properties</a><br><a href="rent-properties.html">Rent Properties</a><br><a href="commercial-properties.html">Commercial Properties</a><br><a href="residential-properties.html">Residential Properties</a><br><a href="plots-land.html">Plots &amp; Land</a><br><a href="pg-co-living.html">PG / Co-Living</a></p></div><div><h4>Search</h4><p><a href="advanced-search.html">Advanced Search</a><br><a href="map-search.html">Map Search</a><br><a href="filter-results.html">Filter Results</a><br><a href="compare-properties.html">Compare Properties</a><br><a href="similar-properties.html">Similar Properties</a></p></div><div><h4>My Searches</h4><p><a href="saved-search.html">Saved Search</a><br><a href="search-alerts.html">Search Alerts</a><br><a href="shortlisted-properties.html">Shortlisted Properties</a><br><a href="recently-viewed.html">Recently Viewed</a><br><a href="recommended-properties.html">Recommended Properties</a></p></div><div><h4>Subscribe to our newsletter</h4><p>Get the latest property updates and exclusive offers.</p><form data-backend="not-connected"><div class="newsletter-row"><input placeholder="Enter your email address" type="email" required name="email-address" aria-label="Email address"><button class="btn small" type="submit">Subscribe</button></div><div class="form-success">Subscribed! You will receive property updates.</div></form></div></div><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span><a href="../../sitemap.html">Sitemap</a> · <a href="../../privacy-policy.html">Privacy Policy</a> · <a href="../../terms.html">Terms &amp; Conditions</a> · Made with ❤ in India</span></div></footer><script>
+<tr><td></td><td><button class="btn small" type="button">View Details</button></td><td><button class="btn small" type="button">View Details</button></td><td><button class="btn small" type="button">View Details</button></td></tr></table><p style="margin-top:14px">Winner on value: <b>Thane West at ₹ 92.50 L</b> — lowest price, RERA registered, with possession in Dec 2026.</p></div></div></div></section></main><footer class="site-footer"><div class="container footer-grid"><div><h4>PrimePropertys</h4><p>Buy, Sell, Rent or Invest in residential and commercial properties across India. Your trusted property partner.</p></div><div><h4>Explore</h4><p><a href="buy-properties.html">Buy Properties</a><br><a href="rent-properties.html">Rent Properties</a><br><a href="commercial-properties.html">Commercial Properties</a><br><a href="residential-properties.html">Residential Properties</a><br><a href="plots-land.html">Plots &amp; Land</a><br><a href="pg-co-living.html">PG / Co-Living</a></p></div><div><h4>Search</h4><p><a href="advanced-search.html">Advanced Search</a><br><a href="map-search.html">Map Search</a><br><a href="filter-results.html">Filter Results</a><br><a href="compare-properties.html">Compare Properties</a><br><a href="similar-properties.html">Similar Properties</a></p></div><div><h4>My Searches</h4><p><a href="saved-search.html">Saved Search</a><br><a href="search-alerts.html">Search Alerts</a><br><a href="shortlisted-properties.html">Shortlisted Properties</a><br><a href="recently-viewed.html">Recently Viewed</a><br><a href="recommended-properties.html">Recommended Properties</a></p></div><div><h4>Subscribe to our newsletter</h4><p>Get the latest property updates and exclusive offers.</p><form data-api="newsletter"><div class="newsletter-row"><input placeholder="Enter your email address" type="email" required name="email-address" aria-label="Email address" data-api-field="email"><button class="btn small" type="submit">Subscribe</button></div><div class="form-success">Subscribed! You will receive property updates.</div></form></div></div><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span><a href="../../sitemap.html">Sitemap</a> · <a href="../../privacy-policy.html">Privacy Policy</a> · <a href="../../terms.html">Terms &amp; Conditions</a> · Made with ❤ in India</span></div></footer><script>
 document.addEventListener('DOMContentLoaded', function () {
   // Mobile nav
   var toggle = document.querySelector('.nav-toggle');
@@ -901,6 +901,39 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
         window.location.href = 'complaint-tracking.html?request_id=' + id;
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'newsletter') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — subscription save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        if (!payload.email || payload.email.indexOf('@') === -1) {
+          showNote(form, 'Ek valid email address daalein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/newsletter/subscribe', payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            if (r.data && r.data.already_subscribed) {
+              showSuccess(form, 'You are already subscribed.');
+            } else {
+              showSuccess(form, 'Subscribed successfully.');
+            }
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Subscription save nahi ho pa raha hai.', true);
+          }
+        });
       });
       return;
     }

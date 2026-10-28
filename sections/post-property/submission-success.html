@@ -192,7 +192,7 @@ table.data th{color:var(--navy)}
  <div class="card" style="margin-top:20px"><h2>Your Submitted Property</h2><div style="display:flex;gap:16px;flex-wrap:wrap"><img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80" alt="Submitted property" style="width:280px;height:170px;object-fit:cover"><div><span class="badge">FOR SALE</span><h3>3 BHK Luxury Apartment in Hitech City</h3><p>📍 Hitech City, Hyderabad, Telangana 500081</p><p>3 Bedrooms · 3 Bathrooms · 1600 Sq.ft · 1 Parking</p><p class="price">₹1.25 Cr <small style="color:var(--muted)">₹7,812 / sq.ft</small></p><p><a href="listing-preview.html">View Listing Preview →</a></p></div></div></div>
  <div class="card" style="margin-top:20px"><h2>While You Wait, You Can</h2><div class="grid grid-4"><div><a href="my-listings.html"><strong>View Dashboard</strong></a><p>Track status &amp; manage your listings</p></div><div><a href="post-property-start.html"><strong>Add Another Property</strong></a><p>List another property and get more leads</p></div><div><a href="../../help-center.html"><strong>Explore Resources</strong></a><p>Tips to sell/rent your property faster</p></div><div><a href="../../contact.html"><strong>Contact Support</strong></a><p>We are here to help you</p></div></div></div>
  <div class="card" style="margin-top:20px"><h2>Your Listing Benefits</h2><ul class="check-list"><li>✅ Maximum visibility on primepropertys.in</li><li>✅ Reach thousands of genuine buyers</li><li>✅ Verified leads &amp; better response</li><li>✅ Analytics and performance tracking</li><li>✅ Edit or update anytime</li></ul></div><div class="form-actions"><a class="btn outline" href="submit-property.html">← Back</a><a class="btn" href="my-listings.html">Go to My Listings →</a></div></main></div></main>
-<footer class="site-footer"><div class="container footer-grid"><div><a class="logo" href="../../index.html" style="color:#fff">Prime<span>Propertys</span></a><p>India's most trusted real estate portal for buying, selling and renting properties.</p><p>📘 📸 𝕏 💼 ▶️</p></div><div><h4>Explore</h4><p><a href="../../index.html">Buy Properties</a><br><a href="../../services.html">Rent Properties</a><br><a href="../../services.html">Commercial Properties</a><br><a href="../../index.html">New Projects</a><br><a href="../../services.html">Plots &amp; Land</a></p></div><div><h4>Company</h4><p><a href="../../about.html">About Us</a><br><a href="../../careers.html">Careers</a><br><a href="../../contact.html">Contact Us</a><br><a href="../../terms.html">Terms &amp; Conditions</a><br><a href="../../privacy-policy.html">Privacy Policy</a></p></div><div><h4>Support</h4><p><a href="../../help-center.html">Help Center</a><br><a href="../../faq.html">FAQs</a><br><a href="../../report-problem.html">Report a Problem</a><br><a href="../../sitemap.html">Sitemap</a><br><a href="post-property-start.html">Post Property</a></p></div><div><h4>Subscribe to our newsletter</h4><p>Get the latest property updates and offers</p><form data-backend="not-connected"><div class="newsletter-row"><input placeholder="Enter your email address" name="email-address" aria-label="Email address"><button class="btn small" type="submit">Subscribe</button></div><div class="form-success">Subscribed! Thank you.</div></form></div></div><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with ❤️ in India</span></div></footer><script>
+<footer class="site-footer"><div class="container footer-grid"><div><a class="logo" href="../../index.html" style="color:#fff">Prime<span>Propertys</span></a><p>India's most trusted real estate portal for buying, selling and renting properties.</p><p>📘 📸 𝕏 💼 ▶️</p></div><div><h4>Explore</h4><p><a href="../../index.html">Buy Properties</a><br><a href="../../services.html">Rent Properties</a><br><a href="../../services.html">Commercial Properties</a><br><a href="../../index.html">New Projects</a><br><a href="../../services.html">Plots &amp; Land</a></p></div><div><h4>Company</h4><p><a href="../../about.html">About Us</a><br><a href="../../careers.html">Careers</a><br><a href="../../contact.html">Contact Us</a><br><a href="../../terms.html">Terms &amp; Conditions</a><br><a href="../../privacy-policy.html">Privacy Policy</a></p></div><div><h4>Support</h4><p><a href="../../help-center.html">Help Center</a><br><a href="../../faq.html">FAQs</a><br><a href="../../report-problem.html">Report a Problem</a><br><a href="../../sitemap.html">Sitemap</a><br><a href="post-property-start.html">Post Property</a></p></div><div><h4>Subscribe to our newsletter</h4><p>Get the latest property updates and offers</p><form data-api="newsletter"><div class="newsletter-row"><input placeholder="Enter your email address" name="email-address" aria-label="Email address" data-api-field="email"><button class="btn small" type="submit">Subscribe</button></div><div class="form-success">Subscribed! Thank you.</div></form></div></div><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with ❤️ in India</span></div></footer><script>
 document.addEventListener('DOMContentLoaded', function () {
   // Mobile nav
   var toggle = document.querySelector('.nav-toggle');
@@ -897,6 +897,39 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
         window.location.href = 'complaint-tracking.html?request_id=' + id;
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'newsletter') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — subscription save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        if (!payload.email || payload.email.indexOf('@') === -1) {
+          showNote(form, 'Ek valid email address daalein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/newsletter/subscribe', payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            if (r.data && r.data.already_subscribed) {
+              showSuccess(form, 'You are already subscribed.');
+            } else {
+              showSuccess(form, 'Subscribed successfully.');
+            }
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Subscription save nahi ho pa raha hai.', true);
+          }
+        });
       });
       return;
     }
