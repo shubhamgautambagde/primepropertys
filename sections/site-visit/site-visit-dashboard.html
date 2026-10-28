@@ -209,7 +209,21 @@ textarea{min-height:120px}
 <div class="breadcrumb"><a href="../../index.html">Home</a> › <a href="index.html">Site Visit</a> › Site Visit Dashboard</div>
 <h1>Site Visit Dashboard</h1><p class="lead">Welcome back, Rohit Sharma! Overview of all site visits.</p>
 <div class="grid grid-4"><div class="card center"><p class="kpi">48</p><p class="kpi-sub">Total Visits</p></div><div class="card center"><p class="kpi">18</p><p class="kpi-sub">Pending</p></div><div class="card center"><p class="kpi">20</p><p class="kpi-sub">Approved</p></div><div class="card center"><p class="kpi">6</p><p class="kpi-sub">Completed</p></div></div><div class="card"><h3>Visits Overview</h3><p>Total 48 — Pending 18 (37.5%) | Approved 20 (41.7%) | Completed 6 (12.5%) | Cancelled 4 (8.3%) | Rescheduled 0 (0%)</p></div><div class="card"><h3>Upcoming Visits</h3></div><div class="card"><input id="portalSearch" placeholder="Search visits…" name="search" aria-label="Visits…">
-<table class="data-table"><thead><tr><th>Visitor</th><th>Property</th><th>Date</th><th>Time Slot</th><th>Agent</th><th>Status</th><th>Action</th></tr></thead><tbody><tr><td><strong>Rahul Sharma</strong><br><small>+91 98765 43210</small></td><td>Lodha Park, Sector 45, Noida</td><td>24 May 2025</td><td>11:00 AM</td><td>Amit Verma</td><td><span class='pill blue'>New</span></td><td><a class='btn small outline' href='visit-details.html'>View</a></td></tr><tr><td><strong>Priya Mehta</strong><br><small>+91 87654 32109</small></td><td>Godrej Skyline, Sector 150, Noida</td><td>25 May 2025</td><td>11:00 AM – 12:00 PM</td><td>Pooja Mehta</td><td><span class='pill blue'>New</span></td><td><a class='btn small outline' href='visit-details.html'>View</a></td></tr><tr><td><strong>Amit Kumar</strong><br><small>+91 76543 21098</small></td><td>Prestige Evergreen, Sector 120, Noida</td><td>21 May 2025</td><td>03:00 PM – 04:00 PM</td><td>Ravi Singh</td><td><span class='pill amber'>Seen</span></td><td><a class='btn small outline' href='visit-details.html'>View</a></td></tr><tr><td><strong>Neha Singh</strong><br><small>+91 65432 10987</small></td><td>Sobia City, Sector 108, Gurgaon</td><td>23 May 2025</td><td>02:00 PM – 03:00 PM</td><td>Sneha Iyer</td><td><span class='pill amber'>Seen</span></td><td><a class='btn small outline' href='visit-details.html'>View</a></td></tr></tbody></table></div>
+<div class="card" id="pp-live-visit-request">
+<h3>Request a site visit (live)</h3>
+<p id="pp-live-visit-request-notice"></p>
+<form data-api="visit-request">
+<label for="pp-visit-property">Property</label>
+<select data-api-field="property_id" name="property_id" id="pp-visit-property"><option value="">Loading properties…</option></select>
+<label for="pp-visit-when">Date and time</label>
+<input type="datetime-local" data-api-field="scheduled_at" name="scheduled_at" id="pp-visit-when" required>
+<label for="pp-visit-notes">Notes (optional)</label>
+<input data-api-field="notes" name="notes" id="pp-visit-notes" placeholder="Anything the agent should know">
+<button class="btn" type="submit">Request visit</button>
+<div class="form-success"></div>
+</form>
+</div>
+<table class="data-table" id="pp-live-visit-table" data-visit-filter="all"><thead><tr><th>Visitor</th><th>Property</th><th>Date</th><th>Time Slot</th><th>Agent</th><th>Status</th><th>Action</th></tr></thead><tbody><tr><td><strong>Rahul Sharma</strong><br><small>+91 98765 43210</small></td><td>Lodha Park, Sector 45, Noida</td><td>24 May 2025</td><td>11:00 AM</td><td>Amit Verma</td><td><span class='pill blue'>New</span></td><td><a class='btn small outline' href='visit-details.html'>View</a></td></tr><tr><td><strong>Priya Mehta</strong><br><small>+91 87654 32109</small></td><td>Godrej Skyline, Sector 150, Noida</td><td>25 May 2025</td><td>11:00 AM – 12:00 PM</td><td>Pooja Mehta</td><td><span class='pill blue'>New</span></td><td><a class='btn small outline' href='visit-details.html'>View</a></td></tr><tr><td><strong>Amit Kumar</strong><br><small>+91 76543 21098</small></td><td>Prestige Evergreen, Sector 120, Noida</td><td>21 May 2025</td><td>03:00 PM – 04:00 PM</td><td>Ravi Singh</td><td><span class='pill amber'>Seen</span></td><td><a class='btn small outline' href='visit-details.html'>View</a></td></tr><tr><td><strong>Neha Singh</strong><br><small>+91 65432 10987</small></td><td>Sobia City, Sector 108, Gurgaon</td><td>23 May 2025</td><td>02:00 PM – 03:00 PM</td><td>Sneha Iyer</td><td><span class='pill amber'>Seen</span></td><td><a class='btn small outline' href='visit-details.html'>View</a></td></tr></tbody></table></div>
 </main></div>
 <footer class="site-footer"><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with love in India</span></div></footer>
 <script>
@@ -599,6 +613,79 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       return;
     }
+    if (form.getAttribute('data-api') === 'visit-request') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — visit request nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        var propertyId = parseInt(payload.property_id || '', 10);
+        if (!propertyId || propertyId <= 0) {
+          showNote(form, 'Koi property chunein.', true);
+          return;
+        }
+        if (!payload.scheduled_at) {
+          showNote(form, 'Visit ki date aur time chunein.', true);
+          return;
+        }
+        payload.property_id = propertyId;
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/site-visits', payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Visit request bhej di gayi hai. List dekhne ke liye page reload karein.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Visit request nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'visit-feedback') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.request) {
+          showNote(form, 'Form wiring load nahi hui — feedback save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var params = new URLSearchParams(window.location.search);
+        var visitId = parseInt(params.get('visit_id') || '', 10);
+        if (!visitId || visitId <= 0) {
+          showNote(form, 'Is feedback ke liye koi visit chuni nahi gayi hai. Visit details se aayein (?visit_id= ke saath).', true);
+          return;
+        }
+        var ratingEl = form.querySelector('input[name="rating-1-5"]');
+        var feedbackEl = form.querySelector('input[name="feedback"], textarea[name="feedback"]');
+        var payload = {};
+        var rating = ratingEl ? parseInt((ratingEl.value || '').trim(), 10) : NaN;
+        if (rating >= 1 && rating <= 5) payload.rating = rating;
+        var feedback = feedbackEl ? (feedbackEl.value || '').trim() : '';
+        if (feedback) payload.feedback = feedback;
+        if (!payload.rating && !payload.feedback) {
+          showNote(form, 'Rating (1-5) ya feedback me se kam se kam ek bharein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.request('/api/site-visits/' + visitId, { method: 'PATCH', body: payload }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Feedback save ho gaya hai. Dhanyavaad!');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Feedback save nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
     if (form.getAttribute('data-api') === 'login') {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -773,7 +860,10 @@ document.addEventListener('DOMContentLoaded', function () {
             var btn = document.createElement('button');
             btn.textContent = 'Mark done';
             btn.addEventListener('click', function () {
-              window.PP.post('/api/leads/' + f.inquiry_id + '/followups/' + f.id + '/done', {}).then(function (rr) {
+              /* Fixed in the visit-booking slice: this used PP.post
+                 (POST) against a PATCH-only route, so it silently
+                 did nothing. PP.request carries the method. */
+              window.PP.request('/api/leads/' + f.inquiry_id + '/followups/' + f.id + '/done', { method: 'PATCH', body: {} }).then(function (rr) {
                 if (rr.ok) { btn.textContent = 'Done ✓'; btn.disabled = true; }
               });
             });
@@ -1431,5 +1521,212 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
   });
+});
+
+/* Visit-booking core — live site-visit pages. Tables carry the
+   pp-live-visit-table id with a data-visit-filter value ("all",
+   "status:<status>", "rescheduled", "upcoming"); the dashboard
+   additionally fills the stats cards and the property dropdown
+   for the request form (the form itself is forms.js
+   data-api="visit-request"). Demo table rows are replaced by
+   live rows; anonymous visitors get an honest login row. */
+document.addEventListener('DOMContentLoaded', function () {
+  if (!window.PP || !window.PP.me) return;
+  function loginNotice(el) {
+    if (!el) return;
+    el.textContent = 'Is page ke liye login zaroori hai. ';
+    var a = document.createElement('a');
+    a.href = '../../login.html';
+    a.textContent = 'Login karein →';
+    el.appendChild(a);
+  }
+  function authed() {
+    return window.PP.me().then(function (m) {
+      return (m.ok && m.data && m.data.user) ? m.data.user : null;
+    });
+  }
+  var PILL = { requested: 'amber', confirmed: 'blue', rejected: 'red', completed: 'green', cancelled: '' };
+  function fmtDate(s) {
+    try { return new Date(s).toLocaleDateString('en-IN'); } catch (e) { return s || ''; }
+  }
+  function fmtTime(s) {
+    try { return new Date(s).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; }
+  }
+  function textCell(text) {
+    var td = document.createElement('td');
+    td.textContent = text;
+    return td;
+  }
+  function subCell(main, sub) {
+    var td = document.createElement('td');
+    var b = document.createElement('strong');
+    b.textContent = main;
+    td.appendChild(b);
+    if (sub) {
+      td.appendChild(document.createElement('br'));
+      var s = document.createElement('small');
+      s.textContent = sub;
+      td.appendChild(s);
+    }
+    return td;
+  }
+  function renderTable(table, visits) {
+    var tbody = table.querySelector('tbody');
+    if (!tbody) return;
+    tbody.textContent = '';
+    if (!visits.length) {
+      var er = document.createElement('tr');
+      var ec = document.createElement('td');
+      ec.setAttribute('colspan', '7');
+      ec.textContent = 'No visits found.';
+      er.appendChild(ec);
+      tbody.appendChild(er);
+      return;
+    }
+    visits.forEach(function (v) {
+      if (!v || !Number.isInteger(v.id)) return;
+      var tr = document.createElement('tr');
+      tr.appendChild(subCell(v.requester_name || ('Visit #' + v.id), v.requester_email || ''));
+      tr.appendChild(subCell(v.property_title || ('property #' + v.property_id), v.property_city || ''));
+      tr.appendChild(textCell(fmtDate(v.scheduled_at)));
+      tr.appendChild(textCell(fmtTime(v.scheduled_at)));
+      tr.appendChild(textCell('—'));
+      var st = document.createElement('td');
+      var pill = document.createElement('span');
+      pill.className = 'pill ' + (PILL[v.status] || '');
+      pill.textContent = v.status;
+      st.appendChild(pill);
+      tr.appendChild(st);
+      var act = document.createElement('td');
+      var a = document.createElement('a');
+      a.className = 'btn small outline';
+      a.setAttribute('href', 'visit-details.html?visit_id=' + v.id);
+      a.textContent = 'View';
+      act.appendChild(a);
+      tr.appendChild(act);
+      tbody.appendChild(tr);
+    });
+  }
+  function noticeRow(table, text) {
+    var tbody = table.querySelector('tbody');
+    if (!tbody) return;
+    tbody.textContent = '';
+    var tr = document.createElement('tr');
+    var td = document.createElement('td');
+    td.setAttribute('colspan', '7');
+    td.textContent = text;
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+  }
+  document.querySelectorAll('table#pp-live-visit-table').forEach(function (table) {
+    var filter = table.getAttribute('data-visit-filter') || 'all';
+    authed().then(function (u) {
+      if (!u) { noticeRow(table, 'Is page ke liye login zaroori hai. Login karke dobara aayein.'); return; }
+      var q = '/api/site-visits?limit=100';
+      if (filter.indexOf('status:') === 0) q += '&status=' + filter.slice(7);
+      window.PP.get(q).then(function (r) {
+        if (!r.ok) { noticeRow(table, (r.error && r.error.message) || 'Visits load nahi ho pa rahi hain.'); return; }
+        var items = (r.data && r.data.data) || [];
+        if (filter === 'rescheduled') items = items.filter(function (v) { return !!v.rescheduled_at; });
+        if (filter === 'upcoming') {
+          var now = Date.now(), week = now + 7 * 24 * 3600 * 1000;
+          items = items.filter(function (v) {
+            var t = Date.parse(v.scheduled_at);
+            return (v.status === 'requested' || v.status === 'confirmed') && t >= now && t <= week;
+          });
+        }
+        renderTable(table, items);
+      });
+    });
+  });
+  /* Dashboard: stats cards + property dropdown for the request form. */
+  if (document.getElementById('pp-live-visit-request')) {
+    authed().then(function (u) {
+      if (!u) { loginNotice(document.getElementById('pp-live-visit-request-notice')); return; }
+      window.PP.get('/api/site-visits/stats').then(function (r) {
+        if (!r.ok || !r.data) return;
+        var kpis = document.querySelectorAll('.grid.grid-4 .card.center .kpi');
+        var vals = [r.data.total, r.data.by_status.requested, r.data.by_status.confirmed, r.data.by_status.completed];
+        kpis.forEach(function (el, i) { if (vals[i] != null) el.textContent = vals[i]; });
+      });
+      window.PP.get('/api/properties?limit=100').then(function (r) {
+        var sel = document.getElementById('pp-visit-property');
+        if (!sel) return;
+        sel.textContent = '';
+        var items = (r.ok && r.data && r.data.data) || [];
+        if (!items.length) {
+          var o0 = document.createElement('option');
+          o0.value = '';
+          o0.textContent = 'No published properties available';
+          sel.appendChild(o0);
+          return;
+        }
+        var def = document.createElement('option');
+        def.value = '';
+        def.textContent = 'Select a property';
+        sel.appendChild(def);
+        items.forEach(function (p) {
+          var o = document.createElement('option');
+          o.value = p.id;
+          o.textContent = (p.title || ('Property #' + p.id)) + (p.city ? ' • ' + p.city : '');
+          sel.appendChild(o);
+        });
+      });
+    });
+  }
+  /* Visit details workspace: detail + status actions. The server
+     enforces who may change what; failures show its message. */
+  if (document.getElementById('pp-live-visit-details')) {
+    var params = new URLSearchParams(window.location.search);
+    var visitId = parseInt(params.get('visit_id') || '', 10);
+    var box = document.getElementById('pp-live-visit-details-body');
+    var notice = document.getElementById('pp-live-visit-details-notice');
+    if (!visitId) {
+      if (notice) notice.textContent = 'Koi visit chuni nahi gayi hai. Visit list se kisi visit par click karke aayein.';
+      return;
+    }
+    authed().then(function (u) {
+      if (!u) { loginNotice(notice); return; }
+      function load() {
+        window.PP.get('/api/site-visits/' + visitId).then(function (r) {
+          if (!r.ok || !r.data) {
+            if (box) box.textContent = (r.error && r.error.message) || 'Visit load nahi ho pa rahi hai.';
+            return;
+          }
+          render(r.data);
+        });
+      }
+      function render(v) {
+        box.textContent = '';
+        var h = document.createElement('h3');
+        h.textContent = (v.property_title || ('property #' + v.property_id)) + ' — visit #' + v.id;
+        box.appendChild(h);
+        var meta = document.createElement('p');
+        meta.textContent = 'Visitor: ' + (v.requester_name || '') + (v.requester_email ? ' (' + v.requester_email + ')' : '') +
+          ' • Scheduled: ' + fmtDate(v.scheduled_at) + ' ' + fmtTime(v.scheduled_at) +
+          ' • Status: ' + v.status +
+          (v.rescheduled_at ? ' • Rescheduled' : '') +
+          (v.notes ? ' • Notes: ' + v.notes : '') +
+          (v.feedback ? ' • Feedback: ' + v.feedback + (v.rating ? ' (' + v.rating + '/5)' : '') : '');
+        box.appendChild(meta);
+        var msg = document.createElement('p');
+        box.appendChild(msg);
+        ['confirmed', 'rejected', 'cancelled', 'completed'].forEach(function (target) {
+          var btn = document.createElement('button');
+          btn.className = 'btn small outline';
+          btn.textContent = 'Mark ' + target;
+          btn.addEventListener('click', function () {
+            window.PP.request('/api/site-visits/' + visitId, { method: 'PATCH', body: { status: target } }).then(function (rr) {
+              if (rr.ok) load();
+              else msg.textContent = (rr.error && rr.error.message) || 'Status change nahi ho pa raha hai.';
+            });
+          });
+          box.appendChild(btn);
+          box.appendChild(document.createTextNode(' '));
+        });
+      }
+      load();
+    });
+  }
 });
 </script></body></html>
