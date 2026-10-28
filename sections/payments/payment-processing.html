@@ -26,6 +26,12 @@ p{margin:0 0 1rem}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
 .section.pale{background:var(--pale)}
@@ -191,13 +197,14 @@ table.data th{color:#0A2240;background:#EEF3FA}
 @media(max-width:960px){.app-layout{grid-template-columns:1fr}.side{position:static}}
 </style></head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Download App</a><a href="../../index.html">Shortlist (3)</a><a href="../../index.html">INR ▾</a><a href="../../help-center.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row">
 <a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
 <nav class="main-nav"><a href="../../index.html">Home</a><a href="../../services.html">Services</a><a href="../../pricing.html">Pricing</a><a href="../../contact.html">Contact Us</a><a href="index.html">Payments</a><a href="../../sitemap.html">Sitemap</a></nav>
 <div class="header-actions"><a class="btn outline small" href="../../contact.html">Sign In</a><a class="btn red small" href="../../services.html">Post Property</a></div>
 </div></header>
-<div class="app-layout"><aside class="side"><a class="back" href="../../index.html">← Main Website</a><h4>Payments</h4><a href="billing-profile.html">Billing Profile</a><a href="invoice-details.html">Invoice Details</a><a href="invoice-list.html">Invoice List</a><a href="payment-checkout.html">Payment Checkout</a><a href="payment-failed.html">Payment Failed</a><a href="payment-history.html">Payment History</a><a href="payment-processing.html" class="active">Payment Processing</a><a href="payment-success.html">Payment Success</a><a href="refund-request.html">Refund Request</a><a href="refund-status.html">Refund Status</a><a href="tax-information.html">Tax Information</a></aside><main class="main"><div class="breadcrumb"><a href="../../index.html">Home</a> &gt; <a href="index.html">Payments</a> &gt; Payment Processing</div><h1>⏳ Payment Processing</h1><p class="lead">Please do not refresh or close this page while your payment is being confirmed.</p><div class="steps"><div class="step done">✓ Payment Initiated</div><div class="step done">✓ Bank Verification</div><div class="step">Confirming…</div></div><div class="card"><p>Transaction ID: TXN1234567892 · Amount: ₹11,239.00 · Plan: Professional Yearly Plan</p><p>Your bank is confirming this payment. This usually takes a few seconds. If this page stays here for more than 2 minutes, check your payment history.</p><a class="btn" href="payment-success.html">Check Status →</a> <a class="btn outline" href="payment-history.html">Payment History</a></div></main></div>
+<div class="app-layout"><aside class="side"><a class="back" href="../../index.html">← Main Website</a><h4>Payments</h4><a href="billing-profile.html">Billing Profile</a><a href="invoice-details.html">Invoice Details</a><a href="invoice-list.html">Invoice List</a><a href="payment-checkout.html">Payment Checkout</a><a href="payment-failed.html">Payment Failed</a><a href="payment-history.html">Payment History</a><a href="payment-processing.html" class="active">Payment Processing</a><a href="payment-success.html">Payment Success</a><a href="refund-request.html">Refund Request</a><a href="refund-status.html">Refund Status</a><a href="tax-information.html">Tax Information</a></aside><main id="main-content" tabindex="-1" class="main"><div class="breadcrumb"><a href="../../index.html">Home</a> &gt; <a href="index.html">Payments</a> &gt; Payment Processing</div><h1>⏳ Payment Processing</h1><p class="lead">Please do not refresh or close this page while your payment is being confirmed.</p><div class="steps"><div class="step done">✓ Payment Initiated</div><div class="step done">✓ Bank Verification</div><div class="step">Confirming…</div></div><div class="card"><p>Transaction ID: TXN1234567892 · Amount: ₹11,239.00 · Plan: Professional Yearly Plan</p><p>Your bank is confirming this payment. This usually takes a few seconds. If this page stays here for more than 2 minutes, check your payment history.</p><a class="btn" href="payment-success.html">Check Status →</a> <a class="btn outline" href="payment-history.html">Payment History</a></div></main></div>
 <footer class="site-footer"><div class="container footer-grid">
 <div><a class="logo" href="../../index.html" style="color:#fff">Prime<span>Propertys</span></a><p>Buy, Sell, Rent or Invest in residential and commercial properties across India. Your trusted property partner.</p></div>
 <div><h4>Explore</h4><p><a href="../../index.html">Home</a><br><a href="../../services.html">Services</a><br><a href="../../pricing.html">Pricing</a></p></div>
