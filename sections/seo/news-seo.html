@@ -701,6 +701,102 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       return;
     }
+    if (form.getAttribute('data-api') === 'ticket') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — ticket create nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        if (!payload.subject || !payload.message) {
+          showNote(form, 'Subject aur message dono bharein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/tickets', payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Ticket raise ho gaya hai. Support team jald jawab degi.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Ticket create nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'ticket-reply') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — reply save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var params = new URLSearchParams(window.location.search);
+        var ticketId = parseInt(params.get('ticket_id') || '', 10);
+        if (!ticketId || ticketId <= 0) {
+          showNote(form, 'Is reply ke liye koi ticket chuna nahi gaya hai. Ticket details se aayein (?ticket_id= ke saath).', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        if (!payload.message) {
+          showNote(form, 'Reply message bharein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/tickets/' + ticketId + '/replies', payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Reply save ho gaya hai. Thread dekhne ke liye page reload karein.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Reply save nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'ticket-assign') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — assignment nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var params = new URLSearchParams(window.location.search);
+        var ticketId = parseInt(params.get('ticket_id') || '', 10);
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        var assignee = parseInt(payload.assigned_to || '', 10);
+        if (!ticketId || ticketId <= 0 || !assignee || assignee <= 0) {
+          showNote(form, 'Ticket aur user dono chunein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/tickets/' + ticketId + '/assign', { assigned_to: assignee }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Ticket assigned successfully. Detail dekhne ke liye page reload karein.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Assignment nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
     if (form.getAttribute('data-api') === 'login') {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
