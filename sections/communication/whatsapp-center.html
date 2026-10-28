@@ -674,6 +674,47 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       return;
     }
+    if (form.getAttribute('data-api') === 'visit-assign') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post || !window.PP.request) {
+          showNote(form, 'Form wiring load nahi hui — assignment nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        var visitId = parseInt(payload.visit_id || '', 10);
+        var assignee = parseInt(payload.assigned_to || '', 10);
+        if (!visitId || visitId <= 0 || !assignee || assignee <= 0) {
+          showNote(form, 'Visit aur agent dono chunein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/site-visits/' + visitId + '/assign', { assigned_to: assignee }).then(function (r) {
+          if (!r.ok) {
+            if (btn) btn.disabled = false;
+            showNote(form, (r.error && r.error.message) || 'Assignment nahi ho pa raha hai.', true);
+            return;
+          }
+          if (!payload.scheduled_at) {
+            if (btn) btn.disabled = false;
+            showSuccess(form, 'Agent assigned successfully.');
+            form.reset();
+            return;
+          }
+          window.PP.request('/api/site-visits/' + visitId, { method: 'PATCH', body: { scheduled_at: payload.scheduled_at } }).then(function (n) {
+            if (btn) btn.disabled = false;
+            if (n.ok) showSuccess(form, 'Agent assigned successfully (date/time bhi update ho gaya).');
+            else showSuccess(form, 'Agent assigned, but the date/time could not be updated: ' + ((n.error && n.error.message) || 'unknown error') + '.');
+            form.reset();
+          });
+        });
+      });
+      return;
+    }
     if (form.getAttribute('data-api') === 'login') {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -1714,6 +1755,131 @@ document.addEventListener('DOMContentLoaded', function () {
         });
       }
       load();
+    });
+  }
+});
+
+/* Visit-booking finish — assign-agent page + analytics page. */
+document.addEventListener('DOMContentLoaded', function () {
+  if (!window.PP || !window.PP.me) return;
+  function loginNotice(el) {
+    if (!el) return;
+    el.textContent = 'Is page ke liye login zaroori hai. ';
+    var a = document.createElement('a');
+    a.href = '../../login.html';
+    a.textContent = 'Login karein →';
+    el.appendChild(a);
+  }
+  function authed() {
+    return window.PP.me().then(function (m) {
+      return (m.ok && m.data && m.data.user) ? m.data.user : null;
+    });
+  }
+  function fillSelect(sel, items, emptyText) {
+    sel.textContent = '';
+    if (!items.length) {
+      var o0 = document.createElement('option');
+      o0.value = '';
+      o0.textContent = emptyText;
+      sel.appendChild(o0);
+      return;
+    }
+    var def = document.createElement('option');
+    def.value = '';
+    def.textContent = 'Select…';
+    sel.appendChild(def);
+    items.forEach(function (it) {
+      var o = document.createElement('option');
+      o.value = it.value;
+      o.textContent = it.label;
+      sel.appendChild(o);
+    });
+  }
+  /* Assign-agent: visit + agent dropdowns (agent list is
+     admin-gated, like the lead-assignment page). */
+  var visitSel = document.getElementById('pp-visit-assign-visit');
+  var agentSel = document.getElementById('pp-visit-assign-agent');
+  if (visitSel || agentSel) {
+    authed().then(function (u) {
+      if (!u) { loginNotice(document.getElementById('pp-visit-assign-notice')); return; }
+      if (visitSel) window.PP.get('/api/site-visits?limit=100').then(function (r) {
+        var items = (r.ok && r.data && r.data.data) || [];
+        fillSelect(visitSel, items.map(function (v) {
+          var d = v.scheduled_at;
+          try { d = new Date(v.scheduled_at).toLocaleDateString('en-IN'); } catch (e) { /* keep raw */ }
+          return { value: v.id, label: 'Visit #' + v.id + ' — ' + (v.property_title || ('property #' + v.property_id)) + ' • ' + d + ' • ' + v.status };
+        }), 'No visits available');
+      });
+      if (agentSel) window.PP.get('/api/users').then(function (r) {
+        var items = (r.ok && r.data && r.data.data) || [];
+        fillSelect(agentSel, items.map(function (x) {
+          return { value: x.id, label: (x.full_name || x.email) + ' (' + x.role + ')' };
+        }), 'Agent list needs admin access');
+      });
+    });
+  }
+  /* Agent performance list (assign page + analytics page share
+     the analytics endpoint; each page has its own container). */
+  function renderAgents(box, d) {
+    box.textContent = '';
+    var items = d.by_assignee || [];
+    if (!items.length) {
+      box.appendChild(document.createTextNode('No agent has been assigned a visit yet.'));
+      return;
+    }
+    items.forEach(function (a) {
+      var p = document.createElement('p');
+      p.textContent = (a.name || a.email) + ' — ' + a.total + ' visits, ' + a.completed + ' completed';
+      box.appendChild(p);
+    });
+  }
+  if (document.getElementById('pp-live-visit-agents')) {
+    authed().then(function (u) {
+      if (!u) { loginNotice(document.getElementById('pp-visit-assign-notice')); return; }
+      window.PP.get('/api/site-visits/analytics').then(function (r) {
+        if (!r.ok || !r.data) return;
+        renderAgents(document.getElementById('pp-live-visit-agents'), r.data);
+      });
+    });
+  }
+  /* Analytics page: KPI cards + breakdown. */
+  if (document.getElementById('pp-live-visit-analytics')) {
+    authed().then(function (u) {
+      if (!u) { loginNotice(document.getElementById('pp-live-visit-analytics-notice')); return; }
+      window.PP.get('/api/site-visits/analytics').then(function (r) {
+        var body = document.getElementById('pp-live-visit-analytics-body');
+        if (!r.ok || !r.data) {
+          if (body) body.textContent = (r.error && r.error.message) || 'Analytics load nahi ho pa rahi hain.';
+          return;
+        }
+        var d = r.data;
+        var kpis = document.querySelectorAll('.grid.grid-4 .card.center .kpi');
+        var vals = [d.total, d.approved_rate + '%', d.completed_rate + '%', d.cancelled_rate + '%'];
+        kpis.forEach(function (el, i) { if (vals[i] != null) el.textContent = vals[i]; });
+        if (!body) return;
+        body.textContent = '';
+        var st = document.createElement('p');
+        st.textContent = 'Visits by status (live): requested ' + d.by_status.requested +
+          ' | confirmed ' + d.by_status.confirmed + ' | rejected ' + d.by_status.rejected +
+          ' | completed ' + d.by_status.completed + ' | cancelled ' + d.by_status.cancelled +
+          ' • Upcoming in next 7 days: ' + d.upcoming_7d;
+        body.appendChild(st);
+        var ph = document.createElement('h3');
+        ph.textContent = 'Top properties';
+        body.appendChild(ph);
+        if (!(d.by_property || []).length) body.appendChild(document.createTextNode('No visits yet.'));
+        (d.by_property || []).forEach(function (p) {
+          var line = document.createElement('p');
+          line.textContent = (p.property_title || '') + (p.property_city ? ' • ' + p.property_city : '') + ' — ' + p.n + ' visits';
+          body.appendChild(line);
+        });
+        var ah = document.createElement('h3');
+        ah.textContent = 'Agent performance';
+        body.appendChild(ah);
+        var abox = document.createElement('div');
+        body.appendChild(abox);
+        renderAgents(abox, d);
+      });
     });
   }
 });
