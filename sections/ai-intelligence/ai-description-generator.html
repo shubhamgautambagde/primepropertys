@@ -26,6 +26,12 @@ p{margin:0 0 1rem}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
 .section.pale{background:var(--pale)}
@@ -180,7 +186,8 @@ table.data td{padding:10px 8px;border-bottom:1px solid #F1F5F9}
 .field-palette span{border:1px solid #E2E8F0;background:#fff;border-radius:99px;padding:7px 13px;font-size:.88rem;font-weight:600}
 @media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{position:static;min-height:0}.bar-row{grid-template-columns:1fr}}
 </style></head>
-<body><div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Download App</a><a href="../../index.html">Shortlist (3)</a><a href="../../index.html">INR ▾</a><a href="../../sitemap.html">Help &amp; Support</a></span></div></div>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a><div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Download App</a><a href="../../index.html">Shortlist (3)</a><a href="../../index.html">INR ▾</a><a href="../../sitemap.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row">
 <a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
 <button class="nav-toggle" aria-label="Menu">☰</button>
@@ -189,12 +196,12 @@ table.data td{padding:10px 8px;border-bottom:1px solid #F1F5F9}
 </div></header>
 <div class="app"><aside class="sidebar"><h4>AI &amp; Intelligence</h4>
 <ul><li><a href="index.html">Section Home</a></li><li><a href="ai-admin-assistant.html">AI Admin Assistant</a></li><li><a href="ai-crm-assistant.html">AI CRM Assistant</a></li><li><a href="ai-description-generator.html" class="active">AI Description Generator</a></li><li><a href="ai-investment-advisor.html">AI Investment Advisor</a></li><li><a href="ai-lead-assistant.html">AI Lead Assistant</a></li><li><a href="ai-listing-assistant.html">AI Listing Assistant</a></li><li><a href="ai-locality-intelligence.html">AI Locality Intelligence</a></li><li><a href="ai-price-intelligence.html">AI Price Intelligence</a></li><li><a href="ai-property-advisor.html">AI Property Advisor</a></li><li><a href="ai-property-search.html">AI Property Search</a></li><li><a href="ai-property-valuation.html">AI Property Valuation</a></li><li><a href="ai-recommendations.html">AI Recommendations</a></li><li><a href="ai-seo-assistant.html">AI SEO Assistant</a></li></ul>
-<div class="help"><b>Need Help?</b><br>support@primepropertys.com<br>+91 98765 43210</div></aside><main class="app-main">
+<div class="help"><b>Need Help?</b><br>support@primepropertys.com<br>+91 98765 43210</div></aside><main id="main-content" tabindex="-1" class="app-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> &gt; <a href="index.html">AI &amp; Intelligence</a> &gt; AI Description Generator</div>
 <h1>AI Description Generator</h1><p class="lead">Generate compelling, SEO-friendly property descriptions in seconds with AI.</p>
 <div class="grid grid-4"><div class="card"><p>AI Score</p><div class="stat-num">86%</div><span class="stat-delta">▲ 3.2% vs last month</span></div><div class="card"><p>Items analysed</p><div class="stat-num">12,680</div><span class="stat-delta">▲ 8.4% vs last month</span></div><div class="card"><p>Time saved</p><div class="stat-num">20.5 hrs</div><span class="stat-delta">▲ 12.0% vs last month</span></div></div>
 <section class="section" style="padding:20px 0"><div class="grid grid-2">
-<div class="chat"><h3>Ask the AI</h3><form data-backend="not-connected"><label>Describe what you need</label><textarea placeholder="Write a description for a 3 BHK in Sector 150, Noida" name="write-a-description-for-a-3-bhk-in-sector-150-no"></textarea><button class="btn" type="submit">✨ Generate</button><div class="form-success">Done — see the AI answer below.</div></form>
+<div class="chat"><h3>Ask the AI</h3><form data-backend="not-connected"><label>Describe what you need</label><textarea placeholder="Write a description for a 3 BHK in Sector 150, Noida" name="write-a-description-for-a-3-bhk-in-sector-150-no" aria-label="Description for a 3 BHK in Sector 150, Noida"></textarea><button class="btn" type="submit">✨ Generate</button><div class="form-success">Done — see the AI answer below.</div></form>
 <p style="margin-top:14px"><span class="tag">Try this</span> Write a description for a 3 BHK in Sector 150, Noida</p></div>
 <div class="chat-out"><h3>AI Answer</h3><p>Welcome to this spacious 3 BHK apartment in Sector 150, Noida — 1,350 sq.ft. of thoughtfully designed living space, a modern kitchen, large balconies and a gated community with a clubhouse, pool and 24x7 security.</p><p><span class="badge blue">AI Generated</span> <span class="tag">Confidence: High</span></p><a class="btn small" href="index.html">View all AI tools →</a></div>
 </div></section>

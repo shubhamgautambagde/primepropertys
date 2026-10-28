@@ -26,6 +26,12 @@ p{margin:0 0 1rem}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
 .section.pale{background:var(--pale)}
@@ -180,7 +186,8 @@ table.data td{padding:10px 8px;border-bottom:1px solid #F1F5F9}
 .field-palette span{border:1px solid #E2E8F0;background:#fff;border-radius:99px;padding:7px 13px;font-size:.88rem;font-weight:600}
 @media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{position:static;min-height:0}.bar-row{grid-template-columns:1fr}}
 </style></head>
-<body><div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Download App</a><a href="../../index.html">Shortlist (3)</a><a href="../../index.html">INR ▾</a><a href="../../sitemap.html">Help &amp; Support</a></span></div></div>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a><div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Download App</a><a href="../../index.html">Shortlist (3)</a><a href="../../index.html">INR ▾</a><a href="../../sitemap.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row">
 <a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
 <button class="nav-toggle" aria-label="Menu">☰</button>
@@ -189,7 +196,7 @@ table.data td{padding:10px 8px;border-bottom:1px solid #F1F5F9}
 </div></header>
 <div class="app"><aside class="sidebar"><h4>Analytics &amp; Reports</h4>
 <ul><li><a href="index.html">Section Home</a></li><li><a href="analytics-dashboard.html">Analytics Dashboard</a></li><li><a href="agent-analytics.html">Agent Analytics</a></li><li><a href="builder-analytics.html">Builder Analytics</a></li><li><a href="conversion-funnel.html">Conversion Funnel</a></li><li><a href="custom-reports.html">Custom Reports</a></li><li><a href="export-center.html">Export Center</a></li><li><a href="lead-analytics.html">Lead Analytics</a></li><li><a href="marketing-analytics.html">Marketing Analytics</a></li><li><a href="news-analytics.html">News Analytics</a></li><li><a href="owner-analytics.html">Owner Analytics</a></li><li><a href="project-analytics.html">Project Analytics</a></li><li><a href="property-analytics.html">Property Analytics</a></li><li><a href="revenue-analytics.html">Revenue Analytics</a></li><li><a href="seo-analytics.html">SEO Analytics</a></li><li><a href="site-visit-analytics.html">Site Visit Analytics</a></li><li><a href="subscription-analytics.html">Subscription Analytics</a></li><li><a href="user-analytics.html" class="active">User Analytics</a></li></ul>
-<div class="help"><b>Need Help?</b><br>support@primepropertys.com<br>+91 98765 43210</div></aside><main class="app-main">
+<div class="help"><b>Need Help?</b><br>support@primepropertys.com<br>+91 98765 43210</div></aside><main id="main-content" tabindex="-1" class="app-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> &gt; <a href="index.html">Analytics &amp; Reports</a> &gt; User Analytics</div>
 <h1>User Analytics</h1><p class="lead">Users — signups, activity, retention and roles.</p>
 <div class="grid grid-4"><div class="card"><p>Total Users</p><div class="stat-num">48,260</div><span class="stat-delta">▲ 11.2%</span></div><div class="card"><p>New Users</p><div class="stat-num">6,842</div><span class="stat-delta">▲ 14.6%</span></div><div class="card"><p>Active (30d)</p><div class="stat-num">28,640</div><span class="stat-delta">59.3%</span></div><div class="card"><p>Retention (30d)</p><div class="stat-num">68.4%</div><span class="stat-delta">▲ 2.1 pts</span></div></div><section class="section" style="padding:20px 0"><div class="grid grid-2"><div class="card"><h3>Breakdown</h3><div class="bar-row"><span>Buyers</span><div class="bar"><i style="width:88%"></i></div><b>28,460 users</b></div><div class="bar-row"><span>Owners</span><div class="bar"><i style="width:42%"></i></div><b>12,840 users</b></div><div class="bar-row"><span>Agents</span><div class="bar"><i style="width:22%"></i></div><b>5,240 users</b></div><div class="bar-row"><span>Builders</span><div class="bar"><i style="width:10%"></i></div><b>1,720 users</b></div></div><div class="card"><table class="data"><tr><th>Role</th><th>Users</th><th>Active</th></tr><tr><td>Buyer</td><td>28,460</td><td>17,240</td></tr><tr><td>Owner</td><td>12,840</td><td>7,480</td></tr><tr><td>Agent</td><td>5,240</td><td>3,120</td></tr></table></div></div></section><section class="section" style="padding:10px 0"><div class="card"><h3>About this report</h3><p>Period: 12 May 2024 – 18 May 2024. Figures are shown against the previous 7 days. Use Filters on the right of the header in the original dashboard to change the period, city or team.</p><form data-backend="not-connected"><button class="btn" type="submit">⬇ Export this report</button><div class="form-success">Export started — your file will download shortly.</div></form></div></section>

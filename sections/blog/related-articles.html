@@ -26,6 +26,12 @@ p{margin:0 0 1rem}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
 .section.pale{background:var(--pale)}
@@ -180,7 +186,8 @@ table.data td{padding:10px 8px;border-bottom:1px solid #F1F5F9}
 .field-palette span{border:1px solid #E2E8F0;background:#fff;border-radius:99px;padding:7px 13px;font-size:.88rem;font-weight:600}
 @media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{position:static;min-height:0}.bar-row{grid-template-columns:1fr}}
 </style></head>
-<body><div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Download App</a><a href="../../index.html">Shortlist (3)</a><a href="../../index.html">INR ▾</a><a href="../../sitemap.html">Help &amp; Support</a></span></div></div>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a><div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Download App</a><a href="../../index.html">Shortlist (3)</a><a href="../../index.html">INR ▾</a><a href="../../sitemap.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row">
 <a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
 <button class="nav-toggle" aria-label="Menu">☰</button>
@@ -189,12 +196,12 @@ table.data td{padding:10px 8px;border-bottom:1px solid #F1F5F9}
 </div></header>
 <div class="app"><aside class="sidebar"><h4>Blog &amp; Guides</h4>
 <ul><li><a href="index.html">Section Home</a></li><li><a href="blog-home.html">Blog Home</a></li><li><a href="blog-author.html">Blog Author</a></li><li><a href="blog-category.html">Blog Category</a></li><li><a href="blog-detail.html">Blog Detail</a></li><li><a href="blog-tag.html">Blog Tag</a></li><li><a href="buying-guide.html">Buying Guide</a></li><li><a href="construction-guide.html">Construction Guide</a></li><li><a href="home-improvement.html">Home Improvement</a></li><li><a href="home-loan-guide.html">Home Loan Guide</a></li><li><a href="investment-guide.html">Investment Guide</a></li><li><a href="latest-articles.html">Latest Articles</a></li><li><a href="legal-guide.html">Legal Guide</a></li><li><a href="real-estate-tips.html">Real Estate Tips</a></li><li><a href="related-articles.html" class="active">Related Articles</a></li><li><a href="renting-guide.html">Renting Guide</a></li><li><a href="selling-guide.html">Selling Guide</a></li></ul>
-<div class="help"><b>Need Help?</b><br>support@primepropertys.com<br>+91 98765 43210</div></aside><main class="app-main">
+<div class="help"><b>Need Help?</b><br>support@primepropertys.com<br>+91 98765 43210</div></aside><main id="main-content" tabindex="-1" class="app-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> &gt; <a href="index.html">Blog &amp; Guides</a> &gt; Related Articles</div>
 <h1>Related Articles</h1><p class="lead">More articles like the one you just read — hand-picked by topic.</p>
 <section class="section" style="padding:10px 0"><div class="card"><img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80" alt="Related Articles — Keep Reading" style="height:260px"><h2 style="margin-top:14px">Related Articles — Keep Reading</h2><p>Editorial Team · Picked by topic</p><p>More articles like the one you just read — hand-picked by topic.</p><a class="btn" href="blog-detail.html">Read More →</a></div></section>
 <section class="section" style="padding:10px 0"><h2>Popular in this section</h2><div class="grid grid-3"><div class="card article"><img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80" alt="Things to Check Before Buying a New Home"><span class="tag">Guide</span><h3>Things to Check Before Buying a New Home</h3><p>Rohit Sharma · 20 May 2024 · 6 min read</p><a class="btn small" href="blog-detail.html">Read →</a></div><div class="card article"><img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80" alt="How to Sell Your Property Faster"><span class="tag">Guide</span><h3>How to Sell Your Property Faster</h3><p>Neha Kapoor · 19 May 2024 · 7 min read</p><a class="btn small" href="blog-detail.html">Read →</a></div><div class="card article"><img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80" alt="Is Real Estate Still a Good Investment in 2024?"><span class="tag">Guide</span><h3>Is Real Estate Still a Good Investment in 2024?</h3><p>Amit Verma · 17 May 2024 · 6 min read</p><a class="btn small" href="blog-detail.html">Read →</a></div></div></section>
-<section class="section" style="padding:10px 0"><div class="grid grid-2"><div class="card"><h3>Subscribe to our newsletter</h3><p>Get the latest real estate insights, guides and market updates in your inbox.</p><form data-backend="not-connected"><label>Email address</label><input type="email" placeholder="Enter your email address" name="email-address"><button class="btn" type="submit">Subscribe</button><div class="form-success">Subscribed — welcome to PrimePropertys guides.</div></form></div>
+<section class="section" style="padding:10px 0"><div class="grid grid-2"><div class="card"><h3>Subscribe to our newsletter</h3><p>Get the latest real estate insights, guides and market updates in your inbox.</p><form data-backend="not-connected"><label>Email address</label><input type="email" placeholder="Enter your email address" name="email-address" aria-label="Email address"><button class="btn" type="submit">Subscribe</button><div class="form-success">Subscribed — welcome to PrimePropertys guides.</div></form></div>
 <div class="card"><h3>Browse more</h3><ul class="check-list"><li><a href="blog-home.html">Blog Home</a></li><li><a href="latest-articles.html">Latest Articles</a></li><li><a href="blog-category.html">Categories</a></li><li><a href="blog-tag.html">Tags</a></li><li><a href="blog-author.html">Authors</a></li></ul></div></div></section>
 </main></div>
 <footer class="site-footer"><div class="container footer-grid">
