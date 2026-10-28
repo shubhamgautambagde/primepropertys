@@ -21,6 +21,7 @@ import * as T from './tickets.js';
 import * as S from './services.js';
 import * as PAY from './payments.js';
 import * as CAMP from './campaigns.js';
+import * as SET from './settings.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const STATIC_ROOT = resolve(process.env.STATIC_ROOT || join(here, '..', '..'));
@@ -475,6 +476,11 @@ function handleApi(req, res, url, body, user, token) {
       path === '/api/queued-messages' || path.startsWith('/api/queued-messages/')) {
     return handleCampaignRoutes(req, res, url, body, user);
   }
+  if (path === '/api/settings') {
+    if (req.method === 'GET') return respond(res, SET.getSettings(db, user));
+    if (req.method === 'PUT') return respond(res, SET.putSettings(db, user, body));
+    return apiError(res, 405, 'METHOD_NOT_ALLOWED', 'Method not allowed for this route');
+  }
   if (path === '/api/properties' || path.startsWith('/api/properties/') ||
       path === '/api/saved' || path === '/api/recently-viewed') {
     return handlePropertyRoutes(req, res, url, body, user);
@@ -558,7 +564,7 @@ const server = createServer(async (req, res) => {
       const token = cookies[SESSION_COOKIE];
       const user = getSessionUser(db, token);
       let body = {};
-      if (req.method === 'POST' || req.method === 'PATCH') {
+      if (req.method === 'POST' || req.method === 'PATCH' || req.method === 'PUT') {
         let raw;
         try {
           raw = await readBody(req);
