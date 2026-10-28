@@ -505,6 +505,42 @@ function handleApi(req, res, url, body, user, token) {
     return respond(res, N.unsubscribe(db, body));
   }
   if (path === '/api/users' && req.method === 'GET') return respond(res, listUsers(db, user));
+  const userDetail = path.match(/^\/api\/users\/(\d+)$/);
+  if (userDetail) {
+    if (!user) return apiError(res, 401, 'UNAUTHORIZED', 'Login required');
+    if (!hasPermission(db, user, 'users:manage')) return apiError(res, 403, 'FORBIDDEN', 'Missing permission: users:manage');
+    const row = db.prepare(`SELECT id, email, full_name, role, status, email_verified_at, created_at
+      FROM users WHERE id = ?`).get(Number(userDetail[1]));
+    if (!row) return apiError(res, 404, 'NOT_FOUND', 'User not found');
+    if (req.method === 'GET') return sendJson(res, 200, row);
+    if (req.method === 'PATCH') {
+      const b = body && typeof body === 'object' ? body : {};
+      const updates = {};
+      if (b.role !== undefined) {
+        if (!SELF_SERVICE_ROLES.includes(b.role) && !['Admin', 'Super Admin', 'Support'].includes(b.role)) {
+          return apiError(res, 400, 'INVALID_PARAMETER', 'role must be one of the 9 platform roles');
+        }
+        if (Number(userDetail[1]) === user.id && b.role !== row.role) {
+          return apiError(res, 400, 'INVALID_PARAMETER', 'Cannot change your own role');
+        }
+        updates.role = b.role;
+      }
+      if (b.status !== undefined) {
+        if (!['active', 'suspended'].includes(b.status)) {
+          return apiError(res, 400, 'INVALID_PARAMETER', "status must be 'active' or 'suspended'");
+        }
+        updates.status = b.status;
+      }
+      if (!Object.keys(updates).length) return apiError(res, 400, 'INVALID_PARAMETER', 'No updatable fields provided');
+      const sets = Object.keys(updates).map((k) => `${k} = ?`).join(', ');
+      db.prepare(`UPDATE users SET ${sets}, updated_at = datetime('now') WHERE id = ?`)
+        .run(...Object.values(updates), Number(userDetail[1]));
+      const updated = db.prepare(`SELECT id, email, full_name, role, status, email_verified_at, created_at
+        FROM users WHERE id = ?`).get(Number(userDetail[1]));
+      return sendJson(res, 200, updated);
+    }
+    return apiError(res, 405, 'METHOD_NOT_ALLOWED', 'Method not allowed for this user route');
+  }
   if (path === '/api/followups' && req.method === 'GET') return respond(res, L.listFollowupsVisible(db, user, url));
   if (req.method !== 'GET') return apiError(res, 405, 'METHOD_NOT_ALLOWED', 'Method not allowed');
   if (path === '/api/health') {

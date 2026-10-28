@@ -122,7 +122,7 @@ export function hasPermission(db, user, permission) {
 export function listUsers(db, user) {
   if (!user) return { status: 401, error: { code: 'UNAUTHORIZED', message: 'Login required' } };
   if (!hasPermission(db, user, 'users:manage')) return { status: 403, error: { code: 'FORBIDDEN', message: 'Missing permission: users:manage' } };
-  const rows = db.prepare(`SELECT id, email, full_name, role, status, created_at
+  const rows = db.prepare(`SELECT id, email, full_name, role, status, email_verified_at, created_at
     FROM users ORDER BY role, full_name, id`).all();
   return { status: 200, body: { data: rows } };
 }
