@@ -1227,4 +1227,65 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 });
+
+/* Portal my-lists — buyer "My Site Visits" page (guarded by
+   #pp-live-my-visits-table). Visits come from the real API
+   (visibility-scoped: the buyer sees only their own).
+   Agent shows a dash: visits carry no agent until one is
+   assigned (see the visit-booking slice). */
+document.addEventListener('DOMContentLoaded', function () {
+  var table = document.getElementById('pp-live-my-visits-table');
+  if (!table || !window.PP || !window.PP.me) return;
+  function host() {
+    return table.querySelector('tbody') || table;
+  }
+  function clearRows() {
+    var h = host();
+    var rows = h.querySelectorAll('tr');
+    var start = table.querySelector('tbody') ? 0 : 1;
+    for (var i = rows.length - 1; i >= start; i--) rows[i].remove();
+  }
+  function noticeRow(text) {
+    clearRows();
+    var tr = document.createElement('tr');
+    var td = document.createElement('td');
+    td.setAttribute('colspan', '4');
+    td.textContent = text;
+    tr.appendChild(td);
+    host().appendChild(tr);
+  }
+  function fmt(s) {
+    try { return new Date(s).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); } catch (e) { return s || ''; }
+  }
+  window.PP.me().then(function (m) {
+    if (!m.ok || !m.data || !m.data.user) { noticeRow('Is page ke liye login zaroori hai. Login karke dobara aayein.'); return; }
+    window.PP.get('/api/site-visits?limit=100').then(function (r) {
+      if (!r.ok) { noticeRow((r.error && r.error.message) || 'Visits load nahi ho pa rahi hain.'); return; }
+      var items = (r.data && r.data.data) || [];
+      if (!items.length) { noticeRow('No site visits yet.'); return; }
+      clearRows();
+      var h = host();
+      items.forEach(function (v) {
+        if (!v || !Number.isInteger(v.id)) return;
+        var tr = document.createElement('tr');
+        var c0 = document.createElement('td');
+        c0.textContent = (v.property_title || ('property #' + v.property_id)) + (v.property_city ? ', ' + v.property_city : '');
+        tr.appendChild(c0);
+        var c1 = document.createElement('td');
+        c1.textContent = fmt(v.scheduled_at);
+        tr.appendChild(c1);
+        var c2 = document.createElement('td');
+        c2.textContent = '—';
+        tr.appendChild(c2);
+        var c3 = document.createElement('td');
+        var tag = document.createElement('span');
+        tag.className = 'tag ' + (v.status === 'completed' ? 'green' : (v.status === 'confirmed' ? 'blue' : ''));
+        tag.textContent = v.status;
+        c3.appendChild(tag);
+        tr.appendChild(c3);
+        h.appendChild(tr);
+      });
+    });
+  });
+});
 </script></body></html>
