@@ -26,6 +26,12 @@ p{margin:0 0 1rem}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
 .section.pale{background:var(--pale)}
@@ -152,7 +158,8 @@ textarea{min-height:120px}
   .hero-img img{height:260px}
 }
 </style></head>
-<body><div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="index.html">Download App</a><a href="index.html">Shortlist (3)</a><a href="index.html">INR ▾</a><a href="help-center.html">Help &amp; Support</a></span></div></div>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a><div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="index.html">Download App</a><a href="index.html">Shortlist (3)</a><a href="index.html">INR ▾</a><a href="help-center.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row">
 <a class="logo" href="index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
 <button class="nav-toggle" aria-label="Menu">☰</button>
@@ -160,7 +167,7 @@ textarea{min-height:120px}
 <a href="index.html">Buy</a><a href="services.html">Rent</a><a href="services.html">Commercial</a><a href="index.html">New Projects</a><a href="services.html">Agents</a><a href="services.html">Builders</a><a href="contact.html">Find Owner</a><a href="services.html">Home Services</a><a href="sitemap.html">More</a>
 </nav>
 <div class="header-actions"><a class="btn outline small" href="contact.html">Sign In</a><a class="btn red small" href="services.html">Post Property</a></div>
-</div></header><main><section class="hero"><div class="container"><p class="breadcrumb"><a href="index.html">Home</a> &gt; Cookie Policy</p><h1>Cookie Policy</h1><p class="lead">This Cookie Policy explains what cookies are, how PrimePropertys uses them, and how you can manage your preferences.</p><p><span class="meta">Last Updated: 14 May 2024</span><span class="meta">Effective From: 14 May 2024</span></p></div></section>
+</div></header><main id="main-content" tabindex="-1"><section class="hero"><div class="container"><p class="breadcrumb"><a href="index.html">Home</a> &gt; Cookie Policy</p><h1>Cookie Policy</h1><p class="lead">This Cookie Policy explains what cookies are, how PrimePropertys uses them, and how you can manage your preferences.</p><p><span class="meta">Last Updated: 14 May 2024</span><span class="meta">Effective From: 14 May 2024</span></p></div></section>
 <section class="section"><div class="container layout-2"><div><div class="card" style="padding:8px 28px 28px"><section class="policy-section"><div class="policy-num">1</div><div><h2>What Are Cookies?</h2><p>Cookies are small text files stored on your device when you visit a website. They help the site remember your preferences, keep you signed in, and understand how visitors use the site.</p></div></section><section class="policy-section"><div class="policy-num">2</div><div><h2>How We Use Cookies</h2><p>We use cookies to operate PrimePropertys.in, remember your choices, analyse traffic, improve our services, and show relevant content and offers.</p></div></section><section class="policy-section"><div class="policy-num">3</div><div><h2>Types of Cookies</h2><p><strong>Essential — Always Active:</strong> required for core features such as security and page navigation. <strong>Performance &amp; Analytics:</strong> help us understand how visitors use the site. <strong>Functionality:</strong> remember your preferences and settings. <strong>Marketing &amp; Advertising:</strong> used to show relevant ads and measure campaigns.</p></div></section><section class="policy-section"><div class="policy-num">4</div><div><h2>Third-Party Cookies</h2><p>Some cookies are set by trusted third parties, for example analytics and advertising partners. Their use is governed by their own policies.</p></div></section><section class="policy-section"><div class="policy-num">5</div><div><h2>Manage Your Cookie Preferences</h2><p>You can block or delete cookies through your browser settings, and manage preferences where a cookie banner is shown. <strong>Note:</strong> disabling certain cookies may affect functionality, for example saved searches or staying signed in.</p></div></section><section class="policy-section"><div class="policy-num">6</div><div><h2>Changes</h2><p>We may update this Cookie Policy from time to time. The Last Updated date at the top of this page shows the latest version.</p></div></section><section class="policy-section"><div class="policy-num">7</div><div><h2>Contact Us</h2><p>Questions about cookies? Contact us at the email below.</p></div></section></div>
 <div class="contact-strip"><h3>Contact Us</h3><p>Email: privacy@primepropertys.in</p></div></div><div><div class="card sidebar"><h3>Quick Links</h3><ul class="quick-links">
 <li><a href="index.html">Home</a></li><li><a href="about.html">About Us</a></li><li><a href="services.html">Services</a></li><li><a href="pricing.html">Pricing</a></li><li><a href="help-center.html">Help Center</a></li><li><a href="faq.html">FAQs</a></li><li><a href="contact.html">Contact Us</a></li><li><a href="sitemap.html">Sitemap</a></li>

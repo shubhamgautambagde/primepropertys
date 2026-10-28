@@ -26,6 +26,12 @@ p{margin:0 0 1rem}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
 .section.pale{background:var(--pale)}
@@ -152,7 +158,8 @@ textarea{min-height:120px}
   .hero-img img{height:260px}
 }
 </style></head>
-<body><div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="index.html">Download App</a><a href="index.html">Shortlist (3)</a><a href="index.html">INR ▾</a><a href="help-center.html">Help &amp; Support</a></span></div></div>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a><div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="index.html">Download App</a><a href="index.html">Shortlist (3)</a><a href="index.html">INR ▾</a><a href="help-center.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row">
 <a class="logo" href="index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
 <button class="nav-toggle" aria-label="Menu">☰</button>
@@ -160,7 +167,7 @@ textarea{min-height:120px}
 <a href="index.html">Buy</a><a href="services.html">Rent</a><a href="services.html">Commercial</a><a href="index.html">New Projects</a><a href="services.html">Agents</a><a href="services.html">Builders</a><a href="contact.html">Find Owner</a><a href="services.html">Home Services</a><a href="sitemap.html">More</a>
 </nav>
 <div class="header-actions"><a class="btn outline small" href="contact.html">Sign In</a><a class="btn red small" href="services.html">Post Property</a></div>
-</div></header><main><section class="hero"><div class="container"><p class="breadcrumb"><a href="index.html">Home</a> &gt; Refund Policy</p><h1>Refund Policy</h1><p class="lead">This Refund Policy explains when refunds apply to PrimePropertys paid plans and how to request one.</p><p><span class="meta">Last Updated: 14 May 2024</span><span class="meta">Effective From: 14 May 2024</span></p></div></section>
+</div></header><main id="main-content" tabindex="-1"><section class="hero"><div class="container"><p class="breadcrumb"><a href="index.html">Home</a> &gt; Refund Policy</p><h1>Refund Policy</h1><p class="lead">This Refund Policy explains when refunds apply to PrimePropertys paid plans and how to request one.</p><p><span class="meta">Last Updated: 14 May 2024</span><span class="meta">Effective From: 14 May 2024</span></p></div></section>
 <section class="section"><div class="container layout-2"><div><div class="card" style="padding:8px 28px 28px"><section class="policy-section"><div class="policy-num">1</div><div><h2>Eligibility for Refund</h2><p>Paid plans are eligible for a refund where the plan was purchased in error, was not activated, or did not work as described, subject to the conditions below.</p></div></section><section class="policy-section"><div class="policy-num">2</div><div><h2>Non-Refundable Services</h2><p>The following are non-refundable: plans already used to receive verified leads or featured visibility for their full term, custom services already delivered, and government or third-party charges.</p></div></section><section class="policy-section"><div class="policy-num">3</div><div><h2>Refund Process</h2><p>Approved refunds are returned to the original payment method within 7–10 business days. Processing time may vary by bank or payment provider.</p></div></section><section class="policy-section"><div class="policy-num">4</div><div><h2>Cancellation & Refund Time Limit</h2><p>Refund requests must be made within 7 days of payment. Requests after this window are reviewed case by case and may not be approved.</p></div></section><section class="policy-section"><div class="policy-num">5</div><div><h2>Failed or Duplicate Payments</h2><p>If a payment failed but money was debited, or you were charged twice, the excess amount is refunded within 5–7 business days after verification with your bank or payment provider.</p></div></section><section class="policy-section"><div class="policy-num">6</div><div><h2>Changes</h2><p>We may update this Refund Policy from time to time. The version in force at the time of purchase applies to that purchase.</p></div></section><section class="policy-section"><div class="policy-num">7</div><div><h2>Contact Us</h2><p>To request a refund, contact support with your order details at the email below.</p></div></section></div>
 <div class="contact-strip"><h3>Contact Us</h3><p>Email: support@primepropertys.in<br>Phone: +91 98765 43210</p></div></div><div><div class="card sidebar"><h3>Quick Links</h3><ul class="quick-links">
 <li><a href="index.html">Home</a></li><li><a href="about.html">About Us</a></li><li><a href="services.html">Services</a></li><li><a href="pricing.html">Pricing</a></li><li><a href="help-center.html">Help Center</a></li><li><a href="faq.html">FAQs</a></li><li><a href="contact.html">Contact Us</a></li><li><a href="sitemap.html">Sitemap</a></li>

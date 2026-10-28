@@ -26,6 +26,12 @@ p{margin:0 0 1rem}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
 .section.pale{background:var(--pale)}
@@ -152,7 +158,8 @@ textarea{min-height:120px}
   .hero-img img{height:260px}
 }
 </style></head>
-<body><div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="index.html">Download App</a><a href="index.html">Shortlist (3)</a><a href="index.html">INR ▾</a><a href="help-center.html">Help &amp; Support</a></span></div></div>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a><div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="index.html">Download App</a><a href="index.html">Shortlist (3)</a><a href="index.html">INR ▾</a><a href="help-center.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row">
 <a class="logo" href="index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
 <button class="nav-toggle" aria-label="Menu">☰</button>
@@ -160,7 +167,7 @@ textarea{min-height:120px}
 <a href="index.html">Buy</a><a href="services.html">Rent</a><a href="services.html">Commercial</a><a href="index.html">New Projects</a><a href="services.html">Agents</a><a href="services.html">Builders</a><a href="contact.html">Find Owner</a><a href="services.html">Home Services</a><a href="sitemap.html">More</a>
 </nav>
 <div class="header-actions"><a class="btn outline small" href="contact.html">Sign In</a><a class="btn red small" href="services.html">Post Property</a></div>
-</div></header><main><section class="hero"><div class="container hero-inner"><div><p class="breadcrumb"><a href="index.html">Home</a> &gt; Contact Us</p><h1>Contact Us</h1><p class="lead">We're here to help you!</p><p>Have a question, suggestion, or need assistance? Our team is ready to help you with anything related to buying, selling, renting or investing in properties.</p></div><img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80" alt="Contact Us"></div></section>
+</div></header><main id="main-content" tabindex="-1"><section class="hero"><div class="container hero-inner"><div><p class="breadcrumb"><a href="index.html">Home</a> &gt; Contact Us</p><h1>Contact Us</h1><p class="lead">We're here to help you!</p><p>Have a question, suggestion, or need assistance? Our team is ready to help you with anything related to buying, selling, renting or investing in properties.</p></div><img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80" alt="Contact Us"></div></section>
 <section class="section"><div class="container"><div class="grid grid-4 center">
 <div class="card"><div class="icon">🎧</div><h3>Expert Support</h3><p>Get help from our real estate experts</p></div>
 <div class="card"><div class="icon">⏰</div><h3>Quick Response</h3><p>We reply within 24 working hours</p></div>
@@ -168,11 +175,11 @@ textarea{min-height:120px}
 <div class="card"><div class="icon">👥</div><h3>Customer First</h3><p>Your satisfaction is our top priority</p></div></div></div></section>
 <section class="section pale"><div class="container grid grid-2">
 <div class="card"><h2>Send Us a Message</h2><p>Fill out the form below and we will get back to you shortly.</p>
-<form data-api="contact"><label>Full Name *</label><input placeholder="Enter your full name" required name="full-name">
-<label>Email Address *</label><input type="email" placeholder="Enter your email address" required name="email-address">
-<label>Mobile Number *</label><input placeholder="+91 — Enter your mobile number" required name="mobile-number">
-<label>Subject *</label><select required name="field"><option>Select a subject</option><option>Buying a property</option><option>Selling / renting a property</option><option>Payments &amp; plans</option><option>Technical issue</option><option>Other</option></select>
-<label>Message *</label><textarea placeholder="Type your message here..." required name="message-here"></textarea>
+<form data-api="contact"><label>Full Name *</label><input placeholder="Enter your full name" required name="full-name" aria-label="Full name">
+<label>Email Address *</label><input type="email" placeholder="Enter your email address" required name="email-address" aria-label="Email address">
+<label>Mobile Number *</label><input placeholder="+91 — Enter your mobile number" required name="mobile-number" aria-label="+91 — Enter your mobile number">
+<label>Subject *</label><select required name="field" aria-label="Field"><option>Select a subject</option><option>Buying a property</option><option>Selling / renting a property</option><option>Payments &amp; plans</option><option>Technical issue</option><option>Other</option></select>
+<label>Message *</label><textarea placeholder="Type your message here..." required name="message-here" aria-label="Message here"></textarea>
 <p><label><input type="checkbox" required style="width:auto" name="selected-item" aria-label="selected item"> I agree to the Privacy Policy and Terms &amp; Conditions.</label></p>
 <button class="btn navy" type="submit">✈️ Send Message</button><div class="form-success">Thank you! Your message has been sent. We will get back to you shortly.</div>
 <p>🔒 Your information is safe with us. We don't spam.</p></form></div>

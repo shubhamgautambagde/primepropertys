@@ -890,3 +890,46 @@ NOT pushed to GitHub; the live Pages site still serves Stage C state.
   new indexes are used.
 - Backup before this change:
   `~/workspace/primepropertys-backup-stage-i-perf/`.
+
+## Stage I, Slice 3 — Accessibility (2026-10-28)
+
+### Measured baseline (all 652 pages, automated scan)
+Already good before this slice: every page declares lang, has
+exactly one <h1>, has a <main> landmark; all 374 images carry
+alt text; no empty links or buttons. Gaps found: 0 pages had a
+skip link, no :focus styling existed in shared CSS, and 868
+form controls (641 inputs, 167 selects, 60 textareas) had no
+accessible name — placeholder text only, which is not a label.
+
+### What was fixed (user said "ok next")
+- 868 controls labelled with aria-label, derived from the
+  control's placeholder (verb prefixes stripped), name, or id,
+  with a type-based fallback. Visible <label> elements were
+  deliberately NOT added: they would shift layouts, which the
+  brief forbids. Hidden/submit/button/reset/image inputs are
+  exempt. One-off fixer at /tmp/a11y-fix.py (idempotent:
+  second run changes 0 pages).
+- Skip link on every page (visually hidden until focused) +
+  id="main-content" tabindex="-1" on every <main>.
+- :focus-visible (royal-blue 3px outline, 2px offset) in
+  assets/css/base.css, inlined into every page by the build.
+  :focus-visible, not :focus, so mouse clicks stay
+  outline-free.
+- Colour contrast measured, not changed: all brand pairs pass
+  WCAG AA for normal text (navy 15.96:1, royal 5.17:1, red
+  4.70:1). See ACCESSIBILITY.md for the full record and its
+  honest limits (automated checks only; no manual
+  screen-reader/keyboard walkthrough yet).
+
+### Verified
+- Tests: 42 existing + 5 new in server/test/a11y.js (page
+  structure, image alts, control names, empty links/buttons,
+  shared focus/skip CSS) — full suite re-run below.
+- Build: 652 pages rebuilt, second run 0 changes (idempotent);
+  all modules `node --check` PASS.
+- Re-scan after the fix: 0 unlabeled controls, 0 pages
+  without a skip link or focus CSS; spot-checked login.html
+  (email -> "Email", password -> "Password") and index.html
+  (skip link + main id).
+- Backup before this change:
+  `~/workspace/primepropertys-backup-stage-i-a11y/`.
