@@ -27,6 +27,12 @@ p{margin:0 0 1rem}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
 .section.pale{background:var(--pale)}
@@ -189,6 +195,7 @@ textarea{min-height:120px}
 @media(max-width:960px){.portal{flex-direction:column}.portal-sidebar{flex:none}.chat{grid-template-columns:1fr}.portal-main{padding:16px}}
 </style></head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Download App</a><a href="../../index.html">Shortlist (3)</a><a href="../../index.html">INR ▾</a><a href="../../sitemap.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row">
 <a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
@@ -198,7 +205,7 @@ textarea{min-height:120px}
 <div class="portal">
 <aside class="portal-sidebar"><h4>Communication</h4><a href="messages.html" class="">Messages</a><a href="chat.html" class="">Chat</a><a href="conversations.html" class="">Conversations</a><a href="email-center.html" class="">Email Center</a><a href="email-templates.html" class="">Email Templates</a><a href="sms-center.html" class="">SMS Center</a><a href="sms-templates.html" class="">SMS Templates</a><a href="whatsapp-center.html" class="">WhatsApp Center</a><a href="whatsapp-templates.html" class="">WhatsApp Templates</a><a href="notification-center.html" class="active">Notification Center</a><a href="notification-templates.html" class="">Notification Templates</a><a href="notification-logs.html" class="">Notification Logs</a><a href="push-notifications.html" class="">Push Notifications</a><a href="communication-preferences.html" class="">Communication Preferences</a>
 <div class="help-card"><h4>Need Help?</h4><p>support@primepropertys.com<br>+91 98765 43210</p><a class="btn small" href="../../help-center.html">Contact Support</a></div></aside>
-<main class="portal-main">
+<main id="main-content" tabindex="-1" class="portal-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> › <a href="index.html">Communication</a> › Notification Center</div>
 <h1>Notification Center</h1><p class="lead">Stay updated with all important activities and alerts.</p>
 <div class="card"><p>Tabs: All 236 | Unread 18 | Important 12 &nbsp; <a class="btn small" href="#">Mark all as read</a> <a class="btn small outline" href="communication-preferences.html">Notification Settings</a></p></div><div class="card"><table class="data-table"><thead><tr><th>Notification</th><th>Time</th><th>Status</th></tr></thead><tbody><tr><td><strong>New Email Received</strong> — Amit Verma sent you an email about 3BHK Apartment in Lodha Park.</td><td>10:30 AM</td><td><span class="pill blue">Unread</span></td></tr><tr><td><strong>New WhatsApp Message</strong> — New message from +91 98765 43210 regarding site visit.</td><td>09:15 AM</td><td><span class="pill blue">Unread</span></td></tr><tr><td><strong>New Lead Assigned</strong> — Neha Kapoor has been assigned to you.</td><td>Yesterday, 04:20 PM</td><td><span class="pill blue">Unread</span></td></tr><tr><td><strong>Site Visit Scheduled</strong> — Visit for Lodha Park 3BHK tomorrow at 11:00 AM.</td><td>Yesterday, 11:30 AM</td><td><span class="pill grey">Read</span></td></tr><tr><td><strong>Deal Updated</strong> — Lodha Park deal moved to Negotiation.</td><td>25 May 2024, 05:10 PM</td><td><span class="pill grey">Read</span></td></tr></tbody></table></div><div class="card"><h3>Quick Summary</h3><p>Emails 56 | WhatsApp 78 | SMS 42 | System 60</p></div>

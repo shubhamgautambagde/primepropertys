@@ -26,6 +26,12 @@ p{margin:0 0 1rem}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
 .section.pale{background:var(--pale)}
@@ -180,7 +186,8 @@ table.data td{padding:10px 8px;border-bottom:1px solid #F1F5F9}
 .field-palette span{border:1px solid #E2E8F0;background:#fff;border-radius:99px;padding:7px 13px;font-size:.88rem;font-weight:600}
 @media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{position:static;min-height:0}.bar-row{grid-template-columns:1fr}}
 </style></head>
-<body><div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Download App</a><a href="../../index.html">Shortlist (3)</a><a href="../../index.html">INR ▾</a><a href="../../sitemap.html">Help &amp; Support</a></span></div></div>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a><div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Download App</a><a href="../../index.html">Shortlist (3)</a><a href="../../index.html">INR ▾</a><a href="../../sitemap.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row">
 <a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
 <button class="nav-toggle" aria-label="Menu">☰</button>
@@ -189,10 +196,10 @@ table.data td{padding:10px 8px;border-bottom:1px solid #F1F5F9}
 </div></header>
 <div class="app"><aside class="sidebar"><h4>Form Builder</h4>
 <ul><li><a href="index.html">Section Home</a></li><li><a href="form-builder-dashboard.html">Form Builder Dashboard</a></li><li><a href="all-forms.html">All Forms</a></li><li><a href="create-form.html" class="active">Create Form</a></li><li><a href="form-analytics.html">Form Analytics</a></li><li><a href="form-editor.html">Form Editor</a></li><li><a href="form-fields.html">Form Fields</a></li><li><a href="form-permissions.html">Form Permissions</a></li><li><a href="form-settings.html">Form Settings</a></li><li><a href="form-submissions.html">Form Submissions</a></li><li><a href="form-versions.html">Form Versions</a></li><li><a href="form-workflow.html">Form Workflow</a></li><li><a href="submission-details.html">Submission Details</a></li><li><a href="validation-rules.html">Validation Rules</a></li><li><a href="conditional-logic.html">Conditional Logic</a></li></ul>
-<div class="help"><b>Need Help?</b><br>support@primepropertys.com<br>+91 98765 43210</div></aside><main class="app-main">
+<div class="help"><b>Need Help?</b><br>support@primepropertys.com<br>+91 98765 43210</div></aside><main id="main-content" tabindex="-1" class="app-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> &gt; <a href="index.html">Form Builder</a> &gt; Create Form</div>
 <h1>Create Form</h1><p class="lead">Start a new form from scratch or from a template, in minutes.</p>
-<div class="grid grid-4"><div class="card"><p>Templates</p><div class="stat-num">24</div><span class="stat-delta">Ready to use</span></div><div class="card"><p>Fields Available</p><div class="stat-num">32</div><span class="stat-delta">Basic + advanced</span></div><div class="card"><p>Avg. Build Time</p><div class="stat-num">18 min</div><span class="stat-delta">From blank form</span></div><div class="card"><p>Published Today</p><div class="stat-num">6</div><span class="stat-delta">New forms</span></div></div><section class="section" style="padding:20px 0"><div class="grid grid-2"><div class="card"><h3>Create a form</h3><form data-backend="not-connected"><label>Form Name *</label><input placeholder="e.g. Property Enquiry Form" name="e-g-property-enquiry-form"><label>Form Type</label><select name="field"><option>Lead Capture</option><option>Agreement</option><option>Registration</option><option>Feedback</option><option>Onboarding</option></select><label>Description</label><textarea placeholder="What is this form for?" name="what-is-this-form-for"></textarea><button class="btn" type="submit">+ Create Form</button><div class="form-success">Form created — open it in the Form Editor to add fields.</div></form></div>
+<div class="grid grid-4"><div class="card"><p>Templates</p><div class="stat-num">24</div><span class="stat-delta">Ready to use</span></div><div class="card"><p>Fields Available</p><div class="stat-num">32</div><span class="stat-delta">Basic + advanced</span></div><div class="card"><p>Avg. Build Time</p><div class="stat-num">18 min</div><span class="stat-delta">From blank form</span></div><div class="card"><p>Published Today</p><div class="stat-num">6</div><span class="stat-delta">New forms</span></div></div><section class="section" style="padding:20px 0"><div class="grid grid-2"><div class="card"><h3>Create a form</h3><form data-backend="not-connected"><label>Form Name *</label><input placeholder="e.g. Property Enquiry Form" name="e-g-property-enquiry-form" aria-label="E.g. Property Enquiry Form"><label>Form Type</label><select name="field" aria-label="Field"><option>Lead Capture</option><option>Agreement</option><option>Registration</option><option>Feedback</option><option>Onboarding</option></select><label>Description</label><textarea placeholder="What is this form for?" name="what-is-this-form-for" aria-label="What is this form for?"></textarea><button class="btn" type="submit">+ Create Form</button><div class="form-success">Form created — open it in the Form Editor to add fields.</div></form></div>
 <div class="card"><h3>Start from a template</h3><ul class="check-list"><li>Property Enquiry Form — collects property enquiry details</li><li>Rental Agreement Form — rental agreement information</li><li>Event Registration Form — event registration details</li><li>Agent Onboarding Form — new agent onboarding</li><li>Feedback Form — customer feedback collection</li></ul><a class="btn small" href="form-editor.html">Open Editor →</a></div></div></section>
 </main></div>
 <footer class="site-footer"><div class="container footer-grid">

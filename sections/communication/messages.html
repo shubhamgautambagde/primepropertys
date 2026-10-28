@@ -27,6 +27,12 @@ p{margin:0 0 1rem}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
 .section.pale{background:var(--pale)}
@@ -189,6 +195,7 @@ textarea{min-height:120px}
 @media(max-width:960px){.portal{flex-direction:column}.portal-sidebar{flex:none}.chat{grid-template-columns:1fr}.portal-main{padding:16px}}
 </style></head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Download App</a><a href="../../index.html">Shortlist (3)</a><a href="../../index.html">INR ▾</a><a href="../../sitemap.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row">
 <a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
@@ -198,12 +205,12 @@ textarea{min-height:120px}
 <div class="portal">
 <aside class="portal-sidebar"><h4>Communication</h4><a href="messages.html" class="active">Messages</a><a href="chat.html" class="">Chat</a><a href="conversations.html" class="">Conversations</a><a href="email-center.html" class="">Email Center</a><a href="email-templates.html" class="">Email Templates</a><a href="sms-center.html" class="">SMS Center</a><a href="sms-templates.html" class="">SMS Templates</a><a href="whatsapp-center.html" class="">WhatsApp Center</a><a href="whatsapp-templates.html" class="">WhatsApp Templates</a><a href="notification-center.html" class="">Notification Center</a><a href="notification-templates.html" class="">Notification Templates</a><a href="notification-logs.html" class="">Notification Logs</a><a href="push-notifications.html" class="">Push Notifications</a><a href="communication-preferences.html" class="">Communication Preferences</a>
 <div class="help-card"><h4>Need Help?</h4><p>support@primepropertys.com<br>+91 98765 43210</p><a class="btn small" href="../../help-center.html">Contact Support</a></div></aside>
-<main class="portal-main">
+<main id="main-content" tabindex="-1" class="portal-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> › <a href="index.html">Communication</a> › Messages</div>
 <h1>Messages</h1><p class="lead">Manage all your messages from one place.</p>
 <div class="card"><p>Tabs: All 128 | Unread 12 | Starred 5 &nbsp; <a class="btn small" href="#">Compose New</a></p></div><div class="chat"><div class="chat-list"><h3>Conversations</h3><p><strong>Amit Verma</strong> — 10:30 AM<br><small>I'm interested in 3BHK apartment…</small></p><p><strong>Neha Kapoor</strong> — 09:15 AM<br><small>Thanks for the property details.</small></p><p><strong>Vikram Joshi</strong> — Yesterday<br><small>When can we schedule a visit?</small></p><p><strong>Priya Mehta</strong> — Yesterday<br><small>Please share the price details.</small></p><p><strong>Rahul Singh</strong> — 25 May<br><small>I have some queries.</small></p><p><strong>Sneha Patil</strong> — 24 May<br><small>Looking forward to your response.</small></p></div>
 <div class="chat-pane"><h3>Amit Verma • Online</h3><div class="msg in">Hi Rohit, I saw the property listing for 3BHK Apartment in Lodha Park.<br><small>10:28 AM</small></div><div class="msg out">Hello Amit, thank you for your interest. Yes, it is still available.<br><small>10:29 AM</small></div><div class="msg in">Great! Can you share more details and price?<br><small>10:29 AM</small></div><div class="msg out">Here are the details. Let me know if you would like to schedule a visit.<br><small>10:30 AM</small></div>
-<form data-backend="not-connected"><input placeholder="Type your message…" name="message"><button class="btn" type="submit">Send</button><div class="form-success">Message sent (front-end demo).</div></form></div>
+<form data-backend="not-connected"><input placeholder="Type your message…" name="message" aria-label="Message…"><button class="btn" type="submit">Send</button><div class="form-success">Message sent (front-end demo).</div></form></div>
 <div class="chat-side"><h3>Contact Details</h3><p><strong>Amit Verma</strong><br>amit.verma@email.com<br>+91 98765 43210<br>Mumbai, Maharashtra<br>Interested In: 3 BHK Apartment | Budget: ₹2 Cr – ₹3 Cr | Source: Website | Assigned To: Rohit Sharma</p><p>Labels: <span class='pill pink'>Hot Lead</span> <span class='pill blue'>Site Visit</span> <span class='pill green'>3 BHK</span></p></div></div>
 </main></div>
 <footer class="site-footer"><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with love in India</span></div></footer>

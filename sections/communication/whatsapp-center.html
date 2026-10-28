@@ -27,6 +27,12 @@ p{margin:0 0 1rem}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
 .section.pale{background:var(--pale)}
@@ -189,6 +195,7 @@ textarea{min-height:120px}
 @media(max-width:960px){.portal{flex-direction:column}.portal-sidebar{flex:none}.chat{grid-template-columns:1fr}.portal-main{padding:16px}}
 </style></head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Download App</a><a href="../../index.html">Shortlist (3)</a><a href="../../index.html">INR ▾</a><a href="../../sitemap.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row">
 <a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
@@ -198,12 +205,12 @@ textarea{min-height:120px}
 <div class="portal">
 <aside class="portal-sidebar"><h4>Communication</h4><a href="messages.html" class="">Messages</a><a href="chat.html" class="">Chat</a><a href="conversations.html" class="">Conversations</a><a href="email-center.html" class="">Email Center</a><a href="email-templates.html" class="">Email Templates</a><a href="sms-center.html" class="">SMS Center</a><a href="sms-templates.html" class="">SMS Templates</a><a href="whatsapp-center.html" class="active">WhatsApp Center</a><a href="whatsapp-templates.html" class="">WhatsApp Templates</a><a href="notification-center.html" class="">Notification Center</a><a href="notification-templates.html" class="">Notification Templates</a><a href="notification-logs.html" class="">Notification Logs</a><a href="push-notifications.html" class="">Push Notifications</a><a href="communication-preferences.html" class="">Communication Preferences</a>
 <div class="help-card"><h4>Need Help?</h4><p>support@primepropertys.com<br>+91 98765 43210</p><a class="btn small" href="../../help-center.html">Contact Support</a></div></aside>
-<main class="portal-main">
+<main id="main-content" tabindex="-1" class="portal-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> › <a href="index.html">Communication</a> › WhatsApp Center</div>
 <h1>WhatsApp Center</h1><p class="lead">Manage your WhatsApp conversations and leads.</p>
 <div class="grid grid-4"><div class="card center"><p class="kpi">248</p><p class="kpi-sub">Total Chats</p></div><div class="card center"><p class="kpi">128</p><p class="kpi-sub">Open (51.61%)</p></div><div class="card center"><p class="kpi">89</p><p class="kpi-sub">Replied (35.89%)</p></div><div class="card center"><p class="kpi">31</p><p class="kpi-sub">Pending (12.50%)</p></div></div><div class="card"><p>Messages are end-to-end encrypted. No one outside of this chat, not even PrimePropertys, can read or listen to them.</p></div><div class="chat"><div class="chat-list"><h3>Conversations</h3><p><strong>+91 98765 43210</strong> — 10:30 AM<br><small>Hi, I'm interested in 3BHK Apartment…</small></p><p><strong>+91 91234 56789</strong> — 09:15 AM<br><small>Thanks for sharing the details.</small></p><p><strong>+91 99887 66554</strong> — Yesterday<br><small>When can we schedule a visit?</small></p><p><strong>+91 88776 55433</strong> — Yesterday<br><small>Please share the brochure.</small></p></div>
 <div class="chat-pane"><h3>+91 98765 43210 • Online</h3><div class="msg in">Hi, I'm interested in 3BHK Apartment in Lodha Park.<br><small>10:28 AM</small></div><div class="msg wa-out">Hello! Thank you for your interest. Yes, 3BHK apartments are available.<br><small>10:29 AM</small></div><div class="msg in">Looks good! Can we schedule a visit tomorrow at 11 AM?<br><small>10:30 AM</small></div><div class="msg wa-out">Sure! Your visit is scheduled for tomorrow at 11:00 AM.<br><small>10:31 AM</small></div>
-<form data-backend="not-connected"><input placeholder="Type your message…" name="message"><button class="btn" type="submit">Send</button><div class="form-success">Message sent (front-end demo).</div></form></div>
+<form data-backend="not-connected"><input placeholder="Type your message…" name="message" aria-label="Message…"><button class="btn" type="submit">Send</button><div class="form-success">Message sent (front-end demo).</div></form></div>
 <div class="chat-side"><h3>Contact Details</h3><p><strong>+91 98765 43210</strong><br>Last seen today at 10:30 AM | Lead | Status: Open<br>Interested In: 3 BHK Apartment | Budget: ₹2 Cr – ₹3 Cr | Source: WhatsApp | Assigned To: Rohit Sharma</p><p>Quick Actions: Share Property, Send Template, Schedule Visit, Add Note</p></div></div>
 </main></div>
 <footer class="site-footer"><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with love in India</span></div></footer>

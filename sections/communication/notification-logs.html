@@ -27,6 +27,12 @@ p{margin:0 0 1rem}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
 .section.pale{background:var(--pale)}
@@ -189,6 +195,7 @@ textarea{min-height:120px}
 @media(max-width:960px){.portal{flex-direction:column}.portal-sidebar{flex:none}.chat{grid-template-columns:1fr}.portal-main{padding:16px}}
 </style></head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Download App</a><a href="../../index.html">Shortlist (3)</a><a href="../../index.html">INR ▾</a><a href="../../sitemap.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row">
 <a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
@@ -198,7 +205,7 @@ textarea{min-height:120px}
 <div class="portal">
 <aside class="portal-sidebar"><h4>Communication</h4><a href="messages.html" class="">Messages</a><a href="chat.html" class="">Chat</a><a href="conversations.html" class="">Conversations</a><a href="email-center.html" class="">Email Center</a><a href="email-templates.html" class="">Email Templates</a><a href="sms-center.html" class="">SMS Center</a><a href="sms-templates.html" class="">SMS Templates</a><a href="whatsapp-center.html" class="">WhatsApp Center</a><a href="whatsapp-templates.html" class="">WhatsApp Templates</a><a href="notification-center.html" class="">Notification Center</a><a href="notification-templates.html" class="">Notification Templates</a><a href="notification-logs.html" class="active">Notification Logs</a><a href="push-notifications.html" class="">Push Notifications</a><a href="communication-preferences.html" class="">Communication Preferences</a>
 <div class="help-card"><h4>Need Help?</h4><p>support@primepropertys.com<br>+91 98765 43210</p><a class="btn small" href="../../help-center.html">Contact Support</a></div></aside>
-<main class="portal-main">
+<main id="main-content" tabindex="-1" class="portal-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> › <a href="index.html">Communication</a> › Notification Logs</div>
 <h1>Notification Logs</h1><p class="lead">Log of every notification sent, with delivery status.</p>
 <div class="card"><table class="data-table"><thead><tr><th>Notification</th><th>Channel</th><th>Recipient</th><th>Sent</th><th>Status</th></tr></thead><tbody><tr><td>New Lead Assigned</td><td>Push</td><td>Rohit Sharma</td><td>10:30 AM</td><td><span class="pill green">Delivered</span></td></tr><tr><td>Site Visit Reminder</td><td>SMS</td><td>+91 98765 43210</td><td>09:00 AM</td><td><span class="pill green">Delivered</span></td></tr><tr><td>Weekly Report</td><td>Email</td><td>Admin</td><td>Yesterday</td><td><span class="pill amber">Pending</span></td></tr></tbody></table></div>
