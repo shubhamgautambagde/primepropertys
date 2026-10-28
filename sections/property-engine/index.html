@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Property Engine | PrimePropertys</title>
-<meta name="description" content="Property Engine — PrimePropertys, India&#x27;s real estate portal."><style>/* PrimePropertys — Public Website | Design system from the UI screenshots */
+<meta name="description" content="Property Engine — PrimePropertys, India&#x27;s real estate portal."><style>
 :root{
   --navy:#0A2240; --navy2:#0E2F56; --blue:#2563EB; --blue-dark:#1D4ED8;
   --red:#E11D48; --ink:#1F2937; --muted:#64748B; --body:#475569;
@@ -15,13 +15,13 @@ img{max-width:100%;display:block;border-radius:12px}
 h1,h2,h3,h4{color:var(--navy);line-height:1.25;margin:0 0 .5rem}
 h1{font-size:2.4rem} h2{font-size:1.7rem} h3{font-size:1.15rem}
 p{margin:0 0 1rem}
-.container{max-width:1200px;margin:0 auto;padding:0 20px}
-.section{padding:48px 0}
-.section.pale{background:var(--pale)}
 .center{text-align:center}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+.container{max-width:1200px;margin:0 auto;padding:0 20px}
+.section{padding:48px 0}
+.section.pale{background:var(--pale)}
 /* Top bar + header */
 .topbar{background:var(--navy);color:#CBD5E1;font-size:.85rem}
 .topbar .container{display:flex;justify-content:space-between;gap:16px;padding-top:8px;padding-bottom:8px;flex-wrap:wrap}
@@ -36,16 +36,6 @@ p{margin:0 0 1rem}
 .main-nav a.active{color:var(--blue)}
 .header-actions{display:flex;gap:10px;white-space:nowrap}
 .nav-toggle{display:none;margin-left:auto;background:var(--navy);color:#fff;border:0;border-radius:8px;padding:8px 12px;font-size:1rem;cursor:pointer}
-/* Buttons */
-.btn{display:inline-block;background:var(--blue);color:#fff !important;border:1px solid var(--blue);padding:11px 20px;border-radius:10px;font-weight:700;cursor:pointer;text-decoration:none !important}
-.btn:hover{background:var(--blue-dark)}
-.btn.red{background:var(--red);border-color:var(--red)}
-.btn.red:hover{background:#BE123C}
-.btn.navy{background:var(--navy);border-color:var(--navy)}
-.btn.outline{background:#fff;color:var(--blue) !important;border-color:var(--blue)}
-.btn.white{background:#fff;color:var(--navy) !important;border-color:#fff}
-.btn.white-outline{background:transparent;color:#fff !important;border-color:#fff}
-.btn.small{padding:7px 14px;font-size:.9rem;border-radius:8px}
 /* Hero */
 .hero{background:linear-gradient(180deg,#EEF3FA,#fff);padding:40px 0 30px}
 .hero-inner{display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center}
@@ -58,6 +48,37 @@ p{margin:0 0 1rem}
 .breadcrumb{font-size:.9rem;color:var(--muted);margin-bottom:12px}
 .breadcrumb a{color:var(--muted)}
 .meta{font-size:.9rem;color:var(--muted);background:#fff;border:1px solid var(--line);display:inline-block;padding:6px 12px;border-radius:999px;margin:4px 6px 4px 0}
+.grid{display:grid;gap:20px}
+.grid-2{grid-template-columns:repeat(2,1fr)} .grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-4{grid-template-columns:repeat(4,1fr)} .grid-5{grid-template-columns:repeat(5,1fr)}
+.grid-8{grid-template-columns:repeat(4,1fr)}
+/* Two-column policy layout */
+.layout-2{display:grid;grid-template-columns:2fr 1fr;gap:28px;align-items:start}
+.policy-section{display:flex;gap:16px;padding:22px 0;border-bottom:1px solid var(--line)}
+.policy-num{flex:0 0 44px;height:44px;border-radius:50%;background:var(--pale);color:var(--blue);display:flex;align-items:center;justify-content:center;font-weight:800}
+.sidebar .card{margin-bottom:20px}
+.quick-links{list-style:none;padding:0;margin:0}
+.quick-links li{border-bottom:1px solid var(--pale);padding:8px 0}
+.quick-links li:last-child{border-bottom:0}
+.contact-strip{background:var(--pale);border-radius:12px;padding:20px;margin-top:24px}
+/* Footer */
+.site-footer{background:var(--navy);color:#CBD5E1;margin-top:48px}
+.site-footer h4{color:#fff}
+.site-footer a{color:#CBD5E1}
+.footer-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1.3fr;gap:28px;padding:44px 20px}
+.footer-bottom{border-top:1px solid #1E3A5F;padding:16px 20px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.newsletter-row{display:flex;gap:8px}
+.newsletter-row input{flex:1}
+/* Buttons */
+.btn{display:inline-block;background:var(--blue);color:#fff !important;border:1px solid var(--blue);padding:11px 20px;border-radius:10px;font-weight:700;cursor:pointer;text-decoration:none !important}
+.btn:hover{background:var(--blue-dark)}
+.btn.red{background:var(--red);border-color:var(--red)}
+.btn.red:hover{background:#BE123C}
+.btn.navy{background:var(--navy);border-color:var(--navy)}
+.btn.outline{background:#fff;color:var(--blue) !important;border-color:var(--blue)}
+.btn.white{background:#fff;color:var(--navy) !important;border-color:#fff}
+.btn.white-outline{background:transparent;color:#fff !important;border-color:#fff}
+.btn.small{padding:7px 14px;font-size:.9rem;border-radius:8px}
 /* Search */
 .search-box{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:20px;margin-top:-40px;position:relative;z-index:2}
 .search-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
@@ -67,31 +88,16 @@ p{margin:0 0 1rem}
 .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .pill{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:.85rem;background:var(--pale2);color:var(--ink)}
 /* Grids + cards */
-.grid{display:grid;gap:20px}
-.grid-2{grid-template-columns:repeat(2,1fr)} .grid-3{grid-template-columns:repeat(3,1fr)}
-.grid-4{grid-template-columns:repeat(4,1fr)} .grid-5{grid-template-columns:repeat(5,1fr)}
-.grid-8{grid-template-columns:repeat(4,1fr)}
 .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:0 2px 10px rgba(10,34,64,.04)}
 .card img{height:170px;width:100%;object-fit:cover;margin-bottom:12px}
 .icon{font-size:1.6rem}
 .price{color:var(--blue);font-weight:800;font-size:1.25rem}
 .badge{display:inline-block;background:var(--green);color:#fff;font-size:.75rem;font-weight:700;padding:3px 9px;border-radius:999px}
 .badge.blue{background:var(--blue)} .badge.red{background:var(--red)} .badge.amber{background:var(--amber)}
-.stat-band{background:var(--navy);color:#fff;padding:36px 0}
-.stat-band h3{color:#fff;font-size:1.8rem}
-.stat-band p{color:#CBD5E1}
 .check{color:var(--green);font-weight:700}
 .check-list{list-style:none;padding:0;margin:0}
 .check-list li{padding:6px 0;border-bottom:1px solid var(--pale)}
 .check-list li:last-child{border-bottom:0}
-/* Forms */
-form label{display:block;font-weight:600;color:var(--ink);font-size:.92rem;margin:12px 0 4px}
-input,select,textarea{width:100%;padding:11px 12px;border:1px solid #CBD5E1;border-radius:10px;font:inherit}
-textarea{min-height:120px}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.form-success{display:none;background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;padding:12px 16px;border-radius:10px;margin-top:14px;font-weight:600}
-.form-success.show{display:block}
-.upload-box{border:2px dashed #CBD5E1;border-radius:12px;padding:24px;text-align:center;background:var(--pale2)}
 /* Accordion */
 .acc-item{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;background:#fff}
 .acc-btn{width:100%;text-align:left;background:#fff;border:0;padding:16px 18px;font:inherit;font-weight:700;color:var(--navy);cursor:pointer;display:flex;justify-content:space-between;gap:12px}
@@ -106,27 +112,21 @@ textarea{min-height:120px}
 .audience-tabs button.active{color:var(--blue);border-color:var(--blue)}
 .price-card{position:relative}
 .price-card.popular{border:2px solid var(--blue)}
-/* Two-column policy layout */
-.layout-2{display:grid;grid-template-columns:2fr 1fr;gap:28px;align-items:start}
-.policy-section{display:flex;gap:16px;padding:22px 0;border-bottom:1px solid var(--line)}
-.policy-num{flex:0 0 44px;height:44px;border-radius:50%;background:var(--pale);color:var(--blue);display:flex;align-items:center;justify-content:center;font-weight:800}
-.sidebar .card{margin-bottom:20px}
-.quick-links{list-style:none;padding:0;margin:0}
-.quick-links li{border-bottom:1px solid var(--pale);padding:8px 0}
-.quick-links li:last-child{border-bottom:0}
-.contact-strip{background:var(--pale);border-radius:12px;padding:20px;margin-top:24px}
 /* Tables / jobs */
 .job-card{border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;background:#fff;margin-bottom:14px}
 .filters{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
 .filters input,.filters select{flex:1;min-width:200px}
-/* Footer */
-.site-footer{background:var(--navy);color:#CBD5E1;margin-top:48px}
-.site-footer h4{color:#fff}
-.site-footer a{color:#CBD5E1}
-.footer-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1.3fr;gap:28px;padding:44px 20px}
-.footer-bottom{border-top:1px solid #1E3A5F;padding:16px 20px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.newsletter-row{display:flex;gap:8px}
-.newsletter-row input{flex:1}
+/* Forms */
+form label{display:block;font-weight:600;color:var(--ink);font-size:.92rem;margin:12px 0 4px}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid #CBD5E1;border-radius:10px;font:inherit}
+textarea{min-height:120px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-success{display:none;background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;padding:12px 16px;border-radius:10px;margin-top:14px;font-weight:600}
+.form-success.show{display:block}
+.upload-box{border:2px dashed #CBD5E1;border-radius:12px;padding:24px;text-align:center;background:var(--pale2)}
+.stat-band{background:var(--navy);color:#fff;padding:36px 0}
+.stat-band h3{color:#fff;font-size:1.8rem}
+.stat-band p{color:#CBD5E1}
 @media(max-width:960px){
   .hero-inner,.layout-2,.search-grid{grid-template-columns:1fr}
   .grid-5,.grid-4,.grid-8{grid-template-columns:repeat(2,1fr)}
@@ -144,7 +144,6 @@ textarea{min-height:120px}
   .footer-grid{grid-template-columns:1fr}
   .hero-img img{height:260px}
 }
-
 .pe-layout{display:grid;grid-template-columns:230px 1fr;gap:24px;align-items:start}
 .pe-sidebar{background:#fff;border:1px solid #E2E8F0;border-radius:14px;padding:16px;position:sticky;top:84px}
 .pe-sidebar h4{margin-bottom:10px}
@@ -179,7 +178,7 @@ table.data th{color:#0A2240}
 @media(max-width:600px){.gallery-grid,.amenity-grid,.share-grid{grid-template-columns:1fr}}
 </style></head><body><div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Download App</a><a href="../../index.html">Shortlist (12)</a><a href="../../index.html">Alerts (3)</a><a href="../../help-center.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row"><a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a><button class="nav-toggle" aria-label="Menu">☰</button><nav class="main-nav"><a href="../../index.html">Home</a><a href="../../about.html">About Us</a><a href="../../services.html">Services</a><a href="../../pricing.html">Pricing</a><a href="../../contact.html">Contact Us</a><a href="../../sitemap.html">Sitemap</a></nav><div class="header-actions"><a class="btn outline small" href="../../contact.html">Sign In</a><a class="btn red small" href="../../services.html">Post Property</a></div></div></header>
-<main><div class="container" style="padding-top:24px"><div class="pe-layout"><aside class="pe-sidebar"><h4>Property Engine</h4><a href="index.html" class="active">🏠 Property Engine Home</a><a href="property-details.html">Property Details</a><a href="property-amenities.html">Property Amenities</a><a href="property-photos-gallery.html">Property Photos Gallery</a><a href="property-price-history.html">Property Price History</a><a href="property-analytics.html">Property Analytics</a><a href="property-documents.html">Property Documents</a><a href="property-verification.html">Property Verification</a><a href="property-reviews.html">Property Reviews</a><a href="property-report.html">Property Report</a><a href="property-video.html">Property Video</a><a href="360-virtual-tour.html">360° Virtual Tour</a><a href="floor-plans.html">Floor Plans</a><a href="property-share.html">Property Share</a><a href="contact-owner.html">Contact Owner</a><a href="contact-agent.html">Contact Agent</a><a href="make-enquiry.html">Make Enquiry</a><a href="request-callback.html">Request Callback</a><a href="request-site-visit.html">Request Site Visit</a><a href="report-property.html">Report Property</a></aside><div><p class="breadcrumb"><a href="../../index.html">Home</a> &gt; Property Engine</p><h1>Property Engine</h1><p>All the detail pages for a single property — 2 BHK Apartment in Andheri East, Mumbai (₹ 1.25 Cr, Lodha Eternis). Use the sidebar on every page to move between them, or start below.</p><div class="grid grid-3"><div class="card"><h3>Property Details</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-details.html">Open →</a></div><div class="card"><h3>Property Amenities</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-amenities.html">Open →</a></div><div class="card"><h3>Property Photos Gallery</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-photos-gallery.html">Open →</a></div><div class="card"><h3>Property Price History</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-price-history.html">Open →</a></div><div class="card"><h3>Property Analytics</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-analytics.html">Open →</a></div><div class="card"><h3>Property Documents</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-documents.html">Open →</a></div><div class="card"><h3>Property Verification</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-verification.html">Open →</a></div><div class="card"><h3>Property Reviews</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-reviews.html">Open →</a></div><div class="card"><h3>Property Report</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-report.html">Open →</a></div><div class="card"><h3>Property Video</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-video.html">Open →</a></div><div class="card"><h3>360° Virtual Tour</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="360-virtual-tour.html">Open →</a></div><div class="card"><h3>Floor Plans</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="floor-plans.html">Open →</a></div><div class="card"><h3>Property Share</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-share.html">Open →</a></div><div class="card"><h3>Contact Owner</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="contact-owner.html">Open →</a></div><div class="card"><h3>Contact Agent</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="contact-agent.html">Open →</a></div><div class="card"><h3>Make Enquiry</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="make-enquiry.html">Open →</a></div><div class="card"><h3>Request Callback</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="request-callback.html">Open →</a></div><div class="card"><h3>Request Site Visit</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="request-site-visit.html">Open →</a></div><div class="card"><h3>Report Property</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="report-property.html">Open →</a></div></div><div class="card" style="margin-top:20px"><h3>About This Property</h3><p>2 BHK Apartment, Lodha Eternis, Near Metro Station, Andheri East, Mumbai - 400069 · ₹ 1.25 Cr · ₹ 14,706 / sq.ft. · 850 Sq.Ft. · 2 Beds · 2 Baths · East Facing · Ready to Move · RERA P51800012345 · Verified.</p><p><a href="property-details.html">View Property Details →</a> &nbsp; <a href="../../index.html">← Back to PrimePropertys Home</a></p></div></div></div></div></main><footer class="site-footer"><div class="container footer-grid"><div><a class="logo" href="../../index.html" style="color:#fff">Prime<span>Propertys</span></a><p>India's most trusted real estate portal for buying, selling and renting properties.</p></div><div><h4>Explore</h4><p><a href="../../index.html">Home</a><br><a href="../../services.html">Services</a><br><a href="../../pricing.html">Pricing</a></p></div><div><h4>Company</h4><p><a href="../../about.html">About Us</a><br><a href="../../contact.html">Contact Us</a><br><a href="../../terms.html">Terms &amp; Conditions</a></p></div><div><h4>Support</h4><p><a href="../../help-center.html">Help Center</a><br><a href="../../faq.html">FAQs</a><br><a href="index.html">Property Engine</a></p></div><div><h4>Subscribe</h4><form data-backend="not-connected"><div class="newsletter-row"><input placeholder="Enter your email address" name="email-address"><button class="btn small" type="submit">Subscribe</button></div><div class="form-success">Subscribed successfully!</div></form></div></div><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with ❤ in India</span></div></footer><script>// PrimePropertys — shared behaviour. No backend: forms show an inline success message.
+<main><div class="container" style="padding-top:24px"><div class="pe-layout"><aside class="pe-sidebar"><h4>Property Engine</h4><a href="index.html" class="active">🏠 Property Engine Home</a><a href="property-details.html">Property Details</a><a href="property-amenities.html">Property Amenities</a><a href="property-photos-gallery.html">Property Photos Gallery</a><a href="property-price-history.html">Property Price History</a><a href="property-analytics.html">Property Analytics</a><a href="property-documents.html">Property Documents</a><a href="property-verification.html">Property Verification</a><a href="property-reviews.html">Property Reviews</a><a href="property-report.html">Property Report</a><a href="property-video.html">Property Video</a><a href="360-virtual-tour.html">360° Virtual Tour</a><a href="floor-plans.html">Floor Plans</a><a href="property-share.html">Property Share</a><a href="contact-owner.html">Contact Owner</a><a href="contact-agent.html">Contact Agent</a><a href="make-enquiry.html">Make Enquiry</a><a href="request-callback.html">Request Callback</a><a href="request-site-visit.html">Request Site Visit</a><a href="report-property.html">Report Property</a></aside><div><p class="breadcrumb"><a href="../../index.html">Home</a> &gt; Property Engine</p><h1>Property Engine</h1><p>All the detail pages for a single property — 2 BHK Apartment in Andheri East, Mumbai (₹ 1.25 Cr, Lodha Eternis). Use the sidebar on every page to move between them, or start below.</p><div class="grid grid-3"><div class="card"><h3>Property Details</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-details.html">Open →</a></div><div class="card"><h3>Property Amenities</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-amenities.html">Open →</a></div><div class="card"><h3>Property Photos Gallery</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-photos-gallery.html">Open →</a></div><div class="card"><h3>Property Price History</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-price-history.html">Open →</a></div><div class="card"><h3>Property Analytics</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-analytics.html">Open →</a></div><div class="card"><h3>Property Documents</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-documents.html">Open →</a></div><div class="card"><h3>Property Verification</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-verification.html">Open →</a></div><div class="card"><h3>Property Reviews</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-reviews.html">Open →</a></div><div class="card"><h3>Property Report</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-report.html">Open →</a></div><div class="card"><h3>Property Video</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-video.html">Open →</a></div><div class="card"><h3>360° Virtual Tour</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="360-virtual-tour.html">Open →</a></div><div class="card"><h3>Floor Plans</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="floor-plans.html">Open →</a></div><div class="card"><h3>Property Share</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-share.html">Open →</a></div><div class="card"><h3>Contact Owner</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="contact-owner.html">Open →</a></div><div class="card"><h3>Contact Agent</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="contact-agent.html">Open →</a></div><div class="card"><h3>Make Enquiry</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="make-enquiry.html">Open →</a></div><div class="card"><h3>Request Callback</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="request-callback.html">Open →</a></div><div class="card"><h3>Request Site Visit</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="request-site-visit.html">Open →</a></div><div class="card"><h3>Report Property</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="report-property.html">Open →</a></div></div><div class="card" style="margin-top:20px"><h3>About This Property</h3><p>2 BHK Apartment, Lodha Eternis, Near Metro Station, Andheri East, Mumbai - 400069 · ₹ 1.25 Cr · ₹ 14,706 / sq.ft. · 850 Sq.Ft. · 2 Beds · 2 Baths · East Facing · Ready to Move · RERA P51800012345 · Verified.</p><p><a href="property-details.html">View Property Details →</a> &nbsp; <a href="../../index.html">← Back to PrimePropertys Home</a></p></div></div></div></div></main><footer class="site-footer"><div class="container footer-grid"><div><a class="logo" href="../../index.html" style="color:#fff">Prime<span>Propertys</span></a><p>India's most trusted real estate portal for buying, selling and renting properties.</p></div><div><h4>Explore</h4><p><a href="../../index.html">Home</a><br><a href="../../services.html">Services</a><br><a href="../../pricing.html">Pricing</a></p></div><div><h4>Company</h4><p><a href="../../about.html">About Us</a><br><a href="../../contact.html">Contact Us</a><br><a href="../../terms.html">Terms &amp; Conditions</a></p></div><div><h4>Support</h4><p><a href="../../help-center.html">Help Center</a><br><a href="../../faq.html">FAQs</a><br><a href="index.html">Property Engine</a></p></div><div><h4>Subscribe</h4><form data-backend="not-connected"><div class="newsletter-row"><input placeholder="Enter your email address" name="email-address"><button class="btn small" type="submit">Subscribe</button></div><div class="form-success">Subscribed successfully!</div></form></div></div><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with ❤ in India</span></div></footer><script>
 document.addEventListener('DOMContentLoaded', function () {
   // Mobile nav
   var toggle = document.querySelector('.nav-toggle');
@@ -191,7 +190,8 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('.main-nav a').forEach(function (a) {
     if (a.getAttribute('href') === here) a.classList.add('active');
   });
-
+});
+document.addEventListener('DOMContentLoaded', function () {
   // Home search tabs
   document.querySelectorAll('.search-tab').forEach(function (tab) {
     tab.addEventListener('click', function () {
@@ -199,16 +199,6 @@ document.addEventListener('DOMContentLoaded', function () {
       tab.classList.add('active');
       var note = document.getElementById('search-note');
       if (note) note.textContent = 'Showing ' + tab.textContent.trim() + ' properties across India.';
-    });
-  });
-
-  // Accordion: one open at a time per container
-  document.querySelectorAll('.acc-btn').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var item = btn.closest('.acc-item');
-      var container = btn.closest('.accordion') || document;
-      container.querySelectorAll('.acc-item').forEach(function (i) { if (i !== item) i.classList.remove('open'); });
-      item.classList.toggle('open');
     });
   });
 
@@ -233,7 +223,18 @@ document.addEventListener('DOMContentLoaded', function () {
       if (note) note.textContent = 'Plans for ' + btn.textContent.trim() + ' — same transparent pricing, tailored features.';
     });
   });
-
+});
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.acc-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item = btn.closest('.acc-item');
+      var container = btn.closest('.accordion') || document;
+      container.querySelectorAll('.acc-item').forEach(function (i) { if (i !== item) i.classList.remove('open'); });
+      if (item) item.classList.toggle('open');
+    });
+  });
+});
+document.addEventListener('DOMContentLoaded', function () {
   // FAQ / Help search filtering
   function bindFilter(inputId, selector) {
     var input = document.getElementById(inputId);
@@ -266,10 +267,8 @@ document.addEventListener('DOMContentLoaded', function () {
   if (jobSearch) jobSearch.addEventListener('input', filterJobs);
   if (jobDept) jobDept.addEventListener('change', filterJobs);
   if (jobLoc) jobLoc.addEventListener('change', filterJobs);
-
-  // Forms: no backend is connected yet (Stage H). Never claim a save/send
-  // that did not happen, and never clear the user's input on a failed save.
-  // Client-side tool forms (onsubmit="return false") keep their own behaviour.
+});
+document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('form').forEach(function (form) {
     if (form.hasAttribute('onsubmit')) return;
     form.addEventListener('submit', function (e) {
@@ -286,9 +285,12 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   });
-
+});
+document.addEventListener('DOMContentLoaded', function () {
   // Footer year, only if a year span is present
   var yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 });
+document.querySelectorAll('.gallery-filter').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.gallery-filter').forEach(function(x){x.classList.remove('active')});b.classList.add('active');var c=b.getAttribute('data-cat');document.querySelectorAll('.gallery-item').forEach(function(el){el.style.display=(!c||el.getAttribute('data-cat')===c)?'':'none'})})});
+var copyBtn=document.getElementById('copyLink');if(copyBtn){copyBtn.addEventListener('click',function(){var t=document.getElementById('shareLink');if(t){t.select();try{document.execCommand('copy')}catch(e){}}var m=document.getElementById('copyMsg');if(m){m.classList.add('show')}})};
 </script></body></html>
