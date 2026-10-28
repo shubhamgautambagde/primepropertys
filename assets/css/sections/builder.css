@@ -1,0 +1,26 @@
+/* PrimePropertys — section layout: builder (added on top of the shared design system; do not edit pages directly, edit this file and run tools/build.py) */
+.portal{display:grid;grid-template-columns:250px 1fr;align-items:start}
+.sidebar{background:#0A2240;color:#CBD5E1;padding:18px 0 28px;position:sticky;top:64px;min-height:calc(100vh - 64px)}
+.sidebar h4{color:#fff;padding:6px 20px;margin:14px 0 4px;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase}
+.sidebar a{color:#CBD5E1;display:block;padding:9px 20px;font-size:.93rem;font-weight:600}
+.sidebar a:hover{color:#fff;text-decoration:none;background:#0E2F56}
+.sidebar a.active{background:#2563EB;color:#fff}
+.portal-main{padding:28px 28px 10px;min-width:0}
+.portal-head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-bottom:20px}
+.portal-head p{color:#64748B}
+table{width:100%;border-collapse:collapse;background:#fff}
+th,td{padding:11px 12px;border-bottom:1px solid #E2E8F0;text-align:left;font-size:.92rem;vertical-align:top}
+th{color:#0A2240;white-space:nowrap}
+.table-wrap{overflow:auto;border:1px solid #E2E8F0;border-radius:14px;background:#fff}
+.progress{height:8px;background:#EEF3FA;border-radius:99px;overflow:hidden;min-width:90px}
+.progress i{display:block;height:100%;background:#2563EB}
+.progress.g i{background:#16A34A}.progress.a i{background:#D97706}.progress.r i{background:#E11D48}
+.status{display:inline-block;padding:3px 10px;border-radius:99px;font-size:.8rem;font-weight:700;background:#EEF3FA;color:#0A2240}
+.status.ok{background:#DCFCE7;color:#166534}.status.warn{background:#FEF3C7;color:#92400E}.status.bad{background:#FEE2E2;color:#991B1B}.status.blue{background:#DBEAFE;color:#1E40AF}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.stat-grid .card h3{font-size:1.7rem;margin:6px 0 2px}
+.stat-grid .card p{margin:0;color:#64748B;font-size:.9rem}
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.gallery img{height:180px;width:100%;object-fit:cover}
+@media(max-width:960px){.portal{grid-template-columns:1fr}.sidebar{position:static;min-height:0}.stat-grid{grid-template-columns:repeat(2,1fr)}.gallery{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.stat-grid,.gallery{grid-template-columns:1fr}.portal-main{padding:20px 16px}}

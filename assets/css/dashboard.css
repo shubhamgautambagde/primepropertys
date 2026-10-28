@@ -1,0 +1,4 @@
+/* PrimePropertys — shared design system. Source of truth: edit these files, then run tools/build.py to regenerate every page's inlined copy. Do not edit inlined CSS in pages directly. */
+.stat-band{background:var(--navy);color:#fff;padding:36px 0}
+.stat-band h3{color:#fff;font-size:1.8rem}
+.stat-band p{color:#CBD5E1}

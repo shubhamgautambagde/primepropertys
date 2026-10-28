@@ -1,0 +1,7 @@
+/* PrimePropertys — shared design system. Source of truth: edit these files, then run tools/build.py to regenerate every page's inlined copy. Do not edit inlined CSS in pages directly. */
+:root{
+  --navy:#0A2240; --navy2:#0E2F56; --blue:#2563EB; --blue-dark:#1D4ED8;
+  --red:#E11D48; --ink:#1F2937; --muted:#64748B; --body:#475569;
+  --line:#E2E8F0; --pale:#EEF3FA; --pale2:#F8FAFC; --white:#fff;
+  --green:#16A34A; --amber:#D97706; --radius:14px; --shadow:0 8px 30px rgba(10,34,64,.08);
+}

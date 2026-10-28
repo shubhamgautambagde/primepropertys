@@ -1,0 +1,19 @@
+/* PrimePropertys — section layout: agent (added on top of the shared design system; do not edit pages directly, edit this file and run tools/build.py) */
+.portal{display:grid;grid-template-columns:264px 1fr;align-items:start}
+.sidebar{background:#0A2240;color:#CBD5E1;padding:20px;position:sticky;top:0;height:100vh;overflow:auto}
+.sidebar .agent-card{background:#0E2F56;border-radius:12px;padding:16px;margin-bottom:16px;color:#fff}
+.sidebar .agent-card strong{display:block;color:#fff}
+.sidebar .agent-card span{font-size:.85rem;color:#CBD5E1}
+.sidebar nav a{display:block;color:#CBD5E1;padding:9px 12px;border-radius:8px;margin-bottom:4px;font-weight:600}
+.sidebar nav a:hover{background:#14365E;color:#fff;text-decoration:none}
+.sidebar nav a.active{background:#2563EB;color:#fff}
+.portal-main{padding:28px 28px 40px;min-width:0}
+.tbl{width:100%;border-collapse:collapse;background:#fff;border:1px solid #E2E8F0}
+.tbl th,.tbl td{text-align:left;padding:11px 12px;border-bottom:1px solid #EEF3FA;font-size:.93rem}
+.tbl th{background:#EEF3FA;color:#0A2240}
+.pill-ok{background:#DCFCE7;color:#166534;padding:3px 10px;border-radius:999px;font-size:.8rem;font-weight:700}
+.pill-warn{background:#FEF3C7;color:#92400E;padding:3px 10px;border-radius:999px;font-size:.8rem;font-weight:700}
+.pill-bad{background:#FEE2E2;color:#991B1B;padding:3px 10px;border-radius:999px;font-size:.8rem;font-weight:700}
+.bar{height:10px;background:#EEF3FA;border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:#2563EB}
+@media(max-width:960px){.portal{grid-template-columns:1fr}.sidebar{position:static;height:auto}}

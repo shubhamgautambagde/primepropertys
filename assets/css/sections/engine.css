@@ -1,0 +1,33 @@
+/* PrimePropertys — section layout: engine (added on top of the shared design system; do not edit pages directly, edit this file and run tools/build.py) */
+.pe-layout{display:grid;grid-template-columns:230px 1fr;gap:24px;align-items:start}
+.pe-sidebar{background:#fff;border:1px solid #E2E8F0;border-radius:14px;padding:16px;position:sticky;top:84px}
+.pe-sidebar h4{margin-bottom:10px}
+.pe-sidebar a{display:block;padding:8px 10px;border-radius:8px;color:#1F2937;font-weight:600;font-size:.92rem}
+.pe-sidebar a:hover{background:#EEF3FA;text-decoration:none}
+.pe-sidebar a.active{background:#2563EB;color:#fff}
+.detail-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px;align-items:start}
+.price-card .price{font-size:1.6rem}
+.tab-bar{display:flex;gap:4px;flex-wrap:wrap;border-bottom:2px solid #E2E8F0;margin:24px 0}
+.tab-bar a{padding:10px 14px;font-weight:700;color:#475569;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tab-bar a.active{color:#2563EB;border-color:#2563EB}
+.gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.gallery-grid img{height:180px;width:100%;object-fit:cover}
+.gallery-grid img.tall{height:380px}
+.amenity-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;text-align:center}
+.amenity-grid .card{padding:16px}
+.amenity-grid .icon{font-size:1.8rem}
+table.data{width:100%;border-collapse:collapse}
+table.data th,table.data td{padding:12px;border-bottom:1px solid #E2E8F0;text-align:left}
+table.data th{color:#0A2240}
+.bar-row{display:flex;align-items:center;gap:10px;margin:8px 0}
+.bar-row .bar{height:14px;background:#2563EB;border-radius:99px}
+.video-box,.tour-box{background:#0A2240;color:#fff;border-radius:14px;padding:48px 24px;text-align:center}
+.video-box img,.tour-box img{height:260px;width:100%;object-fit:cover;margin:16px 0}
+.share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;text-align:center}
+.verify-step{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid #E2E8F0}
+.verify-step .tick{flex:0 0 36px;height:36px;border-radius:50%;background:#ECFDF5;color:#16A34A;display:flex;align-items:center;justify-content:center;font-weight:800}
+.doc-row{display:flex;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid #E2E8F0;flex-wrap:wrap}
+.review-card{border:1px solid #E2E8F0;border-radius:14px;padding:18px;margin-bottom:14px}
+.stars{color:#D97706;letter-spacing:2px}
+@media(max-width:960px){.pe-layout,.detail-grid{grid-template-columns:1fr}.gallery-grid,.amenity-grid,.share-grid{grid-template-columns:repeat(2,1fr)}.pe-sidebar{position:static}}
+@media(max-width:600px){.gallery-grid,.amenity-grid,.share-grid{grid-template-columns:1fr}}

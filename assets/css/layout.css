@@ -1,0 +1,51 @@
+/* PrimePropertys — shared design system. Source of truth: edit these files, then run tools/build.py to regenerate every page's inlined copy. Do not edit inlined CSS in pages directly. */
+.container{max-width:1200px;margin:0 auto;padding:0 20px}
+.section{padding:48px 0}
+.section.pale{background:var(--pale)}
+/* Top bar + header */
+.topbar{background:var(--navy);color:#CBD5E1;font-size:.85rem}
+.topbar .container{display:flex;justify-content:space-between;gap:16px;padding-top:8px;padding-bottom:8px;flex-wrap:wrap}
+.topbar a{color:#E2E8F0;margin-left:16px}
+.site-header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+.header-row{display:flex;align-items:center;gap:24px;padding:14px 20px}
+.logo{font-size:1.55rem;font-weight:800;color:var(--navy);white-space:nowrap}
+.logo span{color:var(--red)}
+.logo small{display:block;font-size:.7rem;font-weight:500;color:var(--muted);letter-spacing:.02em}
+.main-nav{display:flex;gap:18px;flex-wrap:wrap;margin-left:auto}
+.main-nav a{color:var(--ink);font-weight:600;font-size:.95rem}
+.main-nav a.active{color:var(--blue)}
+.header-actions{display:flex;gap:10px;white-space:nowrap}
+.nav-toggle{display:none;margin-left:auto;background:var(--navy);color:#fff;border:0;border-radius:8px;padding:8px 12px;font-size:1rem;cursor:pointer}
+/* Hero */
+.hero{background:linear-gradient(180deg,#EEF3FA,#fff);padding:40px 0 30px}
+.hero-inner{display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center}
+.hero-inner img{height:340px;width:100%;object-fit:cover}
+.hero-home{background:var(--navy);color:#fff;padding:0}
+.hero-home h1{color:#fff;font-size:2.8rem}
+.hero-home p{color:#E2E8F0}
+.hero-img{position:relative}
+.hero-img img{height:420px;width:100%;object-fit:cover;border-radius:0}
+.breadcrumb{font-size:.9rem;color:var(--muted);margin-bottom:12px}
+.breadcrumb a{color:var(--muted)}
+.meta{font-size:.9rem;color:var(--muted);background:#fff;border:1px solid var(--line);display:inline-block;padding:6px 12px;border-radius:999px;margin:4px 6px 4px 0}
+.grid{display:grid;gap:20px}
+.grid-2{grid-template-columns:repeat(2,1fr)} .grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-4{grid-template-columns:repeat(4,1fr)} .grid-5{grid-template-columns:repeat(5,1fr)}
+.grid-8{grid-template-columns:repeat(4,1fr)}
+/* Two-column policy layout */
+.layout-2{display:grid;grid-template-columns:2fr 1fr;gap:28px;align-items:start}
+.policy-section{display:flex;gap:16px;padding:22px 0;border-bottom:1px solid var(--line)}
+.policy-num{flex:0 0 44px;height:44px;border-radius:50%;background:var(--pale);color:var(--blue);display:flex;align-items:center;justify-content:center;font-weight:800}
+.sidebar .card{margin-bottom:20px}
+.quick-links{list-style:none;padding:0;margin:0}
+.quick-links li{border-bottom:1px solid var(--pale);padding:8px 0}
+.quick-links li:last-child{border-bottom:0}
+.contact-strip{background:var(--pale);border-radius:12px;padding:20px;margin-top:24px}
+/* Footer */
+.site-footer{background:var(--navy);color:#CBD5E1;margin-top:48px}
+.site-footer h4{color:#fff}
+.site-footer a{color:#CBD5E1}
+.footer-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1.3fr;gap:28px;padding:44px 20px}
+.footer-bottom{border-top:1px solid #1E3A5F;padding:16px 20px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.newsletter-row{display:flex;gap:8px}
+.newsletter-row input{flex:1}

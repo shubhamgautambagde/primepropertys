@@ -1,0 +1,18 @@
+/* PrimePropertys — shared design system. Source of truth: edit these files, then run tools/build.py to regenerate every page's inlined copy. Do not edit inlined CSS in pages directly. */
+@media(max-width:960px){
+  .hero-inner,.layout-2,.search-grid{grid-template-columns:1fr}
+  .grid-5,.grid-4,.grid-8{grid-template-columns:repeat(2,1fr)}
+  .grid-3{grid-template-columns:repeat(2,1fr)}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .main-nav{display:none;width:100%;flex-direction:column}
+  .main-nav.open{display:flex}
+  .nav-toggle{display:block}
+  .header-row{flex-wrap:wrap}
+  .header-actions{margin-left:auto}
+  h1{font-size:2rem}
+}
+@media(max-width:600px){
+  .grid-5,.grid-4,.grid-8,.grid-3,.grid-2,.form-row{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr}
+  .hero-img img{height:260px}
+}

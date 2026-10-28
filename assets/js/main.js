@@ -1,4 +1,5 @@
-// PrimePropertys — shared behaviour. No backend: forms show an inline success message.
+/* PrimePropertys — navigation. Part of the shared bundle (see tools/build.py).
+   Safe when .nav-toggle or .main-nav is absent: every lookup is guarded. */
 document.addEventListener('DOMContentLoaded', function () {
   // Mobile nav
   var toggle = document.querySelector('.nav-toggle');
@@ -10,7 +11,11 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('.main-nav a').forEach(function (a) {
     if (a.getAttribute('href') === here) a.classList.add('active');
   });
-
+});
+/* PrimePropertys — tabs and toggles (home search tabs, pricing billing/audience).
+   Part of the shared bundle (see tools/build.py). querySelectorAll is safe
+   when a control is absent: it simply matches nothing. */
+document.addEventListener('DOMContentLoaded', function () {
   // Home search tabs
   document.querySelectorAll('.search-tab').forEach(function (tab) {
     tab.addEventListener('click', function () {
@@ -18,16 +23,6 @@ document.addEventListener('DOMContentLoaded', function () {
       tab.classList.add('active');
       var note = document.getElementById('search-note');
       if (note) note.textContent = 'Showing ' + tab.textContent.trim() + ' properties across India.';
-    });
-  });
-
-  // Accordion: one open at a time per container
-  document.querySelectorAll('.acc-btn').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var item = btn.closest('.acc-item');
-      var container = btn.closest('.accordion') || document;
-      container.querySelectorAll('.acc-item').forEach(function (i) { if (i !== item) i.classList.remove('open'); });
-      item.classList.toggle('open');
     });
   });
 
@@ -52,7 +47,23 @@ document.addEventListener('DOMContentLoaded', function () {
       if (note) note.textContent = 'Plans for ' + btn.textContent.trim() + ' — same transparent pricing, tailored features.';
     });
   });
-
+});
+/* PrimePropertys — accordion: one open at a time per container.
+   Part of the shared bundle (see tools/build.py). */
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.acc-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item = btn.closest('.acc-item');
+      var container = btn.closest('.accordion') || document;
+      container.querySelectorAll('.acc-item').forEach(function (i) { if (i !== item) i.classList.remove('open'); });
+      if (item) item.classList.toggle('open');
+    });
+  });
+});
+/* PrimePropertys — client-side list filtering (FAQ / Help search, Careers).
+   Part of the shared bundle (see tools/build.py). Every input lookup is
+   guarded, so pages without these controls are unaffected. */
+document.addEventListener('DOMContentLoaded', function () {
   // FAQ / Help search filtering
   function bindFilter(inputId, selector) {
     var input = document.getElementById(inputId);
@@ -85,10 +96,15 @@ document.addEventListener('DOMContentLoaded', function () {
   if (jobSearch) jobSearch.addEventListener('input', filterJobs);
   if (jobDept) jobDept.addEventListener('change', filterJobs);
   if (jobLoc) jobLoc.addEventListener('change', filterJobs);
-
-  // Forms: no backend is connected yet (Stage H). Never claim a save/send
-  // that did not happen, and never clear the user's input on a failed save.
-  // Client-side tool forms (onsubmit="return false") keep their own behaviour.
+});
+/* PrimePropertys — forms. Part of the shared bundle (see tools/build.py).
+   No backend is connected yet (Stage H). This handler therefore NEVER
+   claims a save/send that did not happen, and NEVER clears the user's
+   input on a failed save. When a .form-success message is shown, a
+   "Demo preview" note is appended once so the message cannot be read
+   as a completed operation. Client-side tool forms (onsubmit="return
+   false", e.g. calculators) keep their own behaviour and are skipped. */
+document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('form').forEach(function (form) {
     if (form.hasAttribute('onsubmit')) return;
     form.addEventListener('submit', function (e) {
@@ -105,7 +121,10 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   });
-
+});
+/* PrimePropertys — core: small shared bits with no module of their own.
+   Part of the shared bundle (see tools/build.py). */
+document.addEventListener('DOMContentLoaded', function () {
   // Footer year, only if a year span is present
   var yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();

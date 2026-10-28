@@ -1,0 +1,36 @@
+/* PrimePropertys — section layout: crm (added on top of the shared design system; do not edit pages directly, edit this file and run tools/build.py) */
+/* Portal layout (sidebar + main) */
+.portal{display:flex;align-items:stretch;max-width:1400px;margin:0 auto}
+.portal-sidebar{flex:0 0 250px;background:#0A2240;color:#CBD5E1;padding:20px 14px}
+.portal-sidebar h4{color:#fff;margin:18px 10px 8px;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase}
+.portal-sidebar a{display:block;color:#CBD5E1;padding:9px 12px;border-radius:9px;font-weight:600;font-size:.93rem}
+.portal-sidebar a:hover{color:#fff;text-decoration:none;background:#12365F}
+.portal-sidebar a.active{background:#2563EB;color:#fff}
+.portal-sidebar .help-card{background:#12365F;border-radius:12px;padding:16px;margin-top:20px;color:#E2E8F0}
+.portal-sidebar .help-card h4{margin:0 0 6px;color:#fff;text-transform:none;letter-spacing:0;font-size:1rem}
+.portal-main{flex:1;min-width:0;background:#F4F7FB;padding:28px}
+.portal-main .card{margin-bottom:20px}
+.data-table{width:100%;border-collapse:collapse;background:#fff;font-size:.92rem}
+.data-table th,.data-table td{padding:10px 12px;border-bottom:1px solid #E2E8F0;text-align:left;vertical-align:top}
+.data-table th{color:#0A2240;background:#EEF3FA;white-space:nowrap}
+.data-table tr:hover td{background:#F8FAFC}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.78rem;font-weight:700}
+.pill.blue{background:#DBEAFE;color:#1D4ED8}.pill.green{background:#DCFCE7;color:#15803D}
+.pill.amber{background:#FEF3C7;color:#B45309}.pill.red{background:#FEE2E2;color:#B91C1C}
+.pill.purple{background:#EDE9FE;color:#6D28D9}.pill.teal{background:#CCFBF1;color:#0F766E}
+.pill.grey{background:#F1F5F9;color:#475569}.pill.pink{background:#FCE7F3;color:#BE185D}
+.kpi{font-size:1.9rem;font-weight:800;color:#0A2240;margin:0}
+.kpi-sub{font-size:.85rem;color:#64748B}
+.funnel-bar{height:44px;border-radius:10px;color:#fff;font-weight:700;display:flex;align-items:center;padding:0 16px;margin:8px 0}
+.chat{display:grid;grid-template-columns:260px 1fr 260px;gap:16px;align-items:start}
+.chat-list,.chat-pane,.chat-side{background:#fff;border:1px solid #E2E8F0;border-radius:14px;padding:16px}
+.msg{padding:10px 14px;border-radius:12px;margin:8px 0;max-width:82%}
+.msg.in{background:#F1F5F9}.msg.out{background:#DBEAFE;margin-left:auto}
+.msg.wa-out{background:#DCFCE7;margin-left:auto}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal div{border:1px solid #E2E8F0;border-radius:8px;padding:8px;min-height:64px;background:#fff;font-size:.85rem}
+.cal .head{background:#0A2240;color:#fff;font-weight:700;min-height:0;text-align:center}
+.cal .today{background:#DBEAFE;border-color:#2563EB}
+.timeline{border-left:3px solid #E2E8F0;margin-left:8px;padding-left:20px}
+.timeline div{margin-bottom:16px}
+@media(max-width:960px){.portal{flex-direction:column}.portal-sidebar{flex:none}.chat{grid-template-columns:1fr}.portal-main{padding:16px}}

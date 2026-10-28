@@ -31,3 +31,26 @@ Audit scripts: `~/workspace/primepropertys-audit/audit.py` (re-run after Stage B
 ### Audit comparison (Stage A -> Stage B)
 - Bug register entries: 1,495 -> 344. Remaining: forms without backend 286 files, `href="#"` 52 files, plus 6 site-wide architectural items (no backend, no auth, demo data, duplicated code, no tooling, Unsplash dependency).
 - Inputs without name: 991 -> 0. Images missing alt: 146 -> 0. Tag-balance issues: 21 pages -> 0. Broken links: 0 -> 0.
+
+## Stage C — CSS/JS refactoring (2026-10-28)
+
+Backup before this stage: `~/workspace/primepropertys-backup-stage-c/` (Stage B state, including its git repo).
+Build: `tools/build.py` (run from the site root). Source of truth from now on: shared files below — never edit inlined CSS/JS in pages directly.
+
+### What changed
+- **Shared CSS system (7 files, `assets/css/`):** tokens.css (design tokens: navy #0A2240, blue #2563EB, red #E11D48, pale #EEF3FA), base.css, layout.css, components.css, forms.css, dashboard.css, responsive.css. Split from the old monolithic style.css with **zero rule changes**: concatenation of the 7 files contains exactly the same 130 rules as before (verified by rule-set comparison).
+- **Section layouts (12 files, `assets/css/sections/`):** agent, app, builder, buyer, crm, marketing, side, owner, post, engine, search, admin — the 12 distinct portal-layout suffixes that were previously duplicated inside pages, now stored once each and mapped in `tools/section-map.json`. Class names were NOT unified across sections (that would require editing HTML in 650 pages); each section keeps its own layout classes.
+- **Shared JS modules (`assets/js/`):** navigation.js, components/tabs.js, components/accordion.js, components/filters.js, forms.js, core.js — the old single DOMContentLoaded handler split into one guarded listener per module, same logic, same order. Section behaviour kept verbatim in `assets/js/groups/` (admin, builder, buyer calculators, crm, engine, search).
+- **Validation library (`assets/js/validation.js`):** pure helpers (isRequired, isValidEmail, isValidPhoneIN, isValidPrice, isValidAreaSqFt), unit-tested 7/7 in Node. Deliberately NOT inlined into pages and NOT wired to any form yet — server-side validation in Stage D/H remains the authority.
+- **Build output:** `assets/css/style.css` and `assets/js/main.js` are now regenerated concatenations of the shared sources. Pages keep inlined copies (single-file preview preserved — the Muse viewer bug from Stage A must not return). Build is idempotent: second run changed 0 files. Distinct inline script blocks fell 8 -> 7.
+- **One behaviour guard added:** accordion now checks that the clicked button is inside an `.acc-item` before toggling (previously it would throw on a stray button; no page has one, so no visible change).
+
+### Verified
+- CSS rules per page vs Stage B: **0 mismatches across all 650 pages**.
+- JS: all 7 distinct inline script blocks + all 14 module/group files pass `node --check`; validation helpers 7/7 tests pass.
+- Links: **0 broken out of 30,610**. Served spot-checks (index, contact, buyer dashboard): HTTP 200 with the new modular CSS/JS present and in order.
+- Audit re-run: bug entries 344 -> 345. The +1 is not a regression: calculator `innerHTML` (investor ROI/yield/appreciation tools) was previously hidden inside inlined scripts and is now tracked as a file (`assets/js/groups/buyer.js`). Values fed into it are numeric-coerced (`+value`, `toFixed`), so injection risk is low; replacing it with safe DOM construction is deferred to Stage I to avoid breaking working calculators.
+- Inline CSS bytes fell slightly (7,596,485 -> 7,544,311) from header handling; inline JS bytes rose modestly from modular headers/comments. Page weight via cached external assets is NOT claimed: pages still inline by design (preview requirement). Switching to linked assets is a Stage I decision, not a silent change.
+
+### Not changed in Stage C
+- No page layout, class name, colour, or visible behaviour was changed. No form was wired to a backend (Stage H). No demo data was replaced. The GitHub repository (uploaded in Stage B state) is now behind local Stage C changes — it will need a follow-up push after Stage C is accepted, or Stage C can be pushed as its own commit later.

@@ -1,0 +1,25 @@
+/* PrimePropertys — section layout: marketing (added on top of the shared design system; do not edit pages directly, edit this file and run tools/build.py) */
+.app-layout{display:grid;grid-template-columns:250px 1fr;gap:0;align-items:start}
+.sidebar{background:#0A2240;color:#CBD5E1;padding:20px 14px;min-height:70vh;position:sticky;top:60px}
+.sidebar h3{color:#fff;font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;margin:0 0 12px}
+.sidebar ul{list-style:none;padding:0;margin:0 0 20px}
+.sidebar li{margin:2px 0}
+.sidebar a{color:#CBD5E1;display:block;padding:8px 10px;border-radius:8px;font-size:.92rem}
+.sidebar a:hover{color:#fff;text-decoration:none;background:#14365E}
+.sidebar a.active{background:#2563EB;color:#fff}
+.sidebar .note{font-size:.85rem;color:#94A3B8}
+.app-main{padding:28px 24px;min-width:0}
+.app-top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
+table.data{width:100%;border-collapse:collapse;background:#fff;border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;font-size:.92rem}
+table.data th,table.data td{padding:10px 12px;border-bottom:1px solid #EEF2F7;text-align:left;vertical-align:top}
+table.data th{color:#0A2240;background:#F8FAFC;white-space:nowrap}
+.bar{height:8px;background:#E2E8F0;border-radius:99px;overflow:hidden;min-width:90px}
+.bar i{display:block;height:100%;background:#16A34A}
+.bar.amber i{background:#D97706}.bar.blue i{background:#2563EB}
+.score{font-weight:800;color:#0A2240}
+.pill-status{display:inline-block;padding:3px 10px;border-radius:99px;font-size:.78rem;font-weight:700;background:#ECFDF5;color:#065F46}
+.pill-status.paused{background:#FEF2F2;color:#991B1B}.pill-status.sched{background:#FFFBEB;color:#92400E}
+.pill-status.blue{background:#EFF6FF;color:#1D4ED8}.pill-status.purple{background:#F5F3FF;color:#6D28D9}
+.tag{display:inline-block;background:#EEF3FA;color:#2563EB;border-radius:99px;padding:4px 10px;font-size:.82rem;margin:0 6px 6px 0}
+.article-img{height:150px;width:100%;object-fit:cover}
+@media(max-width:900px){.app-layout{grid-template-columns:1fr}.sidebar{position:static;min-height:auto}}

@@ -1,0 +1,26 @@
+/* PrimePropertys — section layout: post (added on top of the shared design system; do not edit pages directly, edit this file and run tools/build.py) */
+/* Post Property portal layout (in addition to the shared design system) */
+.portal-layout{display:grid;grid-template-columns:240px 1fr;gap:24px;align-items:start;padding:32px 0}
+.side-nav{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;position:sticky;top:84px}
+.side-nav h4{margin:0 0 10px;padding:0 8px}
+.side-nav a{display:block;padding:8px 10px;border-radius:8px;color:var(--ink);font-weight:600;font-size:.88rem}
+.side-nav a:hover{background:var(--pale);text-decoration:none}
+.side-nav a.active{background:var(--blue);color:#fff}
+.steps{display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+.step{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:700;color:var(--muted)}
+.step .dot{width:26px;height:26px;border-radius:50%;background:#E2E8F0;display:flex;align-items:center;justify-content:center;color:var(--ink);flex:0 0 26px}
+.step.done{color:var(--ink)} .step.done .dot{background:var(--green);color:#fff}
+.step.current{color:var(--blue)} .step.current .dot{background:var(--blue);color:#fff}
+.safe-badge{display:inline-flex;gap:8px;align-items:center;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:12px;padding:10px 14px;font-weight:700;color:#166534}
+.choice{border:1px solid var(--line);border-radius:14px;padding:20px;text-align:center;cursor:pointer;background:#fff}
+.choice.selected{border-color:var(--blue);box-shadow:0 0 0 2px rgba(37,99,235,.2)}
+.choice .icon{font-size:2rem}
+.meter{height:14px;background:#E2E8F0;border-radius:999px;overflow:hidden}
+.meter>div{height:100%;background:var(--green);border-radius:999px}
+table.data{width:100%;border-collapse:collapse}
+table.data th,table.data td{border-bottom:1px solid var(--line);padding:10px 12px;text-align:left;font-size:.92rem}
+table.data th{color:var(--navy)}
+.tag{display:inline-block;background:var(--pale);border-radius:999px;padding:3px 10px;font-size:.8rem;font-weight:700}
+.form-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+.form-actions .spacer{flex:1}
+@media(max-width:960px){.portal-layout{grid-template-columns:1fr}.side-nav{position:static}}
