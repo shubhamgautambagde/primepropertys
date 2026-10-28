@@ -933,3 +933,34 @@ accessible name — placeholder text only, which is not a label.
   (skip link + main id).
 - Backup before this change:
   `~/workspace/primepropertys-backup-stage-i-a11y/`.
+
+## Stage J — Final tests + deployment docs (2026-10-28)
+
+### Final verification (user said "ok next")
+- New `server/test/journey.js`: one test walks the whole
+  product on a fresh database — draft property invisible
+  publicly, publish makes it visible, buyer enquiry,
+  assign + status transitions (new -> contacted ->
+  interested), note, follow-up (created + completed), tag,
+  scores (60, Warm), SLA, stats, CSV export, contact inbox,
+  saved properties, my-enquiries, plus homepage/sitemap/
+  robots responses. One test bug found and fixed during the
+  run (save route is POST /api/properties/:id/save, not
+  POST /api/saved/:id — the server was right, the test was
+  wrong).
+- Full suite: 48/48 pass. Build twice: second run 0 changes.
+  Audit: 341 entries, 0 broken internal links.
+- `DEPLOYMENT.md` written: architecture (Pages static +
+  Node API, honestly separated), local run + env vars,
+  first-admin creation, Pages deploy + subpath notes,
+  email/SMS/WhatsApp non-configuration (console backend,
+  503 otherwise), security notes incl. the known missing
+  `Secure` cookie flag, backups/rollback, measured
+  performance, remaining-audit triage, and the
+  not-production-ready list (visit-booking, payments,
+  tickets, campaigns, settings, hosting decision).
+- Brief Stages A-J are now complete. Remaining work needs
+  user decisions or real credentials and is listed in
+  DEPLOYMENT.md, not hidden.
+- Backup before this change:
+  `~/workspace/primepropertys-backup-stage-j/`.
