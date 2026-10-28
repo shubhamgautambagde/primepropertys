@@ -294,6 +294,10 @@ function handleLeadRoutes(req, res, url, body, user) {
   if (leadTags && m === 'POST') return respond(res, L.addLeadTag(db, user, leadTags[1], body));
   const leadTagOne = path.match(/^\/api\/leads\/([^/]+)\/tags\/([^/]+)$/);
   if (leadTagOne && m === 'DELETE') return respond(res, L.removeLeadTag(db, user, leadTagOne[1], leadTagOne[2]));
+  /* Scores/SLA must precede the lead-detail route, or 'scores'/'sla'
+     would match the :id route and 404 (same catch as stats). */
+  if (path === '/api/leads/scores' && m === 'GET') return respond(res, L.listLeadScores(db, user, url));
+  if (path === '/api/leads/sla' && m === 'GET') return respond(res, L.listLeadSla(db, user));
   const detail = path.match(/^\/api\/leads\/([^/]+)$/);
   if (detail) {
     if (m === 'GET') return respond(res, L.getLead(db, user, detail[1]));

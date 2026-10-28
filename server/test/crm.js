@@ -178,3 +178,96 @@ test('lead tags: add/list/dedupe/remove, visibility-scoped', async () => {
   const after = await (await api(`/api/leads/${lead.id}/tags`, { cookie: owner.cookie })).json();
   assert.equal(after.data.length, 0);
 });
+
+test('lead scores: stage + notes + completed follow-ups, visibility-scoped', async () => {
+  const owner = await register('scoreown@example.com', 'Owner');
+  const stranger = await register('scorestr@example.com', 'Buyer');
+  const prop = await (await api('/api/properties', {
+    method: 'POST', cookie: owner.cookie,
+    body: { title: 'Score House', property_type: 'House', listing_type: 'sale', price_inr: 5000000, city: 'Nagpur' },
+  })).json();
+  await api(`/api/properties/${prop.id}/publish`, { method: 'POST', cookie: await adminCookie() });
+  const lead = await (await api('/api/inquiries', {
+    method: 'POST',
+    body: { property_id: prop.id, full_name: 'Score Lead', phone: '9876543210' },
+  })).json();
+
+  assert.equal((await api('/api/leads/scores')).status, 401);
+  const fresh = await (await api('/api/leads/scores', { cookie: owner.cookie })).json();
+  assert.equal(fresh.data.length, 1);
+  assert.equal(fresh.data[0].score, 10);
+  assert.equal(fresh.data[0].band, 'Cool');
+  const str = await (await api('/api/leads/scores', { cookie: stranger.cookie })).json();
+  assert.equal(str.data.length, 0);
+
+  await api(`/api/leads/${lead.id}`, { method: 'PATCH', cookie: owner.cookie, body: { status: 'contacted' } });
+  await api(`/api/leads/${lead.id}/notes`, { method: 'POST', cookie: owner.cookie, body: { note: 'Called once' } });
+  const fu = await (await api(`/api/leads/${lead.id}/followups`, {
+    method: 'POST', cookie: owner.cookie, body: { due_at: '2030-01-02T10:00', note: 'Follow up' },
+  })).json();
+  await api(`/api/leads/${lead.id}/followups/${fu.id}/done`, { method: 'PATCH', cookie: owner.cookie });
+  const after = await (await api('/api/leads/scores', { cookie: owner.cookie })).json();
+  assert.equal(after.data[0].score, 35); // contacted 25 + note 5 + done follow-up 5
+  assert.equal(after.data[0].band, 'Cool');
+});
+
+test('lead SLA: 1h first response, 24h follow-up, breach and closed states', async () => {
+  const owner = await register('slaown@example.com', 'Owner');
+  const prop = await (await api('/api/properties', {
+    method: 'POST', cookie: owner.cookie,
+    body: { title: 'SLA House', property_type: 'House', listing_type: 'sale', price_inr: 5000000, city: 'Nagpur' },
+  })).json();
+  await api(`/api/properties/${prop.id}/publish`, { method: 'POST', cookie: await adminCookie() });
+  const lead = await (await api('/api/inquiries', {
+    method: 'POST',
+    body: { property_id: prop.id, full_name: 'SLA Lead', phone: '9876543210' },
+  })).json();
+  const lead2 = await (await api('/api/inquiries', {
+    method: 'POST',
+    body: { property_id: prop.id, full_name: 'SLA Late Lead', phone: '9876543211' },
+  })).json();
+
+  assert.equal((await api('/api/leads/sla')).status, 401);
+  let rows = await (await api('/api/leads/sla', { cookie: owner.cookie })).json();
+  let row = rows.data.find((l) => l.id === lead.id);
+  assert.equal(row.sla_status, 'pending'); // no response yet, inside the 1h window
+  assert.equal(row.first_response_hours, null);
+
+  await api(`/api/leads/${lead.id}/notes`, { method: 'POST', cookie: owner.cookie, body: { note: 'First contact' } });
+  await api(`/api/leads/${lead.id}/followups`, {
+    method: 'POST', cookie: owner.cookie, body: { due_at: '2030-01-02T10:00', note: 'Next step' },
+  });
+  rows = await (await api('/api/leads/sla', { cookie: owner.cookie })).json();
+  row = rows.data.find((l) => l.id === lead.id);
+  assert.equal(row.sla_status, 'met');
+  assert.ok(row.first_response_hours < 1);
+
+  // Backdate the second lead: first response 3 days after creation = breach.
+  const db = new DatabaseSync(dbPath);
+  db.prepare(`UPDATE inquiries SET created_at = datetime('now', '-3 days') WHERE id = ?`).run(lead2.id);
+  db.close();
+  await api(`/api/leads/${lead2.id}/notes`, { method: 'POST', cookie: owner.cookie, body: { note: 'Late contact' } });
+  rows = await (await api('/api/leads/sla', { cookie: owner.cookie })).json();
+  row = rows.data.find((l) => l.id === lead2.id);
+  assert.equal(row.sla_status, 'breached');
+  assert.ok(row.first_response_hours >= 71);
+
+  // Overdue follow-up also breaches.
+  const fu = await (await api(`/api/leads/${lead.id}/followups`, {
+    method: 'POST', cookie: owner.cookie, body: { due_at: '2020-01-01T10:00', note: 'Overdue one' },
+  })).json();
+  assert.ok(fu.id);
+  rows = await (await api('/api/leads/sla', { cookie: owner.cookie })).json();
+  row = rows.data.find((l) => l.id === lead.id);
+  assert.equal(row.sla_status, 'breached');
+  assert.equal(row.overdue_followups, 1);
+
+  // Closed leads stop SLA tracking.
+  for (const st of ['contacted', 'interested', 'site_visit', 'negotiation', 'closed']) {
+    const r = await api(`/api/leads/${lead.id}`, { method: 'PATCH', cookie: owner.cookie, body: { status: st } });
+    assert.equal(r.status, 200);
+  }
+  rows = await (await api('/api/leads/sla', { cookie: owner.cookie })).json();
+  row = rows.data.find((l) => l.id === lead.id);
+  assert.equal(row.sla_status, 'closed');
+});

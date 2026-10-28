@@ -313,6 +313,91 @@ export function removeLeadTag(db, user, idText, tagIdText) {
   return { status: 200, body: { ok: true } };
 }
 
+/* CRM Stage, Phase 6: lead scoring + SLA, computed from existing data
+   (no stored score — always derived, so it can never go stale).
+   Scoring defaults (documented here; change the constants to retune):
+   stage points new 10 / contacted 25 / interested 50 / site_visit 70 /
+   negotiation 85; +5 per note (max 15); +5 per completed follow-up
+   (max 15); capped at 100 (a negative "capped" entry keeps the
+   breakdown summing to the score). Closed leads score 100 (Won),
+   lost leads 0 (Lost). Profile/budget-match signals are NOT in the
+   data yet (inquiries carry no buyer budget/profile fields), so the
+   score uses stage + engagement + activity only.
+   SLA targets come from the lead-sla page's own copy: first contact
+   within 1 hour, follow-up within 24 hours. Follow-up SLA is
+   measured two ways: a follow-up created within 24h of the inquiry,
+   and open follow-ups past their due time. */
+const STAGE_POINTS = { new: 10, contacted: 25, interested: 50, site_visit: 70, negotiation: 85 };
+const SLA_FIRST_RESPONSE_HOURS = 1;
+const SLA_FOLLOWUP_HOURS = 24;
+
+function scoreLead(db, lead) {
+  if (lead.status === 'lost') return { score: 0, band: 'Lost', breakdown: [{ reason: 'Lead lost', points: 0 }] };
+  if (lead.status === 'closed') return { score: 100, band: 'Won', breakdown: [{ reason: 'Lead closed', points: 100 }] };
+  const breakdown = [{ reason: `Stage: ${lead.status}`, points: STAGE_POINTS[lead.status] || 0 }];
+  const notes = db.prepare(`SELECT COUNT(*) AS n FROM lead_activities WHERE inquiry_id = ? AND action = 'note'`).get(lead.id).n;
+  breakdown.push({ reason: `${notes} note(s)`, points: Math.min(notes * 5, 15) });
+  const done = db.prepare(`SELECT COUNT(*) AS n FROM lead_followups WHERE inquiry_id = ? AND done_at IS NOT NULL`).get(lead.id).n;
+  breakdown.push({ reason: `${done} completed follow-up(s)`, points: Math.min(done * 5, 15) });
+  const raw = breakdown.reduce((s, b) => s + b.points, 0);
+  if (raw > 100) breakdown.push({ reason: 'Capped at 100', points: 100 - raw });
+  const score = Math.min(raw, 100);
+  const band = score >= 70 ? 'Hot' : score >= 40 ? 'Warm' : 'Cool';
+  return { score, band, breakdown };
+}
+
+export function listLeadScores(db, user, url) {
+  if (!user) return err(401, 'UNAUTHORIZED', 'Login required');
+  const page = parsePage(url);
+  if (!page) return err(400, 'INVALID_PARAMETER', 'limit must be 1-100 and offset must be >= 0');
+  const where = [];
+  const params = [];
+  if (!hasPermission(db, user, 'leads:view_any')) {
+    where.push('(p.owner_id = ? OR i.assigned_to = ?)');
+    params.push(user.id, user.id);
+  }
+  const clause = where.length ? `WHERE ${where.join(' AND ')}` : '';
+  const from = 'FROM inquiries i LEFT JOIN properties p ON p.id = i.property_id';
+  const total = db.prepare(`SELECT COUNT(*) AS n ${from} ${clause}`).get(...params).n;
+  const rows = db.prepare(`SELECT i.*, p.title AS property_title ${from} ${clause}
+    ORDER BY i.id DESC LIMIT ? OFFSET ?`).all(...params, page.limit, page.offset);
+  const data = rows.map((lead) => ({ ...lead, ...scoreLead(db, lead) }));
+  return { status: 200, body: { data, pagination: { ...page, total } } };
+}
+
+function slaForLead(db, lead) {
+  const base = { id: lead.id, full_name: lead.full_name, property_title: lead.property_title, status: lead.status };
+  const first = db.prepare(`SELECT created_at FROM lead_activities
+    WHERE inquiry_id = ? AND actor_id IS NOT NULL ORDER BY created_at ASC, id ASC LIMIT 1`).get(lead.id);
+  const hours = (a, b) => db.prepare('SELECT (julianday(?) - julianday(?)) * 24 AS h').get(a, b).h;
+  const firstHours = first ? Math.round(hours(first.created_at, lead.created_at) * 10) / 10 : null;
+  const ageHours = hours('now', lead.created_at);
+  const fuIn24 = db.prepare(`SELECT 1 FROM lead_followups WHERE inquiry_id = ?
+    AND (julianday(created_at) - julianday(?)) * 24 <= ?`).get(lead.id, lead.created_at, SLA_FOLLOWUP_HOURS);
+  const overdue = db.prepare(`SELECT COUNT(*) AS n FROM lead_followups
+    WHERE inquiry_id = ? AND done_at IS NULL AND julianday(due_at) < julianday('now')`).get(lead.id).n;
+  /* Closed/lost leads keep their real signals but stop SLA tracking. */
+  let sla = 'met';
+  if (lead.status === 'closed' || lead.status === 'lost') sla = 'closed';
+  else if ((firstHours !== null && firstHours > SLA_FIRST_RESPONSE_HOURS) || (ageHours > SLA_FOLLOWUP_HOURS && !fuIn24) || overdue > 0) sla = 'breached';
+  else if (!first || !fuIn24) sla = 'pending';
+  return { ...base, sla_status: sla, first_response_at: first ? first.created_at : null, first_response_hours: firstHours, followup_within_24h: !!fuIn24, overdue_followups: overdue };
+}
+
+export function listLeadSla(db, user) {
+  if (!user) return err(401, 'UNAUTHORIZED', 'Login required');
+  const where = [];
+  const params = [];
+  if (!hasPermission(db, user, 'leads:view_any')) {
+    where.push('(p.owner_id = ? OR i.assigned_to = ?)');
+    params.push(user.id, user.id);
+  }
+  const clause = where.length ? `WHERE ${where.join(' AND ')}` : '';
+  const from = 'FROM inquiries i LEFT JOIN properties p ON p.id = i.property_id';
+  const rows = db.prepare(`SELECT i.*, p.title AS property_title ${from} ${clause} ORDER BY i.id DESC`).all(...params);
+  return { status: 200, body: { data: rows.map((lead) => slaForLead(db, lead)) } };
+}
+
 function csvCell(v) {
   if (v === null || v === undefined) return '';
   const s = String(v);
