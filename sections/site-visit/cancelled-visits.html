@@ -27,6 +27,12 @@ p{margin:0 0 1rem}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
 .section.pale{background:var(--pale)}
@@ -189,6 +195,7 @@ textarea{min-height:120px}
 @media(max-width:960px){.portal{flex-direction:column}.portal-sidebar{flex:none}.chat{grid-template-columns:1fr}.portal-main{padding:16px}}
 </style></head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Download App</a><a href="../../index.html">Shortlist (3)</a><a href="../../index.html">INR ▾</a><a href="../../sitemap.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row">
 <a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
@@ -198,10 +205,10 @@ textarea{min-height:120px}
 <div class="portal">
 <aside class="portal-sidebar"><h4>Site Visit</h4><a href="site-visit-dashboard.html" class="">Site Visit Dashboard</a><a href="visit-requests.html" class="">Visit Requests</a><a href="pending-visits.html" class="">Pending Visits</a><a href="approved-visits.html" class="">Approved Visits</a><a href="rejected-visits.html" class="">Rejected Visits</a><a href="rescheduled-visits.html" class="">Rescheduled Visits</a><a href="completed-visits.html" class="">Completed Visits</a><a href="cancelled-visits.html" class="active">Cancelled Visits</a><a href="site-visit-calendar.html" class="">Site Visit Calendar</a><a href="visit-analytics.html" class="">Visit Analytics</a><a href="assign-agent.html" class="">Assign Agent</a><a href="visit-details.html" class="">Visit Details</a><a href="visit-feedback.html" class="">Visit Feedback</a><a href="visit-reminder.html" class="">Visit Reminder</a>
 <div class="help-card"><h4>Need Help?</h4><p>support@primepropertys.com<br>+91 98765 43210</p><a class="btn small" href="../../help-center.html">Contact Support</a></div></aside>
-<main class="portal-main">
+<main id="main-content" tabindex="-1" class="portal-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> › <a href="index.html">Site Visit</a> › Cancelled Visits</div>
 <h1>Cancelled Visits</h1><p class="lead">Visits cancelled by the visitor or agent.</p>
-<div class="card"><input id="portalSearch" placeholder="Search visits…" name="search">
+<div class="card"><input id="portalSearch" placeholder="Search visits…" name="search" aria-label="Visits…">
 <table class="data-table"><thead><tr><th>Visitor</th><th>Property</th><th>Date</th><th>Time Slot</th><th>Agent</th><th>Status</th><th>Action</th></tr></thead><tbody><tr><td><strong>Kavya Reddy</strong><br><small>+91 77889 44556</small></td><td>Tata Primanti, Sector 72, Gurgaon</td><td>21 May 2025</td><td>05:00 PM – 06:00 PM</td><td>Sneha Iyer</td><td><span class='pill red'>Cancelled</span></td><td><a class='btn small outline' href='visit-details.html'>View</a></td></tr></tbody></table></div>
 </main></div>
 <footer class="site-footer"><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with love in India</span></div></footer>

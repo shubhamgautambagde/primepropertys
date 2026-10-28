@@ -27,6 +27,12 @@ p{margin:0 0 1rem}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
 .section.pale{background:var(--pale)}
@@ -178,6 +184,7 @@ table.data th{color:#0A2240;background:#F8FAFC;white-space:nowrap}
 @media(max-width:900px){.app-layout{grid-template-columns:1fr}.sidebar{position:static;min-height:auto}}
 </style></head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Home</a><a href="../../sitemap.html">Sitemap</a><a href="../../help-center.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row">
 <a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
@@ -187,7 +194,7 @@ table.data th{color:#0A2240;background:#F8FAFC;white-space:nowrap}
 </div></header>
 <div class="app-layout">
 <aside class="sidebar"><h3>SEO</h3><ul><li><a href="agent-seo.html" class="">Agent SEO</a></li><li><a href="blog-seo.html" class="">Blog SEO</a></li><li><a href="broken-links.html" class="">Broken Links</a></li><li><a href="builder-seo.html" class="">Builder SEO</a></li><li><a href="canonical-manager.html" class="">Canonical Manager</a></li><li><a href="city-seo.html" class="">City SEO</a></li><li><a href="global-seo.html" class="">Global SEO</a></li><li><a href="internal-link-manager.html" class="">Internal Link Manager</a></li><li><a href="locality-seo.html" class="">Locality SEO</a></li><li><a href="meta-manager.html" class="">Meta Manager</a></li><li><a href="news-seo.html" class="">News SEO</a></li><li><a href="orphan-pages.html" class="">Orphan Pages</a></li><li><a href="page-seo.html" class="">Page SEO</a></li><li><a href="project-seo.html" class="">Project SEO</a></li><li><a href="property-seo.html" class="">Property SEO</a></li><li><a href="redirect-manager.html" class="">Redirect Manager</a></li><li><a href="robots-manager.html" class="">Robots Manager</a></li><li><a href="schema-manager.html" class="">Schema Manager</a></li><li><a href="search-console.html" class="">Search Console</a></li><li><a href="seo-audit.html" class="">SEO Audit</a></li><li><a href="seo-dashboard.html" class="active">SEO Dashboard</a></li><li><a href="seo-reports.html" class="">SEO Reports</a></li><li><a href="sitemap-manager.html" class="">Sitemap Manager</a></li></ul><p class="note">Need help?<br>support@primepropertys.com<br>+91 98765 43210</p><a class="btn small" href="../../contact.html">Contact Support</a></aside>
-<main class="app-main">
+<main id="main-content" tabindex="-1" class="app-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> &gt; SEO &gt; SEO Dashboard</div>
 <div class="app-top"><div><h1>SEO Dashboard</h1><p class="lead">SEO performance at a glance for 21–28 May 2025.</p></div><a class="btn outline small" href="index.html">← All SEO Pages</a></div>
 <div class="grid grid-3" style="margin:20px 0"><div class="card"><p style="color:#64748B;margin:0">Organic Traffic</p><h3 style="font-size:1.6rem">125.6K</h3><p style="margin:0">↑ 18.6%</p></div><div class="card"><p style="color:#64748B;margin:0">Total Impressions</p><h3 style="font-size:1.6rem">1.42M</h3><p style="margin:0">↑ 15.3%</p></div><div class="card"><p style="color:#64748B;margin:0">Total Clicks</p><h3 style="font-size:1.6rem">78.3K</h3><p style="margin:0">↑ 21.8%</p></div><div class="card"><p style="color:#64748B;margin:0">Average CTR</p><h3 style="font-size:1.6rem">5.52%</h3><p style="margin:0">↑ 5.7%</p></div><div class="card"><p style="color:#64748B;margin:0">Average Position</p><h3 style="font-size:1.6rem">18.7</h3><p style="margin:0">↑ 2.4</p></div><div class="card"><p style="color:#64748B;margin:0">Indexed Pages</p><h3 style="font-size:1.6rem">24,536</h3><p style="margin:0">↑ 240</p></div></div><div class="card"><h2>SEO Health Score: 82 / 100 — Good</h2><p>Your website's SEO health is good. Keep up the good work! Traffic by channel: Organic Search 125.6K (62.4%), Direct 45.2K (22.5%), Referral 18.7K (9.3%), Social 7.4K (3.6%), Others 4.5K (2.2%).</p></div><h2 style="margin-top:24px">Top Keywords (by Clicks)</h2><div style="overflow-x:auto"><table class="data"><thead><tr><th>Keyword</th><th>Clicks</th><th>Impressions</th><th>CTR</th><th>Avg. Position</th></tr></thead><tbody><tr><td>flats in noida</td><td>3,256</td><td>28,456</td><td>11.44%</td><td>8.7</td></tr><tr><td>2 bhk flat in noida</td><td>2,187</td><td>18,764</td><td>11.65%</td><td>9.1</td></tr><tr><td>flats in greater noida</td><td>1,982</td><td>16,245</td><td>12.21%</td><td>7.8</td></tr><tr><td>property in gurgaon</td><td>1,745</td><td>14,326</td><td>12.18%</td><td>10.3</td></tr><tr><td>luxury apartments in noida</td><td>1,512</td><td>10,876</td><td>13.90%</td><td>9.4</td></tr></tbody></table></div><h2 style="margin-top:24px">Important Alerts</h2><ul class="check-list"><li>5 pages have critical SEO issues</li><li>12 pages have meta description missing</li><li>8 pages have duplicate meta titles</li><li>Sitemap not updated since 7 days</li><li>Robots.txt has 2 recommended changes</li></ul>
