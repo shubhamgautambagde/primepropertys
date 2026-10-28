@@ -210,7 +210,7 @@ table.data th{background:var(--pale);color:var(--navy)}
 <div class="admin-shell">
 <aside class="admin-sidebar"><h4>Super Manager</h4><a href="index.html" class="">▦ Section Index</a><a href="../../index.html">⌂ Public Website Home</a><a href="../../sitemap.html">🗺 Sitemap</a><h4>Pages in this section</h4><a href="activity-logs.html" class="">Activity Logs</a><a href="agent-management.html" class="">Agent Management</a><a href="crm-pipeline.html" class="">CRM Pipeline</a><a href="complaints.html" class="active">Complaints</a><a href="lead-assignment.html" class="">Lead Assignment</a><a href="lead-operations.html" class="">Lead Operations</a><a href="lead-transfer.html" class="">Lead Transfer</a><a href="performance.html" class="">Performance</a><a href="property-approval.html" class="">Property Approval</a><a href="property-operations.html" class="">Property Operations</a><a href="regional-operations.html" class="">Regional Operations</a><a href="reports.html" class="">Reports</a><a href="site-visit-operations.html" class="">Site Visit Operations</a><a href="super-manager-dashboard.html" class="">Super Manager Dashboard</a><a href="support.html" class="">Support</a><a href="team-management.html" class="">Team Management</a><a href="user-operations.html" class="">User Operations</a><a href="verification-queue.html" class="">Verification Queue</a>
 <div class="card" style="background:#14365E;border-color:#14365E;color:#E2E8F0;margin-top:20px"><h4 style="margin-top:0">Need Help?</h4><p style="color:#CBD5E1">support@primepropertys.com<br>+91 98765 43210</p></div></aside>
-<main id="main-content" tabindex="-1" class="admin-main"><div class="breadcrumb"><a href="../../index.html">Home</a> &gt; <a href="index.html">Super Manager</a> &gt; Complaints</div><h1>Complaints</h1><p class="lead">Manage complaints for the PrimePropertys platform. Data below is demo admin data; forms show an inline success message and send nothing anywhere.</p><div class="toolbar"><input class="admin-filter" placeholder="Search tickets..." name="search-2" aria-label="Tickets"><select name="status" aria-label="Status"><option>All Status</option><option>Active</option><option>Pending</option><option>Blocked</option></select><button class="btn small" type="button">Export</button></div><div style="overflow-x:auto"><table class="data"><thead><tr><th>Ticket</th><th>Subject</th><th>User</th><th>Priority</th><th>Status</th></tr></thead><tbody><tr><td>#T-1042</td><td>Payment not reflecting</td><td>Amit Verma</td><td>High</td><td><span class="pill amber">Pending</span></td></tr><tr><td>#T-1041</td><td>Unable to upload photos</td><td>Priya Patel</td><td>Medium</td><td><span class="pill green">Active</span></td></tr><tr><td>#T-1040</td><td>Wrong property location</td><td>Vikram Mehta</td><td>Low</td><td><span class="pill green">Success</span></td></tr></tbody></table></div></main>
+<main id="main-content" tabindex="-1" class="admin-main"><div class="breadcrumb"><a href="../../index.html">Home</a> &gt; <a href="index.html">Super Manager</a> &gt; Complaints</div><h1>Complaints</h1><p class="lead">Manage complaints for the PrimePropertys platform. Data below is demo admin data; forms show an inline success message and send nothing anywhere.</p><div class="toolbar"><input class="admin-filter" placeholder="Search tickets..." name="search-2" aria-label="Tickets"><select name="status" aria-label="Status"><option>All Status</option><option>Active</option><option>Pending</option><option>Blocked</option></select><button class="btn small" type="button">Export</button></div><div style="overflow-x:auto"><table class="data" id="pp-live-ticket-table"><thead><tr><th>Ticket</th><th>Subject</th><th>User</th><th>Priority</th><th>Status</th></tr></thead><tbody><tr><td>#T-1042</td><td>Payment not reflecting</td><td>Amit Verma</td><td>High</td><td><span class="pill amber">Pending</span></td></tr><tr><td>#T-1041</td><td>Unable to upload photos</td><td>Priya Patel</td><td>Medium</td><td><span class="pill green">Active</span></td></tr><tr><td>#T-1040</td><td>Wrong property location</td><td>Vikram Mehta</td><td>Low</td><td><span class="pill green">Success</span></td></tr></tbody></table></div></main>
 </div>
 <footer class="site-footer"><div class="container footer-grid">
 <div><a class="logo" href="../../index.html" style="color:#fff">Prime<span>Propertys</span></a><p>PrimePropertys is your trusted partner in finding the perfect property.</p></div>
@@ -718,6 +718,102 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       return;
     }
+    if (form.getAttribute('data-api') === 'ticket') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — ticket create nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        if (!payload.subject || !payload.message) {
+          showNote(form, 'Subject aur message dono bharein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/tickets', payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Ticket raise ho gaya hai. Support team jald jawab degi.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Ticket create nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'ticket-reply') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — reply save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var params = new URLSearchParams(window.location.search);
+        var ticketId = parseInt(params.get('ticket_id') || '', 10);
+        if (!ticketId || ticketId <= 0) {
+          showNote(form, 'Is reply ke liye koi ticket chuna nahi gaya hai. Ticket details se aayein (?ticket_id= ke saath).', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        if (!payload.message) {
+          showNote(form, 'Reply message bharein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/tickets/' + ticketId + '/replies', payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Reply save ho gaya hai. Thread dekhne ke liye page reload karein.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Reply save nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'ticket-assign') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — assignment nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var params = new URLSearchParams(window.location.search);
+        var ticketId = parseInt(params.get('ticket_id') || '', 10);
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        var assignee = parseInt(payload.assigned_to || '', 10);
+        if (!ticketId || ticketId <= 0 || !assignee || assignee <= 0) {
+          showNote(form, 'Ticket aur user dono chunein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/tickets/' + ticketId + '/assign', { assigned_to: assignee }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Ticket assigned successfully. Detail dekhne ke liye page reload karein.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Assignment nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
     if (form.getAttribute('data-api') === 'login') {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -864,5 +960,169 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
   });
+});
+
+/* Support tickets — live ticket lists (complaints + support
+   pages) and the ticket details workspace. Tables carry
+   the pp-live-ticket-table id; demo rows are replaced by
+   live rows, and anonymous visitors get an honest login row.
+   The subject links to the details page, which also hosts
+   the assign dropdown (populated here, submitted by the
+   forms.js ticket-assign case). */
+document.addEventListener('DOMContentLoaded', function () {
+  if (!window.PP || !window.PP.me) return;
+  function loginNotice(el) {
+    if (!el) return;
+    el.textContent = 'Is page ke liye login zaroori hai. ';
+    var a = document.createElement('a');
+    a.href = '../../login.html';
+    a.textContent = 'Login karein →';
+    el.appendChild(a);
+  }
+  function authed() {
+    return window.PP.me().then(function (m) {
+      return (m.ok && m.data && m.data.user) ? m.data.user : null;
+    });
+  }
+  var STATUS_PILL = { open: 'amber', in_progress: 'blue', resolved: 'green', closed: '' };
+  var PRIO_PILL = { low: '', medium: 'amber', high: 'red' };
+  function pill(text, cls) {
+    var s = document.createElement('span');
+    s.className = 'pill ' + (cls || '');
+    s.textContent = text;
+    return s;
+  }
+  function noticeRow(table, text) {
+    var tbody = table.querySelector('tbody');
+    if (!tbody) return;
+    tbody.textContent = '';
+    var tr = document.createElement('tr');
+    var td = document.createElement('td');
+    td.setAttribute('colspan', '5');
+    td.textContent = text;
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+  }
+  document.querySelectorAll('table#pp-live-ticket-table').forEach(function (table) {
+    authed().then(function (u) {
+      if (!u) { noticeRow(table, 'Is page ke liye login zaroori hai. Login karke dobara aayein.'); return; }
+      window.PP.get('/api/tickets?limit=100').then(function (r) {
+        if (!r.ok) { noticeRow(table, (r.error && r.error.message) || 'Tickets load nahi ho pa rahi hain.'); return; }
+        var tbody = table.querySelector('tbody');
+        if (!tbody) return;
+        tbody.textContent = '';
+        var items = (r.data && r.data.data) || [];
+        if (!items.length) { noticeRow(table, 'No tickets yet.'); return; }
+        items.forEach(function (t) {
+          if (!t || !Number.isInteger(t.id)) return;
+          var tr = document.createElement('tr');
+          var c0 = document.createElement('td');
+          c0.textContent = '#T-' + t.id;
+          tr.appendChild(c0);
+          var c1 = document.createElement('td');
+          var a = document.createElement('a');
+          a.setAttribute('href', 'ticket-details.html?ticket_id=' + t.id);
+          a.textContent = t.subject || ('Ticket #' + t.id);
+          c1.appendChild(a);
+          tr.appendChild(c1);
+          var c2 = document.createElement('td');
+          c2.textContent = t.requester_name || '';
+          tr.appendChild(c2);
+          var c3 = document.createElement('td');
+          c3.appendChild(pill(t.priority, PRIO_PILL[t.priority]));
+          tr.appendChild(c3);
+          var c4 = document.createElement('td');
+          c4.appendChild(pill(t.status, STATUS_PILL[t.status]));
+          tr.appendChild(c4);
+          tbody.appendChild(tr);
+        });
+      });
+    });
+  });
+  /* Ticket details workspace: detail + replies + status actions. */
+  if (document.getElementById('pp-live-ticket-details')) {
+    var params = new URLSearchParams(window.location.search);
+    var ticketId = parseInt(params.get('ticket_id') || '', 10);
+    var box = document.getElementById('pp-live-ticket-details-body');
+    var notice = document.getElementById('pp-live-ticket-details-notice');
+    if (!ticketId) {
+      if (notice) notice.textContent = 'Koi ticket chuna nahi gaya hai. Ticket list se kisi ticket par click karke aayein.';
+      return;
+    }
+    authed().then(function (u) {
+      if (!u) { loginNotice(notice); return; }
+      window.PP.get('/api/users').then(function (r) {
+        var sel = document.getElementById('pp-ticket-assign-agent');
+        if (!sel) return;
+        sel.textContent = '';
+        var items = (r.ok && r.data && r.data.data) || [];
+        if (!items.length) {
+          var o0 = document.createElement('option');
+          o0.value = '';
+          o0.textContent = 'User list needs admin/support access';
+          sel.appendChild(o0);
+          return;
+        }
+        var def = document.createElement('option');
+        def.value = '';
+        def.textContent = 'Select a user';
+        sel.appendChild(def);
+        items.forEach(function (x) {
+          var o = document.createElement('option');
+          o.value = x.id;
+          o.textContent = (x.full_name || x.email) + ' (' + x.role + ')';
+          sel.appendChild(o);
+        });
+      });
+      function load() {
+        window.PP.get('/api/tickets/' + ticketId).then(function (r) {
+          if (!r.ok || !r.data) {
+            if (box) box.textContent = (r.error && r.error.message) || 'Ticket load nahi ho pa rahi hai.';
+            return;
+          }
+          render(r.data);
+        });
+      }
+      function render(t) {
+        box.textContent = '';
+        var h = document.createElement('h3');
+        h.textContent = '#T-' + t.id + ' — ' + t.subject;
+        box.appendChild(h);
+        var meta = document.createElement('p');
+        meta.textContent = 'Raised by: ' + (t.requester_name || '') +
+          ' • Priority: ' + t.priority + ' • Status: ' + t.status +
+          ' • Assigned to: ' + (t.assignee_name || 'unassigned');
+        box.appendChild(meta);
+        var msg = document.createElement('p');
+        msg.textContent = t.message;
+        box.appendChild(msg);
+        var rh = document.createElement('h3');
+        rh.textContent = 'Replies';
+        box.appendChild(rh);
+        if (!(t.replies || []).length) box.appendChild(document.createTextNode('No replies yet.'));
+        (t.replies || []).forEach(function (rp) {
+          var p = document.createElement('p');
+          p.textContent = (rp.author_name || '') + ': ' + rp.message;
+          box.appendChild(p);
+        });
+        var note = document.createElement('p');
+        box.appendChild(note);
+        [['in_progress', 'Start progress'], ['resolved', 'Resolve'], ['closed', 'Close'], ['in_progress', 'Reopen']].forEach(function (pair) {
+          var btn = document.createElement('button');
+          btn.className = 'btn small outline';
+          btn.textContent = pair[1];
+          btn.addEventListener('click', function () {
+            window.PP.request('/api/tickets/' + ticketId, { method: 'PATCH', body: { status: pair[0] } }).then(function (rr) {
+              if (rr.ok) load();
+              else note.textContent = (rr.error && rr.error.message) || 'Status change nahi ho pa raha hai.';
+            });
+          });
+          box.appendChild(btn);
+          box.appendChild(document.createTextNode(' '));
+        });
+      }
+      load();
+    });
+  }
 });
 </script></body></html>
