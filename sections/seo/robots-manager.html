@@ -27,6 +27,12 @@ p{margin:0 0 1rem}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
 .section.pale{background:var(--pale)}
@@ -178,6 +184,7 @@ table.data th{color:#0A2240;background:#F8FAFC;white-space:nowrap}
 @media(max-width:900px){.app-layout{grid-template-columns:1fr}.sidebar{position:static;min-height:auto}}
 </style></head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Home</a><a href="../../sitemap.html">Sitemap</a><a href="../../help-center.html">Help &amp; Support</a></span></div></div>
 <header class="site-header"><div class="container header-row">
 <a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
@@ -187,10 +194,10 @@ table.data th{color:#0A2240;background:#F8FAFC;white-space:nowrap}
 </div></header>
 <div class="app-layout">
 <aside class="sidebar"><h3>SEO</h3><ul><li><a href="agent-seo.html" class="">Agent SEO</a></li><li><a href="blog-seo.html" class="">Blog SEO</a></li><li><a href="broken-links.html" class="">Broken Links</a></li><li><a href="builder-seo.html" class="">Builder SEO</a></li><li><a href="canonical-manager.html" class="">Canonical Manager</a></li><li><a href="city-seo.html" class="">City SEO</a></li><li><a href="global-seo.html" class="">Global SEO</a></li><li><a href="internal-link-manager.html" class="">Internal Link Manager</a></li><li><a href="locality-seo.html" class="">Locality SEO</a></li><li><a href="meta-manager.html" class="">Meta Manager</a></li><li><a href="news-seo.html" class="">News SEO</a></li><li><a href="orphan-pages.html" class="">Orphan Pages</a></li><li><a href="page-seo.html" class="">Page SEO</a></li><li><a href="project-seo.html" class="">Project SEO</a></li><li><a href="property-seo.html" class="">Property SEO</a></li><li><a href="redirect-manager.html" class="">Redirect Manager</a></li><li><a href="robots-manager.html" class="active">Robots Manager</a></li><li><a href="schema-manager.html" class="">Schema Manager</a></li><li><a href="search-console.html" class="">Search Console</a></li><li><a href="seo-audit.html" class="">SEO Audit</a></li><li><a href="seo-dashboard.html" class="">SEO Dashboard</a></li><li><a href="seo-reports.html" class="">SEO Reports</a></li><li><a href="sitemap-manager.html" class="">Sitemap Manager</a></li></ul><p class="note">Need help?<br>support@primepropertys.com<br>+91 98765 43210</p><a class="btn small" href="../../contact.html">Contact Support</a></aside>
-<main class="app-main">
+<main id="main-content" tabindex="-1" class="app-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> &gt; SEO &gt; Robots Manager</div>
 <div class="app-top"><div><h1>Robots Manager</h1><p class="lead">robots.txt rules and crawler access.</p></div><a class="btn outline small" href="index.html">← All SEO Pages</a></div>
-<div class="card"><form data-backend="not-connected"><label>robots.txt</label><textarea style="min-height:200px" name="message">User-agent: *
+<div class="card"><form data-backend="not-connected"><label>robots.txt</label><textarea style="min-height:200px" name="message" aria-label="Message">User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /login/
