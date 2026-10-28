@@ -17,6 +17,7 @@ import * as L from './leads.js';
 import * as C from './contact.js';
 import * as V from './visits.js';
 import * as T from './tickets.js';
+import * as S from './services.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const STATIC_ROOT = resolve(process.env.STATIC_ROOT || join(here, '..', '..'));
@@ -332,6 +333,24 @@ function handleTicketRoutes(req, res, url, body, user) {
   return apiError(res, 404, 'NOT_FOUND', 'Unknown API route');
 }
 
+function handleServiceRoutes(req, res, url, body, user) {
+  const path = url.pathname;
+  const m = req.method;
+  /* Stats must precede the detail route, or 'stats' would match
+     :id and 404 (same catch as leads/stats). */
+  if (path === '/api/service-requests/stats' && m === 'GET') return respond(res, S.serviceRequestStats(db, user));
+  if (path === '/api/service-requests' && m === 'POST') return respond(res, S.createServiceRequest(db, user, body));
+  if (path === '/api/service-requests' && m === 'GET') return respond(res, S.listServiceRequests(db, user, url));
+  const assign = path.match(/^\/api\/service-requests\/([^/]+)\/assign$/);
+  if (assign && m === 'POST') return respond(res, S.assignServiceRequest(db, user, assign[1], body));
+  const detail = path.match(/^\/api\/service-requests\/([^/]+)$/);
+  if (detail) {
+    if (m === 'GET') return respond(res, S.getServiceRequest(db, user, detail[1]));
+    if (m === 'PATCH') return respond(res, S.updateServiceRequest(db, user, detail[1], body));
+  }
+  return apiError(res, 404, 'NOT_FOUND', 'Unknown API route');
+}
+
 function handleLeadRoutes(req, res, url, body, user) {
   const path = url.pathname;
   const m = req.method;
@@ -402,6 +421,9 @@ function handleApi(req, res, url, body, user, token) {
   }
   if (path === '/api/tickets' || path.startsWith('/api/tickets/')) {
     return handleTicketRoutes(req, res, url, body, user);
+  }
+  if (path === '/api/service-requests' || path.startsWith('/api/service-requests/')) {
+    return handleServiceRoutes(req, res, url, body, user);
   }
   if (path === '/api/properties' || path.startsWith('/api/properties/') ||
       path === '/api/saved' || path === '/api/recently-viewed') {

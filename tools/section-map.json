@@ -43,6 +43,7 @@
     "super-manager": "admin",
     "system-settings": "admin",
     "owner-portal": "owner",
-    "agent-portal": "agent"
+    "agent-portal": "agent",
+    "support-home-services": "services"
   }
 }
