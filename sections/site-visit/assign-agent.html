@@ -1273,6 +1273,195 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       return;
     }
+    if (form.getAttribute('data-api') === 'report-problem' || form.getAttribute('data-api') === 'emergency-support') {
+      var isEmergency = form.getAttribute('data-api') === 'emergency-support';
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — report save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var f = collectMapped(form);
+        var subject, message;
+        if (isEmergency) {
+          if (!f.emergency_type || !f.emergency_location || !f.emergency_phone) {
+            showNote(form, 'Emergency type, location aur phone number — teeno zaroori hain.', true);
+            return;
+          }
+          subject = 'Emergency: ' + f.emergency_type;
+          message = 'Location: ' + f.emergency_location + '\nPhone: ' + f.emergency_phone;
+        } else {
+          if (!f.report_category || !f.report_description) {
+            showNote(form, 'Category aur issue description — dono zaroori hain.', true);
+            return;
+          }
+          subject = 'Report: ' + f.report_category;
+          message = f.report_description;
+          if (f.report_url) message += '\n\nPage/URL: ' + f.report_url;
+          if (f.report_name || f.report_email || f.report_phone) message += '\nReported by: ' + (f.report_name || '') + ' <' + (f.report_email || '') + '>' + (f.report_phone ? ' Phone: ' + f.report_phone : '');
+          if (message.length > 2000) {
+            showNote(form, 'Description bahut lambi hai — 2000 characters ke andar likhein (abhi ' + message.length + ' hai).', true);
+            return;
+          }
+          var fileInput = form.querySelector('input[type="file"]');
+          if (fileInput && fileInput.files && fileInput.files.length) {
+            showNote(form, 'Note: screenshots upload nahi ho sakte (binary upload implement nahi hai) — report bina screenshots ke jayegi.', true);
+          }
+        }
+        window.PP.post('/api/tickets', { subject: subject, message: message }).then(function (r) {
+          if (!r.ok) {
+            showNote(form, (r.error && r.error.message) || 'Report save nahi ho pa raha hai. (Tickets ke liye login zaroori hai.)', true);
+            return;
+          }
+          var id = (r.data && r.data.id) || r.id || '?';
+          showSuccess(form, (isEmergency ? 'Emergency help ticket #' + id + ' ban gaya.' : 'Report ticket #' + id + ' ban gaya.') + ' Staff jald respond karega.');
+          form.reset();
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'faq-search') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var q = (collectMapped(form).query || '').trim().toLowerCase();
+        var items = document.querySelectorAll('.acc-item');
+        var shown = 0;
+        items.forEach(function (it) {
+          var match = !q || (it.textContent || '').toLowerCase().indexOf(q) !== -1;
+          it.style.display = match ? '' : 'none';
+          if (match) shown++;
+        });
+        showNote(form, q ? shown + ' questions match kar rahe hain.' : 'Saare questions wapas dikh rahe hain.');
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'section-search') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var q = (collectMapped(form).query || '').trim().toLowerCase();
+        var scope = document.querySelector('main') || document;
+        var rows = scope.querySelectorAll('table tbody tr');
+        var targets = rows.length ? rows : scope.querySelectorAll('.card');
+        var shown = 0;
+        targets.forEach(function (el) {
+          if (el.contains(form)) return;
+          var match = !q || (el.textContent || '').toLowerCase().indexOf(q) !== -1;
+          el.style.display = match ? '' : 'none';
+          if (match) shown++;
+        });
+        showNote(form, q ? shown + ' rows dikh rahe hain.' : 'Saare rows wapas dikh rahe hain.');
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'site-search') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var target = form.getAttribute('data-search-target');
+        if (!target) {
+          showNote(form, 'Search target set nahi hai — kuch search nahi hua.', true);
+          return;
+        }
+        var f = collectMapped(form);
+        var params = {};
+        function parseRupees(text) {
+          if (!text) return null;
+          var m = text.match(/([\d.]+)\s*(Lakh|Crore|Cr)/);
+          if (!m) return null;
+          var n = parseFloat(m[1]);
+          if (m[2] === 'Lakh') return Math.round(n * 100000);
+          return Math.round(n * 10000000);
+        }
+        function mapType(v) {
+          if (!v) return null;
+          if (v === 'Apartment' || v === 'Villa' || v === 'Plot' || v === 'Plot / Land') return v === 'Plot / Land' ? 'Plot' : v;
+          if (v === 'Office' || v === 'Office Space' || v === 'Commercial') return 'Commercial';
+          return null;
+        }
+        if (f.city) params.city = f.city;
+        if (f.search_purpose === 'Buy') params.listing_type = 'sale';
+        else if (f.search_purpose === 'Rent') params.listing_type = 'rent';
+        else if (f.search_purpose === 'Commercial') params.property_type = 'Commercial';
+        var pt = mapType(f.search_type);
+        if (pt) params.property_type = pt;
+        if (f.search_min) { var mn = parseRupees(f.search_min); if (mn !== null) params.min_price = mn; }
+        if (f.search_max) {
+          if (f.search_max.indexOf('Crore+') === -1 && f.search_max.indexOf('Cr+') === -1) {
+            var mx = parseRupees(f.search_max);
+            if (mx !== null) params.max_price = mx;
+          }
+        }
+        if (f.search_budget) {
+          var b = f.search_budget;
+          if (b.indexOf('Under') === 0) { var um = parseRupees(b); if (um !== null) params.max_price = um; }
+          else if (b.indexOf('Above') === 0) { var am = parseRupees(b); if (am !== null) params.min_price = am; }
+          else if (b.indexOf('–') !== -1 || b.indexOf('-') !== -1) {
+            var parts = b.split(/–|-/);
+            var pmin = parseRupees(parts[0]), pmax = parseRupees(parts[1]);
+            if (pmin !== null) params.min_price = pmin;
+            if (pmax !== null) params.max_price = pmax;
+          } else { var single = parseRupees(b); if (single !== null) params.max_price = single; }
+        }
+        if (f.search_bhk) {
+          if (f.search_bhk === '4+ BHK') params.bedrooms_min = 4;
+          else { var bhk = parseInt(f.search_bhk, 10); if (!isNaN(bhk)) params.bedrooms = bhk; }
+        }
+        if (f.search_area) {
+          var aparts = f.search_area.split(/–|-/);
+          var amin = parseInt(aparts[0], 10), amax = parseInt(aparts[1], 10);
+          if (!isNaN(amin)) params.area_min = amin;
+          if (!isNaN(amax)) params.area_max = amax;
+        }
+        if (f.search_possession && f.search_possession !== 'Any') params.possession_status = f.search_possession;
+        var q = Object.keys(params).map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]); }).join('&');
+        if (f.search_roi) {
+          showNote(form, 'Note: ROI se filter nahi ho sakta (koi ROI field nahi hai) — city aur budget par search ho raha hai.');
+          setTimeout(function () { window.location.href = target + (q ? '?' + q : ''); }, 1200);
+          return;
+        }
+        window.location.href = target + (q ? '?' + q : '');
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'change-password') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — password change nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var f = collectMapped(form);
+        if (!f.current_password || !f.new_password) {
+          showNote(form, 'Current aur new password — dono zaroori hain.', true);
+          return;
+        }
+        if (f.confirm_password && f.confirm_password !== f.new_password) {
+          showNote(form, 'New password aur confirm password match nahi kar rahe.', true);
+          return;
+        }
+        window.PP.post('/api/auth/change-password', { current_password: f.current_password, new_password: f.new_password }).then(function (r) {
+          if (!r.ok) {
+            showNote(form, (r.error && r.error.message) || 'Password change nahi ho pa raha hai.', true);
+            return;
+          }
+          var msg = 'Password change ho gaya (doosri sessions logout ho gayi hain).';
+          if (/Two-Factor|2FA/.test(form.textContent || '')) {
+            msg += ' Is page ke 2FA/notification toggles save nahi hote — unke liye abhi koi backend nahi hai.';
+          }
+          showSuccess(form, msg);
+          form.reset();
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'calc-roi' || form.getAttribute('data-api') === 'calc-yield' || form.getAttribute('data-api') === 'calc-appr') {
+      var fn = { 'calc-roi': 'calcROI', 'calc-yield': 'calcYield', 'calc-appr': 'calcAppr' }[form.getAttribute('data-api')];
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (typeof window[fn] === 'function') window[fn]();
+        else showNote(form, 'Calculator load nahi hua — page reload karke dobara try karein.', true);
+      });
+      return;
+    }
     if (form.getAttribute('data-api') === 'login') {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
