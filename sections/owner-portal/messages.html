@@ -946,6 +946,119 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       return;
     }
+    if (form.getAttribute('data-api') === 'payment-checkout') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — payment record save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var raw = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          raw[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        var methodText = (raw.method || '').toLowerCase();
+        var method = 'other';
+        if (methodText.indexOf('upi') !== -1) method = 'upi';
+        else if (methodText.indexOf('net banking') !== -1) method = 'netbanking';
+        else if (methodText.indexOf('wallet') !== -1) method = 'wallet';
+        else if (methodText.indexOf('emi') !== -1) method = 'emi';
+        else if (methodText.indexOf('card') !== -1) method = 'card';
+        var payload = {
+          description: form.getAttribute('data-description') || 'Payment',
+          amount_paise: parseInt(form.getAttribute('data-amount-paise') || '', 10),
+          method: method,
+          billing: {
+            full_name: raw.billing_full_name || '',
+            company: raw.billing_company || '',
+            address: raw.billing_address || '',
+            city: '',
+            pincode: '',
+            gstin: raw.billing_gstin || ''
+          }
+        };
+        if (!payload.amount_paise || payload.amount_paise <= 0) {
+          showNote(form, 'Is checkout page par amount set nahi hai — payment record save nahi hua.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/payments', payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Payment recorded as pending (ID PAY-' + (r.data && r.data.data && r.data.data.id) + '). Koi gateway charge nahi hua hai — staff verification ke baad ye confirm hoga.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Payment record save nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'billing-profile') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.request) {
+          showNote(form, 'Form wiring load nahi hui — billing profile save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        if (!payload.full_name) {
+          showNote(form, 'Billing name bharein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.request('/api/billing-profile', { method: 'PUT', body: payload }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Billing profile saved.');
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Billing profile save nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'refund-request') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — refund request save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var raw = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          raw[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        var paymentId = parseInt(raw.payment_id || '', 10);
+        var rupees = parseFloat(raw.refund_amount_rupees || '');
+        var reason = (raw.reason || '') + (raw.description ? ' — ' + raw.description : '');
+        if (!paymentId || paymentId <= 0 || !rupees || rupees <= 0 || !reason || !raw.refund_to) {
+          showNote(form, 'Payment, reason, amount aur refund-to sab chunein/bharein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/payments/' + paymentId + '/refund-request', {
+          reason: reason.slice(0, 500),
+          refund_amount_paise: Math.round(rupees * 100),
+          refund_to: raw.refund_to
+        }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Refund request submitted. Ise Refund Status page par track karein.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Refund request save nahi ho pa raha hai.', true);
+          }
+        });
+      });
+      return;
+    }
     if (form.getAttribute('data-api') === 'login') {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -1241,6 +1354,63 @@ document.addEventListener('DOMContentLoaded', function () {
         });
       });
     });
+  }
+});
+
+/* Payments — owner payments + invoices pages (guarded by table ids).
+   Invoice numbers are derived (INV-<payment id>). */
+document.addEventListener('DOMContentLoaded', function () {
+  if (!window.PP || !window.PP.me) return;
+  function host(table) { return table.querySelector('tbody') || table; }
+  function clearRows(table) {
+    var rows = host(table).querySelectorAll('tr');
+    var start = table.querySelector('tbody') ? 0 : 1;
+    for (var i = rows.length - 1; i >= start; i--) rows[i].remove();
+  }
+  function noticeRow(table, text, cols) {
+    clearRows(table);
+    var tr = document.createElement('tr');
+    var td = document.createElement('td');
+    td.setAttribute('colspan', String(cols));
+    td.textContent = text;
+    tr.appendChild(td);
+    host(table).appendChild(tr);
+  }
+  function inr(paise) {
+    return 'Rs ' + (paise / 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function fmtDate(s) {
+    try { return new Date(s).toLocaleDateString('en-IN'); } catch (e) { return s || ''; }
+  }
+  function render(table, cols, makeRow) {
+    window.PP.me().then(function (m) {
+      if (!m.ok || !m.data || !m.data.user) { noticeRow(table, 'Is page ke liye login zaroori hai. Login karke dobara aayein.', cols); return; }
+      window.PP.get('/api/payments?limit=100').then(function (r) {
+        if (!r.ok) { noticeRow(table, (r.error && r.error.message) || 'Payments load nahi ho pa rahe hain.', cols); return; }
+        var items = (r.data && r.data.data) || [];
+        if (!items.length) { noticeRow(table, 'No payments yet.', cols); return; }
+        clearRows(table);
+        var h = host(table);
+        items.forEach(function (p) {
+          if (!p || !Number.isInteger(p.id)) return;
+          var tr = document.createElement('tr');
+          makeRow(p).forEach(function (txt) {
+            var td = document.createElement('td');
+            td.textContent = txt;
+            tr.appendChild(td);
+          });
+          h.appendChild(tr);
+        });
+      });
+    });
+  }
+  var payTable = document.getElementById('pp-live-owner-payments-table');
+  if (payTable) {
+    render(payTable, 4, function (p) { return [fmtDate(p.created_at), p.description, inr(p.amount_paise), p.status]; });
+  }
+  var invTable = document.getElementById('pp-live-owner-invoices-table');
+  if (invTable) {
+    render(invTable, 4, function (p) { return ['INV-' + p.id, fmtDate(p.created_at), p.description, inr(p.amount_paise)]; });
   }
 });
 </script></body></html>
