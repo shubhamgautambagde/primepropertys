@@ -663,3 +663,67 @@ NOT pushed to GitHub; the live Pages site still serves Stage C state.
   campaigns/settings (separate domains).
 - CRM changes are local only, NOT pushed to GitHub; the live Pages
   site still serves Stage C state.
+
+## Push to GitHub — Stage H + CRM live (2026-10-28)
+
+### What was pushed (user: "sabhi GitHub par turant live kar diya karo")
+- Full site snapshot: 718 files, 28.35 MB, in 12 batches (~2.5 MB
+  each), on top of the verified Stage C head
+  `b1dbff00ac603c7facb1a64f78414cab2fb325ce`.
+- Final head: `a604d28dd734aa67239e97331e2a3938f8babaa6`
+  (commit "Stage H + CRM (12/12): remaining files + .nojekyll
+  for Pages").
+- Excluded on purpose: `.git/` internals and `server/data/*.db`
+  (the database is never pushed).
+- Pages verified live right after the push: login.html serves,
+  new-leads.html contains the new CRM wiring, homepage title
+  intact.
+
+### Honest scope of "live" on GitHub Pages
+- Pages serves static files only. The new pages, designs and
+  demo content are live, but the API-backed features (login,
+  live listings, dashboards, CRM lists, export) need the Node
+  server running on real hosting — on Pages those sections
+  honestly report that the server cannot be reached. That
+  hosting decision (Node vs PHP-only) is still open.
+
+## CRM Stage, Phase 5 — Lead tags (2026-10-28)
+
+### What was built (user: "aage ka kaam badao"; tags chosen as the
+### next slice because they need no product decisions)
+- Migration 007: `tags` (unique names) + `lead_tags` link table
+  (one tag per lead, enforced by composite primary key).
+- New endpoints, same visibility rule as notes/follow-ups
+  (anyone who can see the lead can tag it; invisible leads 404):
+  `GET /api/tags`, `GET /api/leads/:id/tags`,
+  `POST /api/leads/:id/tags` (201 new link; 200 when the tag is
+  already attached), `DELETE /api/leads/:id/tags/:tagId`.
+  Tag names are free-form, trimmed, collapsed whitespace, max
+  50 chars, deduped case-insensitively ("Hot Lead" then
+  "hot lead" reuses the same tag). Tag add/remove writes a
+  timeline activity, so the timeline shows tagging history.
+- `lead-tags.html` wired (crm.js): current tags with Remove
+  buttons, an input to add a new tag, and one-click chips for
+  existing tags; `?lead_id=` required, with an honest notice
+  without one. DOM construction only — tag names are user
+  input and are never injected as HTML.
+
+### Verified
+- Tests: **36/36 pass** (new tags test in test/crm.js).
+- Build: 64 pages updated, second run 0 changes (idempotent);
+  all modules `node --check` PASS.
+- Audit re-run: 0 broken internal links.
+- Live flow on a fresh database (port 8917, temp DB deleted
+  afterwards): add 201, case-insensitive duplicate 200 with a
+  single link, list and all-tags correct, remove 200, list
+  empty afterwards, anonymous 401, served lead-tags page
+  contains the new wiring.
+- Backup before this change:
+  `~/workspace/primepropertys-backup-stage-crm4/`.
+
+## Push to GitHub — CRM Phase 5 lead tags live (2026-10-28)
+- Incremental push of the 70 files changed by the tags slice
+  (64 rebuilt pages + shared crm.js + server code + migration
+  007 + tests + this changelog), on top of head
+  `a604d28dd734aa67239e97331e2a3938f8babaa6`.
+- Database files never pushed.

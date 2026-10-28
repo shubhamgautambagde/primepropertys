@@ -195,7 +195,7 @@ textarea{min-height:120px}
 <div class="help-card"><h4>Need Help?</h4><p>support@primepropertys.com<br>+91 98765 43210</p><a class="btn small" href="../../help-center.html">Contact Support</a></div></aside>
 <main class="portal-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> › <a href="index.html">Central CRM</a> › Lead Tags</div>
-<h1>Lead Tags</h1><p class="lead">Tags used to segment leads: BHK, budget, location and intent.</p>
+<h1>Lead Tags</h1><p class="lead">Tags used to segment leads: BHK, budget, location and intent.</p><div id="pp-live-lead-tags"><div id="pp-live-lead-tags-notice" style="font-weight:600"></div><div id="pp-live-lead-tags-body"></div></div>
 <div class="card"><p><span class="pill purple">2 BHK</span> <span class="pill green">Budget 60-70 L</span> <span class="pill blue">Pune West</span> <span class="pill amber">Quick Buyer</span> <span class="pill pink">Hot Lead</span> <span class="pill teal">Site Visit</span> <span class="pill grey">NRI</span> <span class="pill red">Price Sensitive</span></p></div><div class="card"><h3>Add a Tag</h3><form data-backend="not-connected"><label>Tag Name</label><input placeholder="Tag Name" name="tag-name"><label>Colour</label><input placeholder="Colour" name="colour"><button class="btn" type="submit">Add Tag</button><div class="form-success">Submitted successfully. Our team will follow up shortly.</div></form></div>
 </main></div>
 <footer class="site-footer"><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with love in India</span></div></footer>
@@ -1237,5 +1237,98 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
   }
+});
+
+/* CRM Stage, Phase 5 — lead tags. Same visibility rule as notes:
+   anyone who can see the lead can tag it. Tag names are free-form;
+   the server dedupes them case-insensitively. DOM construction only
+   (tag names are user input, never injected as HTML). */
+document.addEventListener('DOMContentLoaded', function () {
+  var root = document.getElementById('pp-live-lead-tags');
+  if (!root || !window.PP || !window.PP.me) return;
+  var notice = document.getElementById('pp-live-lead-tags-notice');
+  var box = document.getElementById('pp-live-lead-tags-body');
+  var leadId = parseInt(new URLSearchParams(window.location.search).get('lead_id') || '', 10);
+  if (!leadId || leadId <= 0) {
+    if (notice) notice.textContent = 'Kisi lead ko tag karne ke liye lead_id chahiye — All Leads page se kisi lead ko kholein, phir tags dekhein.';
+    return;
+  }
+  window.PP.me().then(function (m) {
+    if (!m.ok || !m.data || !m.data.user) {
+      if (notice) {
+        notice.textContent = 'Is page ke liye login zaroori hai. ';
+        var a = document.createElement('a');
+        a.href = '../../login.html';
+        a.textContent = 'Login karein →';
+        notice.appendChild(a);
+      }
+      return;
+    }
+    var msg = document.createElement('p');
+    msg.style.fontWeight = '600';
+    var input = document.createElement('input');
+    input.setAttribute('type', 'text');
+    input.setAttribute('placeholder', 'Naya tag, jaise 3BHK ya Hot Lead');
+    input.setAttribute('maxlength', '50');
+    var addBtn = document.createElement('button');
+    addBtn.textContent = 'Tag lagayein';
+    addBtn.addEventListener('click', function () {
+      var name = input.value.trim();
+      if (!name) { msg.textContent = 'Pehle tag ka naam likhein.'; return; }
+      window.PP.post('/api/leads/' + leadId + '/tags', { name: name }).then(function (r) {
+        if (!r.ok) { msg.textContent = (r.error && r.error.message) || 'Tag lag nahi pa raha hai.'; return; }
+        input.value = '';
+        msg.textContent = 'Tag lag gaya.';
+        render();
+      });
+    });
+    box.appendChild(input);
+    box.appendChild(addBtn);
+    box.appendChild(msg);
+    var mineBox = document.createElement('div');
+    var allBox = document.createElement('div');
+    box.appendChild(mineBox);
+    box.appendChild(allBox);
+    function chip(text, onClick) {
+      var b = document.createElement('button');
+      b.textContent = text;
+      b.setAttribute('style', 'margin:4px;padding:6px 10px');
+      if (onClick) b.addEventListener('click', onClick);
+      return b;
+    }
+    function render() {
+      window.PP.get('/api/leads/' + leadId + '/tags').then(function (r) {
+        mineBox.textContent = '';
+        var h = document.createElement('h3');
+        h.textContent = 'Is lead ke tags (live)';
+        mineBox.appendChild(h);
+        if (!r.ok) { mineBox.appendChild(document.createTextNode((r.error && r.error.message) || 'Tags load nahi ho pa rahe hain.')); return; }
+        var items = (r.data && r.data.data) || [];
+        if (!items.length) { mineBox.appendChild(document.createTextNode('Abhi koi tag nahi hai.')); return; }
+        items.forEach(function (t) {
+          var wrap = document.createElement('span');
+          wrap.appendChild(chip(t.name, null));
+          wrap.appendChild(chip('✕ hatayein', function () {
+            fetch((window.PP.apiBase || '') + '/api/leads/' + leadId + '/tags/' + t.id, { method: 'DELETE', credentials: 'same-origin' }).then(function () { render(); });
+          }));
+          mineBox.appendChild(wrap);
+        });
+      });
+      window.PP.get('/api/tags').then(function (r) {
+        allBox.textContent = '';
+        var h = document.createElement('h3');
+        h.textContent = 'Maujooda tags (ek click me lagayein)';
+        allBox.appendChild(h);
+        if (!r.ok) return;
+        var items = (r.data && r.data.data) || [];
+        items.forEach(function (t) {
+          allBox.appendChild(chip(t.name, function () {
+            window.PP.post('/api/leads/' + leadId + '/tags', { name: t.name }).then(function () { render(); });
+          }));
+        });
+      });
+    }
+    render();
+  });
 });
 </script></body></html>
