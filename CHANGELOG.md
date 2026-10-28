@@ -1226,3 +1226,66 @@ accessible name — placeholder text only, which is not a label.
   (total 1, resolved 1).
 - Backup before this change:
   `~/workspace/primepropertys-backup-services/`.
+
+## Portal my-lists (post-Stage-J slice, 2026-10-28)
+
+### What was built — no new endpoints, no migration
+Six portal list pages that still showed demo rows now
+render from endpoints that already existed; the slice
+was found by auditing the portal sections for pages
+without live markers after the home-services slice:
+- buyer-portal/my-site-visits.html -> GET
+  /api/site-visits (buyer sees only their own).
+- owner-portal/my-properties.html -> GET
+  /api/properties/mine plus GET /api/leads for the
+  per-property Leads column.
+- owner-portal/site-visits.html -> GET
+  /api/site-visits (owner sees visits on their own
+  properties).
+- owner-portal/property-leads.html -> GET /api/leads
+  (owner sees leads on their own properties), with
+  View details links to lead-details.html?lead_id=.
+- agent-portal/assigned-leads-1.html -> GET
+  /api/leads?assigned_to=<current user>.
+- agent-portal/assigned-leads-2.html -> the same list
+  grouped client-side by source (count, closed,
+  conversion %).
+
+### Honest limits kept in the render
+- Views on my-properties shows a dash: the list
+  endpoint does not expose per-property view counts.
+- Budget on assigned-leads-1 shows a dash: inquiries
+  carry no buyer budget field (same documented limit
+  as lead scoring). Assigned shows "You" (the list is
+  filtered to the current agent).
+- Agent on my-site-visits shows a dash: visits carry
+  no agent until one is assigned.
+- The by-source page groups the first 100 assigned
+  leads client-side.
+- Deliberately NOT wired: buyer-portal/my-leads.html
+  — a buyer's "leads" have no distinct meaning (their
+  enquiries already live on my-enquiries.html via
+  /api/inquiries/mine); wiring it to /api/leads would
+  show the buyer nothing, since lead visibility is
+  owner-or-assignee based. That page needs a product
+  decision, not a wiring job.
+
+### Verified
+- Tests: 53/53 pass (52 + 1 new in
+  server/test/portal-lists.js: assigned_to filter and
+  properties/mine status filter). Three test bugs
+  were fixed during the run (publish is POST not
+  PATCH; property create requires listing_type;
+  enquiries go to POST /api/inquiries with property_id
+  in the body) — the server was right each time.
+- Build idempotent; all modules `node --check` PASS.
+- Audit unchanged at 337 entries (tables are not
+  audit bugs), 0 broken links.
+- Live flow on a fresh database (port 8950, temp DB
+  deleted afterwards): owner creates draft +
+  published, buyer enquires + requests a visit, admin
+  assigns the lead to the agent — owner mine 2,
+  owner leads 1, owner visits 1, buyer visits 1,
+  agent assigned 1.
+- Backup before this change:
+  `~/workspace/primepropertys-backup-portal/`.

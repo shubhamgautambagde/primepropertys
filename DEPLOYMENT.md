@@ -142,7 +142,7 @@ is documented in the file itself.
 
 ## Final verification (Stage J)
 
-- `npm test` in `server/`: 52/52 pass, including
+- `npm test` in `server/`: 53/53 pass, including
   `test/journey.js` — one test that walks the whole product:
   admin creates a draft property (invisible publicly),
   publishes it (visible), a buyer enquires, the admin
@@ -191,6 +191,13 @@ The 341 entries are not 341 defects to fix blindly:
   service-request-form, my-service-requests, and
   complaint-tracking pages (photo upload stays
   visual-only — binary upload is not implemented).
+- Portal my-lists are done: buyer my-site-visits,
+  owner my-properties / site-visits / property-leads,
+  and agent assigned-leads (list + by-source) pages
+  render from existing endpoints — no new server
+  surface. Buyer my-leads is deliberately left
+  unwired: a buyer's "leads" have no distinct meaning
+  (their enquiries already live on my-enquiries).
 - Payments (needs a real provider and credentials — never
   invented), support tickets, campaigns, settings forms.
 - Hosting decision: Node hosting vs PHP-only hosting. If
