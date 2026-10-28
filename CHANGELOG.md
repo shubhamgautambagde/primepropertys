@@ -778,3 +778,54 @@ NOT pushed to GitHub; the live Pages site still serves Stage C state.
 - Incremental push of the 69 files changed by the scoring/SLA
   slice, on top of head `5da48eadd6d0d11b47f17b8cce8487e72cab4173`.
   Database files never pushed.
+
+## Stage I, Slice 1 — SEO foundations (2026-10-28)
+
+### What was built (user said "ok next"; Stage I per the brief)
+- `tools/sitemap.py` (re-runnable generator) + `sitemap.xml`:
+  105 public URLs — all root pages except login/register,
+  all of blog/ and news/, and the public browse/detail pages
+  of property-search/ and property-engine/. Portal, dashboard,
+  CRM, admin and settings sections are excluded (authenticated
+  app surfaces, not content). URLs use the live GitHub Pages
+  base; if the site moves to a root domain, change BASE_URL
+  and re-run. <lastmod> is the file's modification date;
+  no guessed <changefreq>/<priority>.
+- `robots.txt`: public content crawlable; 16 authenticated
+  sections disallowed (root-domain form, with a comment
+  explaining the GitHub Pages subpath situation); points to
+  the sitemap.
+- Canonical + Open Graph tags on every page, injected by
+  `tools/build.py` (the shared build, so future pages get
+  them automatically): canonical URL (directory form for
+  index pages), og:title from <title>, og:description from
+  the page's own meta description, og:type website, og:url.
+  Injection is idempotent (pages already carrying a
+  canonical link are untouched). Attribute escaping does
+  not double-escape existing entities (verified on the
+  "Terms & Conditions" title).
+
+### Verified
+- Build: 652 pages updated, second run 0 changes
+  (idempotent); all modules `node --check` PASS.
+- Every page has exactly 1 canonical, 1 og:title and
+  1 og:url; no <title> changed versus the pre-slice backup.
+- sitemap.xml parses as valid XML; all 105 locs resolve to
+  real files on disk.
+- Tests: 38/38 pass (no server change in this slice).
+- Audit re-run: 0 broken internal links.
+- Live flow on a fresh database (port 8919, temp DB deleted
+  afterwards): sitemap.xml, robots.txt and a section page's
+  canonical link all serve correctly.
+- Backup before this change:
+  `~/workspace/primepropertys-backup-stage-i-seo/`.
+
+## Push to GitHub — Stage I SEO slice live (2026-10-28)
+- Push of the 657 files changed/added by the SEO slice
+  (652 rebuilt pages + build.py + sitemap.py + sitemap.xml +
+  robots.txt + this changelog), in 13 batches, on top of head
+  `d779179d20132902f1ff85b3b217832b7af16846`.
+  Note: the first batch list missed the two root-level new
+  files (a diff-parser edge case for "Only in <dir>: <file>"
+  lines); they went in batch 13 and were verified on Pages
+  afterwards. Database files never pushed.
