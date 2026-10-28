@@ -660,6 +660,47 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       return;
     }
+    if (form.getAttribute('data-api') === 'visit-assign') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post || !window.PP.request) {
+          showNote(form, 'Form wiring load nahi hui — assignment nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var payload = {};
+        form.querySelectorAll('[data-api-field]').forEach(function (el) {
+          payload[el.getAttribute('data-api-field')] = (el.value || '').trim();
+        });
+        var visitId = parseInt(payload.visit_id || '', 10);
+        var assignee = parseInt(payload.assigned_to || '', 10);
+        if (!visitId || visitId <= 0 || !assignee || assignee <= 0) {
+          showNote(form, 'Visit aur agent dono chunein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/site-visits/' + visitId + '/assign', { assigned_to: assignee }).then(function (r) {
+          if (!r.ok) {
+            if (btn) btn.disabled = false;
+            showNote(form, (r.error && r.error.message) || 'Assignment nahi ho pa raha hai.', true);
+            return;
+          }
+          if (!payload.scheduled_at) {
+            if (btn) btn.disabled = false;
+            showSuccess(form, 'Agent assigned successfully.');
+            form.reset();
+            return;
+          }
+          window.PP.request('/api/site-visits/' + visitId, { method: 'PATCH', body: { scheduled_at: payload.scheduled_at } }).then(function (n) {
+            if (btn) btn.disabled = false;
+            if (n.ok) showSuccess(form, 'Agent assigned successfully (date/time bhi update ho gaya).');
+            else showSuccess(form, 'Agent assigned, but the date/time could not be updated: ' + ((n.error && n.error.message) || 'unknown error') + '.');
+            form.reset();
+          });
+        });
+      });
+      return;
+    }
     if (form.getAttribute('data-api') === 'login') {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
