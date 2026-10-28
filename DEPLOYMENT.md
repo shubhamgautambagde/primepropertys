@@ -142,7 +142,7 @@ is documented in the file itself.
 
 ## Final verification (Stage J)
 
-- `npm test` in `server/`: 48/48 pass, including
+- `npm test` in `server/`: 49/49 pass, including
   `test/journey.js` — one test that walks the whole product:
   admin creates a draft property (invisible publicly),
   publishes it (visible), a buyer enquires, the admin
@@ -152,16 +152,18 @@ is documented in the file itself.
   contact inbox, saved properties, and my-enquiries are all
   checked, plus the homepage, sitemap, and robots responses.
 - `python3 tools/build.py` twice: second run 0 changes.
-- Audit: 341 bug entries, 0 broken internal links.
+- Audit: 340 bug entries, 0 broken internal links.
 
 ## Remaining audit items — what they actually need
 
 The 341 entries are not 341 defects to fix blindly:
 
-- 286 "form without backend action": demo forms awaiting a
+- 285 "form without backend action": demo forms awaiting a
   real endpoint. Each needs a product decision (which
   endpoint, which fields) — the brief forbids inventing
   success for them, so they stay honestly demo until wired.
+  (One fewer than Stage J: the visit-feedback form was
+  wired in the visit-booking slice.)
 - 52 placeholder `href="#"` links: destinations do not exist
   yet. The brief forbids guessing them.
 - 3 site-wide: demo data still presented on unwired
@@ -173,9 +175,12 @@ The 341 entries are not 341 defects to fix blindly:
 
 ## Not production-ready yet
 
-- Visit-booking model (dashboard/details/feedback/reminder/
-  analytics + per-status visit lists) — needs entity and
-  status design decisions.
+- Visit-booking, remaining pieces: agent assignment
+  (assign-agent.html) and visit analytics
+  (visit-analytics.html). The core is done: request/list/
+  detail/status/feedback/stats endpoints plus 12 wired
+  pages (dashboard, requests, 5 status lists, rescheduled,
+  reminder, details, feedback).
 - Payments (needs a real provider and credentials — never
   invented), support tickets, campaigns, settings forms.
 - Hosting decision: Node hosting vs PHP-only hosting. If

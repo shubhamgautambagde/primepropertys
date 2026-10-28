@@ -964,3 +964,75 @@ accessible name — placeholder text only, which is not a label.
   DEPLOYMENT.md, not hidden.
 - Backup before this change:
   `~/workspace/primepropertys-backup-stage-j/`.
+
+## Visit-booking core (post-Stage-J slice, 2026-10-28)
+
+### Design decisions made for this slice (user said "ok next")
+- Visit statuses mirror the section's own pages: requested
+  (pending), confirmed (approved), rejected, completed,
+  cancelled. Transitions: requested -> confirmed/rejected/
+  cancelled; confirmed -> completed/cancelled; completed/
+  rejected/cancelled are terminal.
+- Visibility mirrors leads: the requester, the property
+  owner, and visits:manage holders (Admin, Super Admin)
+  can see a visit. Status changes are owner/manage-only,
+  except a requester may cancel their own requested/
+  confirmed visit. Feedback (text + 1-5 rating) is only
+  accepted on completed visits. Rescheduling keeps the
+  status and stamps rescheduled_at (that is how the
+  rescheduled-visits page finds its rows).
+- Agent assignment and visit analytics are NOT in this
+  slice: assign-agent.html and visit-analytics.html stay
+  demo-honest until then. The site-visit calendar page
+  already showed live follow-ups (CRM Phase 2) and is left
+  as-is.
+
+### What was built
+- Migration 009: site_visits table + indexes + the
+  visits:manage permission (Super Admin, Admin).
+- server/src/visits.js + routes: POST /api/site-visits
+  (logged-in request on a published property, future
+  date only), GET list (visibility-scoped, ?status= and
+  ?property_id= filters), GET detail, PATCH (status /
+  reschedule / feedback / rating with the rules above),
+  GET /api/site-visits/stats (visibility-scoped counts).
+- 12 site-visit pages wired in assets/js/groups/crm.js:
+  dashboard (request form with a live property dropdown,
+  live stats cards, live table), visit-requests, pending,
+  approved, completed, cancelled, rejected (status
+  tables), rescheduled (client filter on rescheduled_at),
+  visit-reminder (upcoming 7 days), visit-details (detail
+  + Confirm/Reject/Cancel/Complete actions; the server
+  enforces who may do what). visit-feedback.html's form
+  is now data-api="visit-feedback" (forms.js case; needs
+  ?visit_id=). Demo table rows are replaced by live rows.
+- Fixed a pre-existing silent bug found while wiring:
+  the CRM follow-up "Mark done" button used PP.post (POST)
+  against a PATCH-only route, so it did nothing. It now
+  uses PP.request with method PATCH.
+- Audit false positives fixed in the same pass: 9
+  "duplicate id" entries were my own JS comment
+  containing the literal id="..." text (the audit scans
+  inlined script text as markup — a known audit
+  imprecision, same family as the earlier innerHTML one);
+  the comment was reworded and the dashboard form's
+  controls gained name attributes.
+
+### Verified
+- Tests: 49/49 pass (48 existing + 1 new in
+  server/test/visits.js: lifecycle, visibility 404 for
+  strangers, illegal transitions, feedback rules,
+  reschedule stamping, stats). The a11y test caught the
+  new form's unlabelled controls during the run; labels
+  were added before this checkpoint.
+- Build: 64 crm-group pages rebuilt, second run 0 changes;
+  all modules `node --check` PASS.
+- Audit: 340 entries (was 341: feedback form wired; the
+  9 duplicate-id and 1 inputs-without-name entries above
+  resolved), 0 broken internal links.
+- Live flow on a fresh database (port 8942, temp DB
+  deleted afterwards): create -> publish -> request
+  (201, requested) -> confirm -> complete -> feedback
+  (rating 5) -> stats (total 1, completed 1).
+- Backup before this change:
+  `~/workspace/primepropertys-backup-visits/`.
