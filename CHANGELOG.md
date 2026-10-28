@@ -829,3 +829,64 @@ NOT pushed to GitHub; the live Pages site still serves Stage C state.
   files (a diff-parser edge case for "Only in <dir>: <file>"
   lines); they went in batch 13 and were verified on Pages
   afterwards. Database files never pushed.
+
+## Stage I, Slice 2 — Performance + security (2026-10-28)
+
+### What was built (user said "ok next")
+- gzip on the Node server (`server/src/server.js`, `node:zlib`):
+  compressible text bodies >= 1 KB are gzipped when the client
+  accepts it; small bodies and images are left alone. Measured
+  on the homepage: 42,385 -> 10,887 bytes (-74%). The request
+  object is stashed on its own per-request response object so
+  gzip negotiation needs no changes across the 50+ sendJson
+  call sites; each request gets its own response object, so
+  nothing leaks across requests.
+- Security headers on every response (static, API, CSV):
+  X-Content-Type-Options nosniff, X-Frame-Options SAMEORIGIN,
+  Referrer-Policy strict-origin-when-cross-origin, and a CSP
+  that allows the inline scripts/styles the single-file build
+  genuinely uses ('unsafe-inline') while restricting everything
+  else to same-origin plus Unsplash images. Honest limit: CSP
+  does not replace DOM-construction discipline for user data.
+- Migration 008 (performance indexes): properties (status,
+  city, property_type, listing_type); inquiries (assigned_to),
+  (status), (source); lead_followups (due_at). Evidence from
+  EXPLAIN QUERY PLAN on 200-row test tables: properties
+  status-only lists now SEARCH idx_properties_status (before:
+  no status-first index); leads status filters now SEARCH
+  idx_inquiries_status (before: full SCAN of inquiries).
+- `assets/js/groups/buyer.js`: the 3 calculator innerHTML
+  assignments are now DOM construction (strong + br + text
+  nodes) via a setCalc helper. A new server test guards this:
+  no innerHTML assignment in shipped group/component JS.
+- MIME types added for .xml and .txt (sitemap.xml and
+  robots.txt previously served as application/octet-stream).
+- Audit re-triage: the Stage A site-wide entries "No backend
+  / database", "No authentication / authorization" and "No
+  build / test tooling" were removed from audit.py with a
+  comment recording the evidence (server + 8 migrations +
+  API; login/sessions/RBAC enforced; build.py + test suite).
+  The audit's innerHTML check was also fixed: it matched any
+  mention (flagging a comment and a test file); it now matches
+  real assignments and skips test files, which never run in a
+  browser.
+
+### Verified
+- Tests: 42/42 pass (38 existing + 4 new in test/perf.js:
+  gzip round-trip, security headers, migration 008 indexes,
+  no-innerHTML guard). Two test bugs found by the run itself
+  and fixed: the innerHTML guard matched its own comment, and
+  fetch's default gzip handling hid the headers under test —
+  the gzip test now uses raw node:http.
+- Build: 50 buyer/investor pages rebuilt, second run 0 changes
+  (idempotent); all modules `node --check` PASS.
+- Audit re-run: 341 bug entries (was 345: 3 stale site-wide
+  entries removed + buyer.js genuinely fixed; the perf.js
+  false positive appeared and was excluded in the same pass),
+  0 broken internal links, 0 unsafe-DOM entries left.
+- Live flow on a fresh database (port 8921, temp DB deleted
+  afterwards): homepage 42,385 -> 10,887 bytes gzipped, all
+  four security headers present, EXPLAIN plans confirm the
+  new indexes are used.
+- Backup before this change:
+  `~/workspace/primepropertys-backup-stage-i-perf/`.
