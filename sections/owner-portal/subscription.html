@@ -1220,6 +1220,43 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       return;
     }
+    if (form.getAttribute('data-api') === 'wizard-step' || form.getAttribute('data-api') === 'wizard-edit' ||
+        form.getAttribute('data-api') === 'wizard-verification' || form.getAttribute('data-api') === 'wizard-submit' ||
+        form.getAttribute('data-api') === 'wizard-quality' || form.getAttribute('data-api') === 'wizard-duplicate') {
+      var wapi = form.getAttribute('data-api');
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var hook = { 'wizard-step': 'wizardSaveStep', 'wizard-edit': 'wizardSaveEdit',
+          'wizard-verification': 'wizardVerify', 'wizard-submit': 'wizardSubmitProperty',
+          'wizard-quality': 'wizardQuality', 'wizard-duplicate': 'wizardDuplicate' }[wapi];
+        if (window.PP && window.PP[hook]) {
+          window.PP[hook](form);
+        } else {
+          showNote(form, 'Wizard wiring load nahi hui — kuch save nahi hua. Page reload karke dobara try karein.', true);
+        }
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'wizard-choice') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var selected = document.querySelector('.choice.selected[data-choice-key]');
+        if (selected && window.PP && window.PP.wizardSaveChoice) {
+          window.PP.wizardSaveChoice(selected);
+          showNote(form, 'Choice saved.');
+        } else {
+          showNote(form, 'Koi choice select nahi hai — pehle kisi card par click karein.', true);
+        }
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'wizard-upload-notice') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        showNote(form, 'Photo/document upload abhi implement nahi hai — binary upload ke liye backend support chahiye. Draft banne ke baad Edit Property se image URLs add ki ja sakti hain.', true);
+      });
+      return;
+    }
     if (form.getAttribute('data-api') === 'login') {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
