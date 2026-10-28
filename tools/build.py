@@ -24,6 +24,11 @@ Outputs:
     reference and for any future linked-asset build)
   Every *.html page: its single <style> block and single inline <script>
     block are replaced with core + its section's files.
+  Stage I (SEO): every processed page also gets a canonical link and
+    Open Graph tags (og:title from <title>, og:description from the
+    page's own meta description, og:type website, og:url = canonical).
+    Insertion is idempotent: pages that already carry a canonical link
+    are left untouched, so a second run changes nothing.
 Pages with anything other than exactly one <style> and one inline <script>
 are skipped and listed as warnings.
 """
@@ -44,6 +49,45 @@ def strip_leading_header(text):
     copies drop it so 650 pages do not each repeat eight headers."""
     m = re.match(r"\s*/\*.*?\*/\s*\n", text, flags=re.S)
     return text[m.end():] if m else text
+
+SEO_BASE = "https://shubhamgautambagde.github.io/primepropertys"
+
+def canonical_url(rel):
+    posix = rel.as_posix()
+    if posix == "index.html":
+        return SEO_BASE + "/"
+    if posix.endswith("/index.html"):
+        return SEO_BASE + "/" + posix[: -len("index.html")]
+    return SEO_BASE + "/" + posix
+
+def escape_attr(text):
+    """Escape a text value for an HTML attribute without double-escaping
+    entities that are already present (e.g. &#x27; stays as-is)."""
+    text = re.sub(r"&(?!(amp|lt|gt|quot|#\d+|#x[0-9a-fA-F]+);)", "&amp;", text)
+    return text.replace('"', "&quot;")
+
+def seo_tags(rel, text):
+    """Insert canonical + Open Graph tags once, after the meta
+    description (or after <title> if a page ever lacks one). Pages
+    that already carry a canonical link are returned unchanged."""
+    if 'rel="canonical"' in text:
+        return text
+    url = canonical_url(rel)
+    title = re.search(r"<title>(.*?)</title>", text, flags=re.S)
+    title_text = title.group(1).strip() if title else "PrimePropertys"
+    desc = re.search(r'<meta name="description" content="(.*?)">', text, flags=re.S)
+    tags = f'<link rel="canonical" href="{url}">\n'
+    tags += f'<meta property="og:title" content="{escape_attr(title_text)}">\n'
+    if desc:
+        # The description attribute value is already valid attribute
+        # content; reuse it verbatim instead of re-escaping it.
+        tags += f'<meta property="og:description" content="{desc.group(1)}">\n'
+    tags += f'<meta property="og:type" content="website">\n<meta property="og:url" content="{url}">'
+    if desc:
+        return text.replace(desc.group(0), desc.group(0) + "\n" + tags, 1)
+    if title:
+        return text.replace(title.group(0), title.group(0) + "\n" + tags, 1)
+    return text.replace("</head>", tags + "\n</head>", 1)
 
 def main():
     section_map = json.loads((BASE / "tools/section-map.json").read_text())
@@ -72,6 +116,7 @@ def main():
         # Use a function replacement so backslashes in CSS/JS are literal.
         new = re.sub(r"<style>.*?</style>", lambda m: "<style>\n" + css + "</style>", text, count=1, flags=re.S)
         new = re.sub(r"<script>.*?</script>", lambda m: "<script>\n" + js + "</script>", new, count=1, flags=re.S)
+        new = seo_tags(rel, new)
         if new != text:
             f.write_text(new)
             changed += 1
