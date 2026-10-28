@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import { gzipSync } from 'node:zlib';
 import { readFileSync, existsSync, statSync } from 'node:fs';
 import { join, resolve, extname, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -28,6 +29,8 @@ const MIME = {
   '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
+  '.xml': 'application/xml; charset=utf-8',
+  '.txt': 'text/plain; charset=utf-8',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
@@ -35,10 +38,44 @@ const MIME = {
   '.ico': 'image/x-icon',
 };
 
+/* Stage I (performance + security): response hardening + compression.
+   Security headers go on every response. gzip applies to compressible
+   text bodies >= 1 KB when the client accepts it (small bodies and
+   images are left alone: gzipping them gains nothing or grows them).
+   CSP allows the inline scripts/styles the pages genuinely use
+   ('unsafe-inline' is required by the single-file build) and restricts
+   everything else to same-origin plus Unsplash images; it does not
+   replace the DOM-construction discipline for user data. */
+const SECURITY_HEADERS = {
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'SAMEORIGIN',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' https://images.unsplash.com data:; connect-src 'self'; font-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'",
+};
+
+function acceptsGzip(req) {
+  const h = (req && req.headers && req.headers['accept-encoding']) || '';
+  return /(^|,)\s*gzip(\s|,|;|$)/.test(h);
+}
+
+function sendBody(res, req, status, contentType, body, extraHeaders) {
+  const headers = { 'Content-Type': contentType, ...SECURITY_HEADERS, ...(extraHeaders || {}) };
+  let out = Buffer.isBuffer(body) ? body : Buffer.from(body);
+  const compressible = /^(text\/|application\/(json|javascript)|image\/svg\+xml)/.test(contentType);
+  if (compressible && out.length >= 1024 && acceptsGzip(req)) {
+    out = gzipSync(out);
+    headers['Content-Encoding'] = 'gzip';
+    headers['Vary'] = 'Accept-Encoding';
+  }
+  res.writeHead(status, headers);
+  res.end(out);
+}
+
 function sendJson(res, status, obj, extraHeaders) {
-  const body = JSON.stringify(obj);
-  res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', ...(extraHeaders || {}) });
-  res.end(body);
+  // The request object is stashed on the per-request response object by
+  // the server handler below, so gzip negotiation needs no signature
+  // changes across the 50+ sendJson/respond call sites.
+  sendBody(res, res._ppReq, status, 'application/json; charset=utf-8', JSON.stringify(obj), extraHeaders);
 }
 
 function apiError(res, status, code, message) {
@@ -271,7 +308,7 @@ function handleLeadRoutes(req, res, url, body, user) {
   if (path === '/api/leads/export' && m === 'GET') {
     const r = L.exportLeads(db, user);
     if (r.error) return apiError(res, r.status, r.error.code, r.error.message);
-    res.writeHead(200, { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="leads.csv"' });
+    res.writeHead(200, { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="leads.csv"', ...SECURITY_HEADERS });
     return res.end(r.csv);
   }
   if (path === '/api/notifications' && m === 'GET') return respond(res, L.listNotifications(db, user, url));
@@ -352,27 +389,43 @@ function handleApi(req, res, url, body, user, token) {
 
 function handleStatic(req, res, url) {
   if (req.method !== 'GET' && req.method !== 'HEAD') {
-    res.writeHead(405, { 'Content-Type': 'text/plain' });
+    res.writeHead(405, { 'Content-Type': 'text/plain', ...SECURITY_HEADERS });
     return res.end('Method not allowed');
   }
   let rel = decodeURIComponent(url.pathname);
   if (rel.endsWith('/')) rel += 'index.html';
   const file = resolve(join(STATIC_ROOT, '.' + rel));
   if (!file.startsWith(STATIC_ROOT + '/') && file !== STATIC_ROOT) {
-    res.writeHead(403, { 'Content-Type': 'text/plain' });
+    res.writeHead(403, { 'Content-Type': 'text/plain', ...SECURITY_HEADERS });
     return res.end('Forbidden');
   }
   if (!existsSync(file) || !statSync(file).isFile()) {
-    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.writeHead(404, { 'Content-Type': 'text/plain', ...SECURITY_HEADERS });
     return res.end('Not found');
   }
   const ext = extname(file).toLowerCase();
-  res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
-  if (req.method === 'HEAD') return res.end();
-  return res.end(readFileSync(file));
+  const contentType = MIME[ext] || 'application/octet-stream';
+  const data = readFileSync(file);
+  if (req.method === 'HEAD') {
+    // Same headers a GET would send (including Content-Encoding when
+    // the body would be gzipped), but no body.
+    const headers = { 'Content-Type': contentType, ...SECURITY_HEADERS };
+    const compressible = /^(text\/|application\/(json|javascript)|image\/svg\+xml)/.test(contentType);
+    if (compressible && data.length >= 1024 && acceptsGzip(req)) {
+      headers['Content-Encoding'] = 'gzip';
+      headers['Vary'] = 'Accept-Encoding';
+    }
+    res.writeHead(200, headers);
+    return res.end();
+  }
+  return sendBody(res, req, 200, contentType, data);
 }
 
 const server = createServer(async (req, res) => {
+  // Stash the request on its own response object so sendJson can
+  // negotiate gzip without changing 50+ call sites. Each request
+  // gets its own response object, so this cannot leak across requests.
+  res._ppReq = req;
   try {
     const url = new URL(req.url, 'http://localhost');
     if (url.pathname.startsWith('/api/')) {
