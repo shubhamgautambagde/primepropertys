@@ -27,6 +27,12 @@ p{margin:0 0 1rem}
 .eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
 .underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
 .lead{font-size:1.1rem;color:var(--body)}
+
+/* Stage I (accessibility): visible keyboard focus + skip link.
+   :focus-visible (not :focus) keeps mouse clicks outline-free. */
+:focus-visible{outline:3px solid #2563EB;outline-offset:2px}
+.skip-link{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link:focus,.skip-link:active{position:absolute;left:12px;top:12px;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;z-index:9999;padding:10px 16px;background:#0A2240;color:#fff;border-radius:6px;font-weight:600}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
 .section{padding:48px 0}
 .section.pale{background:var(--pale)}
@@ -194,16 +200,17 @@ table.data th{background:var(--pale);color:var(--navy)}
 @media(max-width:600px){.stat-grid{grid-template-columns:1fr}}
 </style></head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Public Website</a><a href="../../sitemap.html">Sitemap</a><a href="index.html">Section Index</a></span></div></div>
 <div class="admin-top"><div class="container">
 <a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
-<div class="admin-search"><input placeholder="Search properties, users, leads, invoices, payments..." name="search"></div>
+<div class="admin-search"><input placeholder="Search properties, users, leads, invoices, payments..." name="search" aria-label="Properties, users, leads, invoices, payments"></div>
 <a class="btn small" href="index.html">+ Create</a><span>🔔 5 &nbsp; ✉ 12 &nbsp; <strong>Rohit Sharma</strong> — Super Manager</span>
 </div></div>
 <div class="admin-shell">
 <aside class="admin-sidebar"><h4>Super Manager</h4><a href="index.html" class="active">▦ Section Index</a><a href="../../index.html">⌂ Public Website Home</a><a href="../../sitemap.html">🗺 Sitemap</a><h4>Pages in this section</h4><a href="activity-logs.html" class="">Activity Logs</a><a href="agent-management.html" class="">Agent Management</a><a href="crm-pipeline.html" class="">CRM Pipeline</a><a href="complaints.html" class="">Complaints</a><a href="lead-assignment.html" class="">Lead Assignment</a><a href="lead-operations.html" class="">Lead Operations</a><a href="lead-transfer.html" class="">Lead Transfer</a><a href="performance.html" class="">Performance</a><a href="property-approval.html" class="">Property Approval</a><a href="property-operations.html" class="">Property Operations</a><a href="regional-operations.html" class="">Regional Operations</a><a href="reports.html" class="">Reports</a><a href="site-visit-operations.html" class="">Site Visit Operations</a><a href="super-manager-dashboard.html" class="">Super Manager Dashboard</a><a href="support.html" class="">Support</a><a href="team-management.html" class="">Team Management</a><a href="user-operations.html" class="">User Operations</a><a href="verification-queue.html" class="">Verification Queue</a>
 <div class="card" style="background:#14365E;border-color:#14365E;color:#E2E8F0;margin-top:20px"><h4 style="margin-top:0">Need Help?</h4><p style="color:#CBD5E1">support@primepropertys.com<br>+91 98765 43210</p></div></aside>
-<main class="admin-main"><h1>Super Manager</h1><p class="lead">All 18 pages in this section. Use the sidebar to open any page — every page shares this admin layout.</p><div class="grid grid-2"><div class="card"><h3>All Pages</h3><ul class="quick-links"><li><a href="activity-logs.html">Activity Logs</a></li><li><a href="agent-management.html">Agent Management</a></li><li><a href="crm-pipeline.html">CRM Pipeline</a></li><li><a href="complaints.html">Complaints</a></li><li><a href="lead-assignment.html">Lead Assignment</a></li><li><a href="lead-operations.html">Lead Operations</a></li><li><a href="lead-transfer.html">Lead Transfer</a></li><li><a href="performance.html">Performance</a></li><li><a href="property-approval.html">Property Approval</a></li><li><a href="property-operations.html">Property Operations</a></li><li><a href="regional-operations.html">Regional Operations</a></li><li><a href="reports.html">Reports</a></li><li><a href="site-visit-operations.html">Site Visit Operations</a></li><li><a href="super-manager-dashboard.html">Super Manager Dashboard</a></li><li><a href="support.html">Support</a></li><li><a href="team-management.html">Team Management</a></li><li><a href="user-operations.html">User Operations</a></li><li><a href="verification-queue.html">Verification Queue</a></li></ul></div></div></main>
+<main id="main-content" tabindex="-1" class="admin-main"><h1>Super Manager</h1><p class="lead">All 18 pages in this section. Use the sidebar to open any page — every page shares this admin layout.</p><div class="grid grid-2"><div class="card"><h3>All Pages</h3><ul class="quick-links"><li><a href="activity-logs.html">Activity Logs</a></li><li><a href="agent-management.html">Agent Management</a></li><li><a href="crm-pipeline.html">CRM Pipeline</a></li><li><a href="complaints.html">Complaints</a></li><li><a href="lead-assignment.html">Lead Assignment</a></li><li><a href="lead-operations.html">Lead Operations</a></li><li><a href="lead-transfer.html">Lead Transfer</a></li><li><a href="performance.html">Performance</a></li><li><a href="property-approval.html">Property Approval</a></li><li><a href="property-operations.html">Property Operations</a></li><li><a href="regional-operations.html">Regional Operations</a></li><li><a href="reports.html">Reports</a></li><li><a href="site-visit-operations.html">Site Visit Operations</a></li><li><a href="super-manager-dashboard.html">Super Manager Dashboard</a></li><li><a href="support.html">Support</a></li><li><a href="team-management.html">Team Management</a></li><li><a href="user-operations.html">User Operations</a></li><li><a href="verification-queue.html">Verification Queue</a></li></ul></div></div></main>
 </div>
 <footer class="site-footer"><div class="container footer-grid">
 <div><a class="logo" href="../../index.html" style="color:#fff">Prime<span>Propertys</span></a><p>PrimePropertys is your trusted partner in finding the perfect property.</p></div>
