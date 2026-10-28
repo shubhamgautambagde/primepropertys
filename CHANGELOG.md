@@ -1457,3 +1457,72 @@ without live markers after the home-services slice:
   saved (city Nagpur).
 - Backup before this change:
   `~/workspace/primepropertys-backup-payments/`.
+
+## Campaigns + templates + queued messages (autopilot slice 2, 2026-10-28)
+
+### Autopilot decisions, documented
+- Marketing campaigns are AD campaigns — the create form's own
+  fields (objective, type, description, daily/total budget,
+  channels Facebook+Instagram / Google Ads / YouTube Ads / All
+  Channels). Ad-platform metrics (impressions, clicks, spend,
+  platform leads/conversions) do NOT exist: no ad platform is
+  connected, so those list columns show a dash, never a number.
+- Templates are reusable message content (channel, name, subject,
+  body). "Use Template" now navigates to the channel's center page
+  with ?template_id= : SMS/WhatsApp centers prefill the compose
+  form; email/notification centers (which have no compose form)
+  show the selected template with an honest note instead of
+  pretending to send. No compose UI was invented for email.
+- SMS/WhatsApp center submissions are stored as QUEUED messages:
+  no SMS/WhatsApp provider is configured, so nothing is sent, and
+  the success note says so. The WhatsApp form had no recipient
+  field at all — a send form without one cannot function — so a
+  Phone Number input was added to it (the only added field in
+  this slice).
+
+### What was built
+- Migration 015: campaigns (budgets in paise, status
+  draft/scheduled/active/paused/completed/cancelled with an
+  enforced transition map) + message_templates (channel
+  email/sms/whatsapp/notification) + queued_messages (channel
+  sms/whatsapp, recipient, body, template_id, status queued) +
+  campaigns:manage permission (Super Admin, Admin).
+- server/src/campaigns.js + routes: POST/GET /api/campaigns,
+  GET/PATCH /api/campaigns/:id, POST/GET /api/message-templates,
+  GET /api/message-templates/:id, POST/GET /api/queued-messages
+  — all campaigns:manage-gated (403 for others, since these are
+  staff domains, not per-user resources).
+- Pages wired (new assets/js/groups/marketing.js mapped in
+  tools/section-map.json; communication remapped from crm.js to
+  new assets/js/groups/communication.js — verified safe: no
+  communication page contains a crm.js-guarded id): campaigns
+  list (live rows + working search/status filter; Budget real,
+  Spent/Performance/Leads/Conversions dashes), campaign details
+  (?campaign_id= + status buttons), create + edit campaign
+  (prefill on edit), 4 template pages (live card grids + create
+  form on each — the form was added to sms/whatsapp/notification
+  pages, which had none), sms-center + whatsapp-center compose
+  forms (queued, not sent), notification-logs + notification-
+  center (live queued-message lists; Sent column is a dash).
+- Deliberately left alone: campaign-analytics (its metrics do
+  not exist), affiliate/promotions/coupons/referral/banner-ads/
+  featured-property/property-boost/agent-builder-project-
+  promotion/marketing-dashboard (need ad-platform or plan data),
+  chat/conversations/messages/communication-preferences/push-
+  notifications (need provider or chat backends), and the
+  email-center compose UI (does not exist; not invented).
+
+### Verified
+- Tests: 56/56 pass (55 + 1 new in server/test/campaigns.js:
+  staff-only 403, channel/budget validation, illegal status
+  transitions, status filter, template channel filter, queued
+  message validation + template reference).
+- Build idempotent; all modules `node --check` PASS.
+- Audit: 303 entries (was 309; not-connected markers 260 -> 254,
+  exactly the 6 wired forms), 0 broken links.
+- Live flow on a fresh database (port 8955, temp DB deleted
+  afterwards): campaign create 201 draft (total 7,500,000 paise)
+  -> activate 200 -> template create 201 -> queued message 201
+  (status queued) -> lists correct.
+- Backup before this change:
+  `~/workspace/primepropertys-backup-campaigns/`.

@@ -142,7 +142,7 @@ is documented in the file itself.
 
 ## Final verification (Stage J)
 
-- `npm test` in `server/`: 55/55 pass, including
+- `npm test` in `server/`: 56/56 pass, including
   `test/journey.js` — one test that walks the whole product:
   admin creates a draft property (invisible publicly),
   publishes it (visible), a buyer enquires, the admin
@@ -216,6 +216,14 @@ The 341 entries are not 341 defects to fix blindly:
   claims until staff verify them, and nothing charges a card,
   UPI id or bank account. A live gateway still needs a provider
   and credentials.
+- Campaigns, templates and queued messages are done: ad-campaign
+  CRUD with enforced status flow, message templates per channel,
+  and SMS/WhatsApp compose forms that QUEUE messages (never
+  claimed as sent — no provider is configured), plus live
+  campaign lists/details, template grids, Use Template flows and
+  notification logs. Ad-platform metrics (impressions, clicks,
+  spend, platform conversions) do not exist and are shown as
+  dashes, never invented.
 - Payments (needs a real provider and credentials — never
   invented), support tickets, campaigns, settings forms.
 - Hosting decision: Node hosting vs PHP-only hosting. If
