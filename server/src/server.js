@@ -301,8 +301,11 @@ function handleVisitRoutes(req, res, url, body, user) {
   /* Stats must precede the visit-detail route, or 'stats' would match
      :id and 404 (same catch as leads/stats). */
   if (path === '/api/site-visits/stats' && m === 'GET') return respond(res, V.visitStats(db, user));
+  if (path === '/api/site-visits/analytics' && m === 'GET') return respond(res, V.visitAnalytics(db, user));
   if (path === '/api/site-visits' && m === 'POST') return respond(res, V.requestVisit(db, user, body));
   if (path === '/api/site-visits' && m === 'GET') return respond(res, V.listVisits(db, user, url));
+  const assign = path.match(/^\/api\/site-visits\/([^/]+)\/assign$/);
+  if (assign && m === 'POST') return respond(res, V.assignVisit(db, user, assign[1], body));
   const detail = path.match(/^\/api\/site-visits\/([^/]+)$/);
   if (detail) {
     if (m === 'GET') return respond(res, V.getVisit(db, user, detail[1]));

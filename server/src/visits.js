@@ -45,7 +45,19 @@ function canSee(db, user, visit) {
   if (!user) return false;
   if (hasPermission(db, user, 'visits:manage')) return true;
   if (visit.user_id === user.id) return true;
+  if (visit.assigned_to === user.id) return true;
   return visit.property_owner_id === user.id;
+}
+
+/* Visibility filter shared by list/stats/analytics: managers see
+   everything; everyone else sees their own requests, visits on
+   their own properties, and visits assigned to them. */
+function visibilityClause(db, user) {
+  if (hasPermission(db, user, 'visits:manage')) return { clause: '', params: [] };
+  return {
+    clause: 'WHERE (v.user_id = ? OR p.owner_id = ? OR v.assigned_to = ?)',
+    params: [user.id, user.id, user.id],
+  };
 }
 
 function canManage(db, user, visit) {
@@ -77,12 +89,10 @@ export function listVisits(db, user, url) {
   const page = parsePage(url);
   if (!page) return err(400, 'INVALID_PARAMETER', 'limit must be 1-100 and offset must be >= 0');
   const q = url.searchParams;
+  const vis = visibilityClause(db, user);
   const where = [];
-  const params = [];
-  if (!hasPermission(db, user, 'visits:manage')) {
-    where.push('(v.user_id = ? OR p.owner_id = ?)');
-    params.push(user.id, user.id);
-  }
+  const params = [...vis.params];
+  if (vis.clause) where.push(vis.clause.replace(/^WHERE /, ''));
   const status = q.get('status');
   if (status) {
     if (!VISIT_STATUSES.includes(status)) return err(400, 'INVALID_PARAMETER', 'Invalid status filter');
@@ -180,14 +190,68 @@ export function updateVisit(db, user, idText, body) {
 
 export function visitStats(db, user) {
   if (!user) return err(401, 'UNAUTHORIZED', 'Login required');
-  const manage = hasPermission(db, user, 'visits:manage');
-  const clause = manage ? '' : 'WHERE (v.user_id = ? OR p.owner_id = ?)';
-  const params = manage ? [] : [user.id, user.id];
+  const vis = visibilityClause(db, user);
   const from = `FROM site_visits v JOIN properties p ON p.id = v.property_id`;
-  const total = db.prepare(`SELECT COUNT(*) AS n ${from} ${clause}`).get(...params).n;
-  const rows = db.prepare(`SELECT v.status, COUNT(*) AS n ${from} ${clause} GROUP BY v.status`).all(...params);
+  const total = db.prepare(`SELECT COUNT(*) AS n ${from} ${vis.clause}`).get(...vis.params).n;
+  const rows = db.prepare(`SELECT v.status, COUNT(*) AS n ${from} ${vis.clause} GROUP BY v.status`).all(...vis.params);
   const byStatus = {};
   for (const s of VISIT_STATUSES) byStatus[s] = 0;
   for (const r of rows) byStatus[r.status] = r.n;
   return { status: 200, body: { total, by_status: byStatus } };
+}
+
+export function assignVisit(db, user, idText, body) {
+  if (!user) return err(401, 'UNAUTHORIZED', 'Login required');
+  if (!hasPermission(db, user, 'visits:manage')) return err(403, 'FORBIDDEN', 'Missing permission: visits:manage');
+  const visit = loadVisit(db, idText);
+  if (!visit) return err(404, 'NOT_FOUND', 'Visit not found');
+  const assigneeId = Number(body.assigned_to);
+  if (!Number.isInteger(assigneeId)) return err(400, 'INVALID_PARAMETER', 'assigned_to is required');
+  const assignee = db.prepare('SELECT id FROM users WHERE id = ?').get(assigneeId);
+  if (!assignee) return err(400, 'INVALID_PARAMETER', 'Assigned user does not exist');
+  db.prepare(`UPDATE site_visits SET assigned_to = ?, updated_at = datetime('now') WHERE id = ?`).run(assigneeId, visit.id);
+  return { status: 200, body: loadVisit(db, idText) };
+}
+
+/* Analytics, computed from existing visits only (no product
+   decisions, like the CRM reports slice). Rates are shares of
+   the visible total, rounded to one decimal. Visits carry no
+   source field, so no by-source breakdown is claimed. */
+export function visitAnalytics(db, user) {
+  if (!user) return err(401, 'UNAUTHORIZED', 'Login required');
+  const vis = visibilityClause(db, user);
+  const from = `FROM site_visits v JOIN properties p ON p.id = v.property_id`;
+  const total = db.prepare(`SELECT COUNT(*) AS n ${from} ${vis.clause}`).get(...vis.params).n;
+  const rows = db.prepare(`SELECT v.status, COUNT(*) AS n ${from} ${vis.clause} GROUP BY v.status`).all(...vis.params);
+  const byStatus = {};
+  for (const s of VISIT_STATUSES) byStatus[s] = 0;
+  for (const r of rows) byStatus[r.status] = r.n;
+  const rate = (n) => (total ? Math.round((n / total) * 1000) / 10 : 0);
+  const byProperty = db.prepare(`SELECT p.title AS property_title, p.city AS property_city,
+    COUNT(*) AS n ${from} ${vis.clause} GROUP BY v.property_id ORDER BY n DESC LIMIT 5`).all(...vis.params);
+  const byAssignee = db.prepare(`SELECT u.full_name AS name, u.email AS email,
+    COUNT(*) AS total, SUM(CASE WHEN v.status = 'completed' THEN 1 ELSE 0 END) AS completed
+    ${from} JOIN users u ON u.id = v.assigned_to
+    ${vis.clause ? `${vis.clause} AND v.assigned_to IS NOT NULL` : 'WHERE v.assigned_to IS NOT NULL'}
+    GROUP BY v.assigned_to ORDER BY total DESC`).all(...vis.params);
+  const now = Date.now();
+  const week = now + 7 * 24 * 3600 * 1000;
+  const upcomingRows = db.prepare(`SELECT v.scheduled_at ${from} ${vis.clause}`).all(...vis.params);
+  const upcoming7d = upcomingRows.filter((r) => {
+    const t = Date.parse(r.scheduled_at);
+    return t >= now && t <= week;
+  }).length;
+  return {
+    status: 200,
+    body: {
+      total,
+      by_status: byStatus,
+      approved_rate: rate(byStatus.confirmed),
+      completed_rate: rate(byStatus.completed),
+      cancelled_rate: rate(byStatus.cancelled),
+      upcoming_7d: upcoming7d,
+      by_property: byProperty,
+      by_assignee: byAssignee,
+    },
+  };
 }

@@ -110,3 +110,35 @@ test('visit lifecycle: request -> confirm -> complete -> feedback, with visibili
   assert.equal(stats.by_status.cancelled, 1);
   assert.equal((await api('/api/site-visits/stats', { cookie: buyer })).status, 200);
 });
+
+test('visit assignment + analytics: manage-only assign, assignee visibility, computed rates', async () => {
+  const admin = cookieOf(await api('/api/auth/login', { method: 'POST', body: { email: 'adminv@example.com', password: 'Secret123' } }));
+  const buyer = cookieOf(await api('/api/auth/login', { method: 'POST', body: { email: 'vbuyer@example.com', password: 'Secret123' } }));
+  const agentReg = await api('/api/auth/register', { method: 'POST', body: { email: 'vagent@example.com', password: 'Secret123', full_name: 'Visit Agent', role: 'Agent' } });
+  const agentBody = await agentReg.json();
+  const agent = cookieOf(await api('/api/auth/login', { method: 'POST', body: { email: 'vagent@example.com', password: 'Secret123' } }));
+
+  const created = await api('/api/properties', { method: 'POST', cookie: admin, body: { title: 'Assign 2BHK', property_type: 'Apartment', listing_type: 'sale', price_inr: 4200000, city: 'Nagpur' } });
+  const prop = await created.json();
+  await api(`/api/properties/${prop.id}/publish`, { method: 'POST', cookie: admin });
+  const req = await api('/api/site-visits', { method: 'POST', cookie: buyer, body: { property_id: prop.id, scheduled_at: '2999-03-01T10:00' } });
+  const visit = await req.json();
+
+  // Non-manage users cannot assign; unknown assignees are rejected.
+  assert.equal((await api(`/api/site-visits/${visit.id}/assign`, { method: 'POST', cookie: buyer, body: { assigned_to: agentBody.user.id } })).status, 403);
+  assert.equal((await api(`/api/site-visits/${visit.id}/assign`, { method: 'POST', cookie: admin, body: { assigned_to: 999999 } })).status, 400);
+  assert.equal((await api(`/api/site-visits/${visit.id}/assign`, { method: 'POST', cookie: admin, body: { assigned_to: agentBody.user.id } })).status, 200);
+
+  // Assignee can now see the visit (detail + list); analytics agree.
+  assert.equal((await api(`/api/site-visits/${visit.id}`, { cookie: agent })).status, 200);
+  const agentList = await (await api('/api/site-visits', { cookie: agent })).json();
+  assert.ok(agentList.data.some((v) => v.id === visit.id));
+  const an = await (await api('/api/site-visits/analytics', { cookie: admin })).json();
+  assert.equal(an.total, 3); // 2 from the lifecycle test + this one
+  assert.equal(an.by_status.requested, 1);
+  assert.equal(an.by_status.completed, 1);
+  assert.equal(an.by_status.cancelled, 1);
+  assert.equal(an.by_assignee.length, 1);
+  assert.equal(an.by_assignee[0].total, 1);
+  assert.ok(an.by_property.some((p) => p.property_title === 'Assign 2BHK'));
+});
