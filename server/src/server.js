@@ -19,6 +19,7 @@ import * as N from './newsletter.js';
 import * as V from './visits.js';
 import * as T from './tickets.js';
 import * as S from './services.js';
+import * as PAY from './payments.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const STATIC_ROOT = resolve(process.env.STATIC_ROOT || join(here, '..', '..'));
@@ -352,6 +353,26 @@ function handleServiceRoutes(req, res, url, body, user) {
   return apiError(res, 404, 'NOT_FOUND', 'Unknown API route');
 }
 
+function handlePaymentRoutes(req, res, url, body, user) {
+  const path = url.pathname;
+  const m = req.method;
+  if (path === '/api/billing-profile') {
+    if (m === 'GET') return respond(res, PAY.getBillingProfile(db, user));
+    if (m === 'PUT') return respond(res, PAY.putBillingProfile(db, user, body));
+    return apiError(res, 405, 'METHOD_NOT_ALLOWED', 'Method not allowed for this route');
+  }
+  if (path === '/api/payments' && m === 'POST') return respond(res, PAY.createPayment(db, user, body));
+  if (path === '/api/payments' && m === 'GET') return respond(res, PAY.listPayments(db, user, url));
+  const refund = path.match(/^\/api\/payments\/([^/]+)\/refund-request$/);
+  if (refund && m === 'POST') return respond(res, PAY.requestRefund(db, user, refund[1], body));
+  const detail = path.match(/^\/api\/payments\/([^/]+)$/);
+  if (detail) {
+    if (m === 'GET') return respond(res, PAY.getPayment(db, user, detail[1]));
+    if (m === 'PATCH') return respond(res, PAY.updatePayment(db, user, detail[1], body));
+  }
+  return apiError(res, 404, 'NOT_FOUND', 'Unknown API route');
+}
+
 function handleLeadRoutes(req, res, url, body, user) {
   const path = url.pathname;
   const m = req.method;
@@ -425,6 +446,9 @@ function handleApi(req, res, url, body, user, token) {
   }
   if (path === '/api/service-requests' || path.startsWith('/api/service-requests/')) {
     return handleServiceRoutes(req, res, url, body, user);
+  }
+  if (path === '/api/payments' || path.startsWith('/api/payments/') || path === '/api/billing-profile') {
+    return handlePaymentRoutes(req, res, url, body, user);
   }
   if (path === '/api/properties' || path.startsWith('/api/properties/') ||
       path === '/api/saved' || path === '/api/recently-viewed') {
