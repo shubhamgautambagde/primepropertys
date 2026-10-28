@@ -1355,3 +1355,32 @@ without live markers after the home-services slice:
   200 -> database row status subscribed.
 - Backup before this change:
   `~/workspace/primepropertys-backup-newsletter/`.
+
+## README reconciliation (brief Phase J, 2026-10-28)
+
+### What changed — documentation only, no behaviour change
+- Root README.md rewritten: it still claimed "Public Website
+  (Static)", "17 pages", "no build step, no backend, no database",
+  and "forms do not send data anywhere" — all false since Stage D.
+  It now describes the real project (653 pages, 27 sections,
+  Node >= 24 + SQLite backend, build.py, 54 tests) and points to
+  DEPLOYMENT.md, CHANGELOG.md, FRONTEND_BACKEND_MAPPING.md and
+  PLACEHOLDER_LINKS_REPORT.md, with the honest-limits list kept
+  intact (Pages static-only, email unconfigured, binary upload
+  not implemented, Secure cookie gap, empty production DB).
+- server/README.md rewritten: it still claimed "Stage D" and a
+  "read-only JSON API" and covered only Stages D–G. It now
+  documents every route group (auth, properties, leads/CRM incl.
+  tags/scores/SLA/stats/export, contact, visits + analytics,
+  tickets, services, newsletter, health), the shared conventions
+  (404-not-403 visibility, error shape, pagination, gzip,
+  security headers), and all 13 migrations with their contents.
+  Route inventory was extracted from server.js, not recalled.
+- One stale string fixed in passing: the server startup log
+  said "Stage G"; it now says just "PrimePropertys server".
+
+### Verified
+- Tests: 54/54 pass (no code behaviour changed; the log line
+  is console output only).
+- Backup before this change:
+  `~/workspace/primepropertys-backup-readmes/`.

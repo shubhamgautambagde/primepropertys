@@ -534,5 +534,5 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`PrimePropertys server (Stage G) on http://127.0.0.1:${PORT} db=${DB_PATH}`);
+  console.log(`PrimePropertys server on http://127.0.0.1:${PORT} db=${DB_PATH}`);
 });
