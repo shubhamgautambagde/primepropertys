@@ -13,8 +13,9 @@ Inputs (never overwritten by this script):
     dashboard.css, responsive.css   (concatenated in this order = core CSS)
   assets/css/sections/<group>.css    (section layout, mapped in section-map.json)
   assets/js/navigation.js, components/tabs.js, components/accordion.js,
-    components/filters.js, forms.js, core.js
-    (concatenated in this order = core JS bundle)
+    components/filters.js, api.js, forms.js, core.js
+    (concatenated in this order = core JS bundle; api.js is the Stage H
+    API client and must load before forms.js, which calls it)
   assets/js/validation.js is a standalone library for Stage H form wiring
     and is deliberately NOT inlined into pages (no form uses it yet).
   assets/js/groups/<group>.js        (section behaviour, mapped in section-map.json)
@@ -32,7 +33,7 @@ BASE = pathlib.Path(__file__).resolve().parent.parent
 CSS_ORDER = ["tokens.css", "base.css", "layout.css", "components.css",
              "forms.css", "dashboard.css", "responsive.css"]
 JS_ORDER = ["navigation.js", "components/tabs.js", "components/accordion.js",
-            "components/filters.js", "forms.js", "core.js"]
+            "components/filters.js", "api.js", "forms.js", "core.js"]
 
 def read(p):
     return p.read_text()

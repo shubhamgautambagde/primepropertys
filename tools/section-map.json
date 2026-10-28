@@ -41,6 +41,8 @@
     "security-center": "admin",
     "super-admin": "admin",
     "super-manager": "admin",
-    "system-settings": "admin"
+    "system-settings": "admin",
+    "owner-portal": "owner",
+    "agent-portal": "agent"
   }
 }
