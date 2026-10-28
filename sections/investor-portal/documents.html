@@ -1,0 +1,320 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documents | PrimePropertys | Investor Portal</title>
+<meta name="description" content="Documents — PrimePropertys, India&#x27;s real estate portal."><style>/* PrimePropertys — Public Website | Design system from the UI screenshots */
+:root{
+  --navy:#0A2240; --navy2:#0E2F56; --blue:#2563EB; --blue-dark:#1D4ED8;
+  --red:#E11D48; --ink:#1F2937; --muted:#64748B; --body:#475569;
+  --line:#E2E8F0; --pale:#EEF3FA; --pale2:#F8FAFC; --white:#fff;
+  --green:#16A34A; --amber:#D97706; --radius:14px; --shadow:0 8px 30px rgba(10,34,64,.08);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--body);background:var(--white);line-height:1.6}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+img{max-width:100%;display:block;border-radius:12px}
+h1,h2,h3,h4{color:var(--navy);line-height:1.25;margin:0 0 .5rem}
+h1{font-size:2.4rem} h2{font-size:1.7rem} h3{font-size:1.15rem}
+p{margin:0 0 1rem}
+.container{max-width:1200px;margin:0 auto;padding:0 20px}
+.section{padding:48px 0}
+.section.pale{background:var(--pale)}
+.center{text-align:center}
+.eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
+.underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
+.lead{font-size:1.1rem;color:var(--body)}
+/* Top bar + header */
+.topbar{background:var(--navy);color:#CBD5E1;font-size:.85rem}
+.topbar .container{display:flex;justify-content:space-between;gap:16px;padding-top:8px;padding-bottom:8px;flex-wrap:wrap}
+.topbar a{color:#E2E8F0;margin-left:16px}
+.site-header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+.header-row{display:flex;align-items:center;gap:24px;padding:14px 20px}
+.logo{font-size:1.55rem;font-weight:800;color:var(--navy);white-space:nowrap}
+.logo span{color:var(--red)}
+.logo small{display:block;font-size:.7rem;font-weight:500;color:var(--muted);letter-spacing:.02em}
+.main-nav{display:flex;gap:18px;flex-wrap:wrap;margin-left:auto}
+.main-nav a{color:var(--ink);font-weight:600;font-size:.95rem}
+.main-nav a.active{color:var(--blue)}
+.header-actions{display:flex;gap:10px;white-space:nowrap}
+.nav-toggle{display:none;margin-left:auto;background:var(--navy);color:#fff;border:0;border-radius:8px;padding:8px 12px;font-size:1rem;cursor:pointer}
+/* Buttons */
+.btn{display:inline-block;background:var(--blue);color:#fff !important;border:1px solid var(--blue);padding:11px 20px;border-radius:10px;font-weight:700;cursor:pointer;text-decoration:none !important}
+.btn:hover{background:var(--blue-dark)}
+.btn.red{background:var(--red);border-color:var(--red)}
+.btn.red:hover{background:#BE123C}
+.btn.navy{background:var(--navy);border-color:var(--navy)}
+.btn.outline{background:#fff;color:var(--blue) !important;border-color:var(--blue)}
+.btn.white{background:#fff;color:var(--navy) !important;border-color:#fff}
+.btn.white-outline{background:transparent;color:#fff !important;border-color:#fff}
+.btn.small{padding:7px 14px;font-size:.9rem;border-radius:8px}
+/* Hero */
+.hero{background:linear-gradient(180deg,#EEF3FA,#fff);padding:40px 0 30px}
+.hero-inner{display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center}
+.hero-inner img{height:340px;width:100%;object-fit:cover}
+.hero-home{background:var(--navy);color:#fff;padding:0}
+.hero-home h1{color:#fff;font-size:2.8rem}
+.hero-home p{color:#E2E8F0}
+.hero-img{position:relative}
+.hero-img img{height:420px;width:100%;object-fit:cover;border-radius:0}
+.breadcrumb{font-size:.9rem;color:var(--muted);margin-bottom:12px}
+.breadcrumb a{color:var(--muted)}
+.meta{font-size:.9rem;color:var(--muted);background:#fff;border:1px solid var(--line);display:inline-block;padding:6px 12px;border-radius:999px;margin:4px 6px 4px 0}
+/* Search */
+.search-box{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:20px;margin-top:-40px;position:relative;z-index:2}
+.search-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.search-tab{border:1px solid var(--line);background:#fff;padding:9px 16px;border-radius:999px;font-weight:700;cursor:pointer}
+.search-tab.active{background:var(--red);color:#fff;border-color:var(--red)}
+.search-grid{display:grid;grid-template-columns:repeat(4,1fr) auto;gap:12px;align-items:end}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.pill{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:.85rem;background:var(--pale2);color:var(--ink)}
+/* Grids + cards */
+.grid{display:grid;gap:20px}
+.grid-2{grid-template-columns:repeat(2,1fr)} .grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-4{grid-template-columns:repeat(4,1fr)} .grid-5{grid-template-columns:repeat(5,1fr)}
+.grid-8{grid-template-columns:repeat(4,1fr)}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:0 2px 10px rgba(10,34,64,.04)}
+.card img{height:170px;width:100%;object-fit:cover;margin-bottom:12px}
+.icon{font-size:1.6rem}
+.price{color:var(--blue);font-weight:800;font-size:1.25rem}
+.badge{display:inline-block;background:var(--green);color:#fff;font-size:.75rem;font-weight:700;padding:3px 9px;border-radius:999px}
+.badge.blue{background:var(--blue)} .badge.red{background:var(--red)} .badge.amber{background:var(--amber)}
+.stat-band{background:var(--navy);color:#fff;padding:36px 0}
+.stat-band h3{color:#fff;font-size:1.8rem}
+.stat-band p{color:#CBD5E1}
+.check{color:var(--green);font-weight:700}
+.check-list{list-style:none;padding:0;margin:0}
+.check-list li{padding:6px 0;border-bottom:1px solid var(--pale)}
+.check-list li:last-child{border-bottom:0}
+/* Forms */
+form label{display:block;font-weight:600;color:var(--ink);font-size:.92rem;margin:12px 0 4px}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid #CBD5E1;border-radius:10px;font:inherit}
+textarea{min-height:120px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-success{display:none;background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;padding:12px 16px;border-radius:10px;margin-top:14px;font-weight:600}
+.form-success.show{display:block}
+.upload-box{border:2px dashed #CBD5E1;border-radius:12px;padding:24px;text-align:center;background:var(--pale2)}
+/* Accordion */
+.acc-item{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;background:#fff}
+.acc-btn{width:100%;text-align:left;background:#fff;border:0;padding:16px 18px;font:inherit;font-weight:700;color:var(--navy);cursor:pointer;display:flex;justify-content:space-between;gap:12px}
+.acc-body{display:none;padding:0 18px 16px}
+.acc-item.open .acc-body{display:block}
+/* Pricing */
+.toggle{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px}
+.toggle button{border:0;background:transparent;padding:8px 18px;border-radius:999px;font-weight:700;cursor:pointer}
+.toggle button.active{background:var(--blue);color:#fff}
+.audience-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px 0}
+.audience-tabs button{border:0;border-bottom:3px solid transparent;background:transparent;padding:10px 14px;font-weight:700;cursor:pointer;color:var(--ink)}
+.audience-tabs button.active{color:var(--blue);border-color:var(--blue)}
+.price-card{position:relative}
+.price-card.popular{border:2px solid var(--blue)}
+/* Two-column policy layout */
+.layout-2{display:grid;grid-template-columns:2fr 1fr;gap:28px;align-items:start}
+.policy-section{display:flex;gap:16px;padding:22px 0;border-bottom:1px solid var(--line)}
+.policy-num{flex:0 0 44px;height:44px;border-radius:50%;background:var(--pale);color:var(--blue);display:flex;align-items:center;justify-content:center;font-weight:800}
+.sidebar .card{margin-bottom:20px}
+.quick-links{list-style:none;padding:0;margin:0}
+.quick-links li{border-bottom:1px solid var(--pale);padding:8px 0}
+.quick-links li:last-child{border-bottom:0}
+.contact-strip{background:var(--pale);border-radius:12px;padding:20px;margin-top:24px}
+/* Tables / jobs */
+.job-card{border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;background:#fff;margin-bottom:14px}
+.filters{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.filters input,.filters select{flex:1;min-width:200px}
+/* Footer */
+.site-footer{background:var(--navy);color:#CBD5E1;margin-top:48px}
+.site-footer h4{color:#fff}
+.site-footer a{color:#CBD5E1}
+.footer-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1.3fr;gap:28px;padding:44px 20px}
+.footer-bottom{border-top:1px solid #1E3A5F;padding:16px 20px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.newsletter-row{display:flex;gap:8px}
+.newsletter-row input{flex:1}
+@media(max-width:960px){
+  .hero-inner,.layout-2,.search-grid{grid-template-columns:1fr}
+  .grid-5,.grid-4,.grid-8{grid-template-columns:repeat(2,1fr)}
+  .grid-3{grid-template-columns:repeat(2,1fr)}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .main-nav{display:none;width:100%;flex-direction:column}
+  .main-nav.open{display:flex}
+  .nav-toggle{display:block}
+  .header-row{flex-wrap:wrap}
+  .header-actions{margin-left:auto}
+  h1{font-size:2rem}
+}
+@media(max-width:600px){
+  .grid-5,.grid-4,.grid-8,.grid-3,.grid-2,.form-row{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr}
+  .hero-img img{height:260px}
+}
+
+
+.portal{display:flex;max-width:1240px;margin:0 auto;align-items:flex-start}
+.sidebar{width:248px;flex:0 0 248px;padding:20px 12px;border-right:1px solid var(--line);background:#fff}
+.sidebar h4{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 12px}
+.sidebar a{display:block;padding:9px 12px;border-radius:8px;color:var(--ink);font-weight:600;font-size:.93rem;margin:2px 0}
+.sidebar a:hover{text-decoration:none;background:var(--pale)}
+.sidebar a.active{background:#7C3AED;color:#fff}
+body.inv .sidebar{background:var(--navy)}
+body.inv .sidebar h4{color:#94A3B8}
+body.inv .sidebar a{color:#E2E8F0}
+body.inv .sidebar a:hover{background:#1E3A5F}
+body.inv .sidebar a.active{background:var(--blue);color:#fff}
+.sidebar .promo{background:var(--pale);border-radius:12px;padding:16px;margin-top:16px}
+body.inv .sidebar .promo{background:#1E3A5F;color:#E2E8F0}
+body.inv .sidebar .promo h3{color:#fff}
+.portal-main{flex:1;min-width:0;padding:24px}
+.portal-head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start;margin-bottom:20px}
+table.data{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+table.data th,table.data td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--pale);font-size:.93rem}
+table.data th{color:var(--navy);background:var(--pale)}
+.stat-num{font-size:1.7rem;font-weight:800;color:var(--navy)}
+.tag{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.78rem;font-weight:700;background:var(--pale);color:var(--navy)}
+.tag.green{background:#DCFCE7;color:#166534}.tag.amber{background:#FEF3C7;color:#92400E}.tag.blue{background:#DBEAFE;color:#1E40AF}.tag.red{background:#FEE2E2;color:#991B1B}
+.calc-result{background:#ECFDF5;border:1px solid #A7F3D0;border-radius:12px;padding:16px;margin-top:16px}
+.calc-result strong{font-size:1.3rem;color:#065F46}
+.bar{height:10px;background:var(--pale);border-radius:999px;overflow:hidden}
+.bar span{display:block;height:100%;background:var(--blue)}
+.portal-search{flex:1;max-width:420px}
+@media(max-width:900px){.portal{flex-direction:column}.sidebar{width:100%;flex:none;border-right:0;border-bottom:1px solid var(--line)}}
+</style></head>
+<body class="inv"><div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Home</a><a href="../../sitemap.html">Sitemap</a><a href="../../help-center.html">Help &amp; Support</a></span></div></div>
+<header class="site-header"><div class="container header-row"><a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a><input class="portal-search" placeholder="Search properties, locations..." name="search"><div class="header-actions"><span>🔔</span><strong>Shubham Bagde</strong><span>Investor</span></div></div></header>
+<div class="portal"><aside class="sidebar"><h4>Investor Portal</h4><a href="investor-dashboard.html">Investor Dashboard</a><a href="alerts.html">Alerts</a><a href="appreciation-calculator.html">Appreciation Calculator</a><a href="documents.html" class="active">Documents</a><a href="investment-opportunities.html">Investment Opportunities</a><a href="investment-reports.html">Investment Reports</a><a href="investment-score.html">Investment Score</a><a href="investment-search.html">Investment Search</a><a href="investment-watchlist.html">Investment Watchlist</a><a href="investor-profile.html">Investor Profile</a><a href="locality-intelligence.html">Locality Intelligence</a><a href="market-intelligence.html">Market Intelligence</a><a href="payments.html">Payments</a><a href="portfolio.html">Portfolio</a><a href="price-trends.html">Price Trends</a><a href="property-roi-calculator.html">Property ROI Calculator</a><a href="rental-yield-calculator.html">Rental Yield Calculator</a><a href="saved-investments.html">Saved Investments</a><a href="security.html">Security</a><a href="subscription.html">Subscription</a><div class="promo"><h3>Need Help?</h3><p>Our property experts are here to help you find the best properties.</p><a class="btn small" href="../../index.html">Contact Support</a></div></aside>
+<main class="portal-main"><p class="breadcrumb"><a href="../../index.html">Home</a> &gt; Investor Portal &gt; Documents</p><div class="portal-head"><div><h1>Documents</h1><p class="lead">Investment documents, agreements and reports in one place.</p></div></div><table class="data"><tr><th>Document</th><th>Related Investment</th><th>Uploaded</th><th>Status</th></tr><tr><td>Purchase Agreement — Godrej Skyline</td><td>Godrej Skyline</td><td>Jan 2024</td><td><span class="tag green">Verified</span></td></tr><tr><td>Rental Agreement — Whitefield Flat</td><td>Prestige Lakeside Habitat</td><td>Mar 2024</td><td><span class="tag green">Verified</span></td></tr><tr><td>Valuation Report — DLF Cyber City</td><td>DLF Cyber City</td><td>Jun 2024</td><td><span class="tag blue">Received</span></td></tr><tr><td>Tax Statement FY 2023-24</td><td>All Investments</td><td>Apr 2024</td><td><span class="tag amber">Under Review</span></td></tr></table></main></div>
+<footer class="site-footer"><div class="container footer-grid"><div><a class="logo" href="../../index.html" style="color:#fff">Prime<span>Propertys</span></a><p>Buy, Sell, Rent or Invest in residential and commercial properties across India. Your trusted property partner.</p></div><div><h4>Quick Links</h4><p><a href="../../index.html">Home</a><br><a href="../../about.html">About Us</a><br><a href="../../contact.html">Contact Us</a></p></div><div><h4>Support</h4><p><a href="../../help-center.html">Help Center</a><br><a href="../../faq.html">FAQ</a><br><a href="../../sitemap.html">Sitemap</a></p></div><div><h4>Legal</h4><p><a href="../../terms.html">Terms &amp; Conditions</a><br><a href="../../privacy-policy.html">Privacy Policy</a><br><a href="../../refund-policy.html">Refund Policy</a></p></div></div><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with love in India</span></div></footer>
+<script>// PrimePropertys — shared behaviour. No backend: forms show an inline success message.
+document.addEventListener('DOMContentLoaded', function () {
+  // Mobile nav
+  var toggle = document.querySelector('.nav-toggle');
+  var nav = document.querySelector('.main-nav');
+  if (toggle && nav) toggle.addEventListener('click', function () { nav.classList.toggle('open'); });
+
+  // Active nav link
+  var here = window.location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.main-nav a').forEach(function (a) {
+    if (a.getAttribute('href') === here) a.classList.add('active');
+  });
+
+  // Home search tabs
+  document.querySelectorAll('.search-tab').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('.search-tab').forEach(function (t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      var note = document.getElementById('search-note');
+      if (note) note.textContent = 'Showing ' + tab.textContent.trim() + ' properties across India.';
+    });
+  });
+
+  // Accordion: one open at a time per container
+  document.querySelectorAll('.acc-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item = btn.closest('.acc-item');
+      var container = btn.closest('.accordion') || document;
+      container.querySelectorAll('.acc-item').forEach(function (i) { if (i !== item) i.classList.remove('open'); });
+      item.classList.toggle('open');
+    });
+  });
+
+  // Pricing: Monthly / Yearly toggle
+  document.querySelectorAll('[data-billing]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('[data-billing]').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      var mode = btn.getAttribute('data-billing');
+      document.querySelectorAll('.billing-note').forEach(function (n) {
+        n.textContent = n.getAttribute('data-' + mode) || n.textContent;
+      });
+    });
+  });
+
+  // Pricing: audience tabs
+  document.querySelectorAll('[data-audience]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('[data-audience]').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      var note = document.getElementById('audience-note');
+      if (note) note.textContent = 'Plans for ' + btn.textContent.trim() + ' — same transparent pricing, tailored features.';
+    });
+  });
+
+  // FAQ / Help search filtering
+  function bindFilter(inputId, selector) {
+    var input = document.getElementById(inputId);
+    if (!input) return;
+    input.addEventListener('input', function () {
+      var q = input.value.trim().toLowerCase();
+      document.querySelectorAll(selector).forEach(function (el) {
+        el.style.display = (!q || el.textContent.toLowerCase().indexOf(q) !== -1) ? '' : 'none';
+      });
+    });
+  }
+  bindFilter('faqSearch', '.acc-item');
+  bindFilter('helpSearch', '.topic-card, .acc-item');
+
+  // Careers filtering
+  var jobSearch = document.getElementById('jobSearch');
+  var jobDept = document.getElementById('jobDept');
+  var jobLoc = document.getElementById('jobLoc');
+  function filterJobs() {
+    var q = jobSearch ? jobSearch.value.trim().toLowerCase() : '';
+    var d = jobDept ? jobDept.value : '';
+    var l = jobLoc ? jobLoc.value : '';
+    document.querySelectorAll('.job-card').forEach(function (job) {
+      var ok = (!q || job.textContent.toLowerCase().indexOf(q) !== -1) &&
+               (!d || job.getAttribute('data-dept') === d) &&
+               (!l || job.getAttribute('data-location') === l);
+      job.style.display = ok ? '' : 'none';
+    });
+  }
+  if (jobSearch) jobSearch.addEventListener('input', filterJobs);
+  if (jobDept) jobDept.addEventListener('change', filterJobs);
+  if (jobLoc) jobLoc.addEventListener('change', filterJobs);
+
+  // Forms: no backend is connected yet (Stage H). Never claim a save/send
+  // that did not happen, and never clear the user's input on a failed save.
+  // Client-side tool forms (onsubmit="return false") keep their own behaviour.
+  document.querySelectorAll('form').forEach(function (form) {
+    if (form.hasAttribute('onsubmit')) return;
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var msg = form.querySelector('.form-success') || form.parentElement.querySelector('.form-success');
+      if (msg) {
+        msg.classList.add('show');
+        if (!msg.querySelector('.demo-note')) {
+          var note = document.createElement('small');
+          note.className = 'demo-note';
+          note.textContent = ' Demo preview — no data was saved yet. This form will be connected to a real server in Stage H.';
+          msg.appendChild(note);
+        }
+      }
+    });
+  });
+
+  // Footer year, only if a year span is present
+  var yearEl = document.getElementById('year');
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
+});
+
+
+function inr(n){return 'Rs ' + Math.round(n).toLocaleString('en-IN');}
+function calcROI(){
+  var p=+document.getElementById('roiPrice').value||0, rent=+document.getElementById('roiRent').value||0,
+      stamp=+document.getElementById('roiStamp').value||0, other=+document.getElementById('roiOther').value||0,
+      yrs=+document.getElementById('roiYears').value||20, appr=+document.getElementById('roiAppr').value||6,
+      growth=+document.getElementById('roiGrowth').value||5;
+  var total=p+stamp+other, future=p*Math.pow(1+appr/100,yrs),
+      rentSum=0, r=rent*12; for(var i=0;i<yrs;i++){ rentSum+=r; r*=1+growth/100; }
+  var expenses=other*yrs*0.2, net=future-p+rentSum-expenses, roi=total?net/total*100:0;
+  var el=document.getElementById('roiResult'); if(el){el.style.display='block';
+    el.innerHTML='<strong>Estimated ROI: '+roi.toFixed(2)+'% over '+yrs+' years</strong><br>Total investment '+inr(total)+' | Future value '+inr(future)+' | Total rent '+inr(rentSum)+' | Net profit '+inr(net)+' | Gross yield '+((rent*12/p*100)||0).toFixed(2)+'%';}
+}
+function calcYield(){
+  var p=+document.getElementById('yPrice').value||0, rent=+document.getElementById('yRent').value||0, exp=+document.getElementById('yExp').value||0;
+  var gross=p?rent*12/p*100:0, net=p?(rent*12-exp)/p*100:0, el=document.getElementById('yieldResult');
+  if(el){el.style.display='block'; el.innerHTML='<strong>Gross yield '+gross.toFixed(2)+'% | Net yield '+net.toFixed(2)+'%</strong><br>Annual rent '+inr(rent*12)+' | Annual expenses '+inr(exp);}
+}
+function calcAppr(){
+  var p=+document.getElementById('aPrice').value||0, rate=+document.getElementById('aRate').value||0, yrs=+document.getElementById('aYears').value||0;
+  var future=p*Math.pow(1+rate/100,yrs), el=document.getElementById('appResult');
+  if(el){el.style.display='block'; el.innerHTML='<strong>Future value: '+inr(future)+'</strong><br>Gain '+inr(future-p)+' over '+yrs+' years at '+rate+'% p.a.';}
+}
+</script></body></html>
