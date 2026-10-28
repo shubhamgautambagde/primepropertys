@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login Logs | PrimePropertys Admin</title>
+<meta name="description" content="Login Logs — PrimePropertys, India&#x27;s real estate portal.">
+<style>
+/* PrimePropertys — Public Website | Design system from the UI screenshots */
+:root{
+  --navy:#0A2240; --navy2:#0E2F56; --blue:#2563EB; --blue-dark:#1D4ED8;
+  --red:#E11D48; --ink:#1F2937; --muted:#64748B; --body:#475569;
+  --line:#E2E8F0; --pale:#EEF3FA; --pale2:#F8FAFC; --white:#fff;
+  --green:#16A34A; --amber:#D97706; --radius:14px; --shadow:0 8px 30px rgba(10,34,64,.08);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--body);background:var(--white);line-height:1.6}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+img{max-width:100%;display:block;border-radius:12px}
+h1,h2,h3,h4{color:var(--navy);line-height:1.25;margin:0 0 .5rem}
+h1{font-size:2.4rem} h2{font-size:1.7rem} h3{font-size:1.15rem}
+p{margin:0 0 1rem}
+.container{max-width:1200px;margin:0 auto;padding:0 20px}
+.section{padding:48px 0}
+.section.pale{background:var(--pale)}
+.center{text-align:center}
+.eyebrow{color:var(--red);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem}
+.underline{width:48px;height:4px;background:var(--red);border-radius:4px;margin:10px auto 24px}
+.lead{font-size:1.1rem;color:var(--body)}
+/* Top bar + header */
+.topbar{background:var(--navy);color:#CBD5E1;font-size:.85rem}
+.topbar .container{display:flex;justify-content:space-between;gap:16px;padding-top:8px;padding-bottom:8px;flex-wrap:wrap}
+.topbar a{color:#E2E8F0;margin-left:16px}
+.site-header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+.header-row{display:flex;align-items:center;gap:24px;padding:14px 20px}
+.logo{font-size:1.55rem;font-weight:800;color:var(--navy);white-space:nowrap}
+.logo span{color:var(--red)}
+.logo small{display:block;font-size:.7rem;font-weight:500;color:var(--muted);letter-spacing:.02em}
+.main-nav{display:flex;gap:18px;flex-wrap:wrap;margin-left:auto}
+.main-nav a{color:var(--ink);font-weight:600;font-size:.95rem}
+.main-nav a.active{color:var(--blue)}
+.header-actions{display:flex;gap:10px;white-space:nowrap}
+.nav-toggle{display:none;margin-left:auto;background:var(--navy);color:#fff;border:0;border-radius:8px;padding:8px 12px;font-size:1rem;cursor:pointer}
+/* Buttons */
+.btn{display:inline-block;background:var(--blue);color:#fff !important;border:1px solid var(--blue);padding:11px 20px;border-radius:10px;font-weight:700;cursor:pointer;text-decoration:none !important}
+.btn:hover{background:var(--blue-dark)}
+.btn.red{background:var(--red);border-color:var(--red)}
+.btn.red:hover{background:#BE123C}
+.btn.navy{background:var(--navy);border-color:var(--navy)}
+.btn.outline{background:#fff;color:var(--blue) !important;border-color:var(--blue)}
+.btn.white{background:#fff;color:var(--navy) !important;border-color:#fff}
+.btn.white-outline{background:transparent;color:#fff !important;border-color:#fff}
+.btn.small{padding:7px 14px;font-size:.9rem;border-radius:8px}
+/* Hero */
+.hero{background:linear-gradient(180deg,#EEF3FA,#fff);padding:40px 0 30px}
+.hero-inner{display:grid;grid-template-columns:1.1fr .9fr;gap:32px;align-items:center}
+.hero-inner img{height:340px;width:100%;object-fit:cover}
+.hero-home{background:var(--navy);color:#fff;padding:0}
+.hero-home h1{color:#fff;font-size:2.8rem}
+.hero-home p{color:#E2E8F0}
+.hero-img{position:relative}
+.hero-img img{height:420px;width:100%;object-fit:cover;border-radius:0}
+.breadcrumb{font-size:.9rem;color:var(--muted);margin-bottom:12px}
+.breadcrumb a{color:var(--muted)}
+.meta{font-size:.9rem;color:var(--muted);background:#fff;border:1px solid var(--line);display:inline-block;padding:6px 12px;border-radius:999px;margin:4px 6px 4px 0}
+/* Search */
+.search-box{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:20px;margin-top:-40px;position:relative;z-index:2}
+.search-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.search-tab{border:1px solid var(--line);background:#fff;padding:9px 16px;border-radius:999px;font-weight:700;cursor:pointer}
+.search-tab.active{background:var(--red);color:#fff;border-color:var(--red)}
+.search-grid{display:grid;grid-template-columns:repeat(4,1fr) auto;gap:12px;align-items:end}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.pill{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:.85rem;background:var(--pale2);color:var(--ink)}
+/* Grids + cards */
+.grid{display:grid;gap:20px}
+.grid-2{grid-template-columns:repeat(2,1fr)} .grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-4{grid-template-columns:repeat(4,1fr)} .grid-5{grid-template-columns:repeat(5,1fr)}
+.grid-8{grid-template-columns:repeat(4,1fr)}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:0 2px 10px rgba(10,34,64,.04)}
+.card img{height:170px;width:100%;object-fit:cover;margin-bottom:12px}
+.icon{font-size:1.6rem}
+.price{color:var(--blue);font-weight:800;font-size:1.25rem}
+.badge{display:inline-block;background:var(--green);color:#fff;font-size:.75rem;font-weight:700;padding:3px 9px;border-radius:999px}
+.badge.blue{background:var(--blue)} .badge.red{background:var(--red)} .badge.amber{background:var(--amber)}
+.stat-band{background:var(--navy);color:#fff;padding:36px 0}
+.stat-band h3{color:#fff;font-size:1.8rem}
+.stat-band p{color:#CBD5E1}
+.check{color:var(--green);font-weight:700}
+.check-list{list-style:none;padding:0;margin:0}
+.check-list li{padding:6px 0;border-bottom:1px solid var(--pale)}
+.check-list li:last-child{border-bottom:0}
+/* Forms */
+form label{display:block;font-weight:600;color:var(--ink);font-size:.92rem;margin:12px 0 4px}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid #CBD5E1;border-radius:10px;font:inherit}
+textarea{min-height:120px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-success{display:none;background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;padding:12px 16px;border-radius:10px;margin-top:14px;font-weight:600}
+.form-success.show{display:block}
+.upload-box{border:2px dashed #CBD5E1;border-radius:12px;padding:24px;text-align:center;background:var(--pale2)}
+/* Accordion */
+.acc-item{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;background:#fff}
+.acc-btn{width:100%;text-align:left;background:#fff;border:0;padding:16px 18px;font:inherit;font-weight:700;color:var(--navy);cursor:pointer;display:flex;justify-content:space-between;gap:12px}
+.acc-body{display:none;padding:0 18px 16px}
+.acc-item.open .acc-body{display:block}
+/* Pricing */
+.toggle{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px}
+.toggle button{border:0;background:transparent;padding:8px 18px;border-radius:999px;font-weight:700;cursor:pointer}
+.toggle button.active{background:var(--blue);color:#fff}
+.audience-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px 0}
+.audience-tabs button{border:0;border-bottom:3px solid transparent;background:transparent;padding:10px 14px;font-weight:700;cursor:pointer;color:var(--ink)}
+.audience-tabs button.active{color:var(--blue);border-color:var(--blue)}
+.price-card{position:relative}
+.price-card.popular{border:2px solid var(--blue)}
+/* Two-column policy layout */
+.layout-2{display:grid;grid-template-columns:2fr 1fr;gap:28px;align-items:start}
+.policy-section{display:flex;gap:16px;padding:22px 0;border-bottom:1px solid var(--line)}
+.policy-num{flex:0 0 44px;height:44px;border-radius:50%;background:var(--pale);color:var(--blue);display:flex;align-items:center;justify-content:center;font-weight:800}
+.sidebar .card{margin-bottom:20px}
+.quick-links{list-style:none;padding:0;margin:0}
+.quick-links li{border-bottom:1px solid var(--pale);padding:8px 0}
+.quick-links li:last-child{border-bottom:0}
+.contact-strip{background:var(--pale);border-radius:12px;padding:20px;margin-top:24px}
+/* Tables / jobs */
+.job-card{border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;background:#fff;margin-bottom:14px}
+.filters{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.filters input,.filters select{flex:1;min-width:200px}
+/* Footer */
+.site-footer{background:var(--navy);color:#CBD5E1;margin-top:48px}
+.site-footer h4{color:#fff}
+.site-footer a{color:#CBD5E1}
+.footer-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1.3fr;gap:28px;padding:44px 20px}
+.footer-bottom{border-top:1px solid #1E3A5F;padding:16px 20px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.newsletter-row{display:flex;gap:8px}
+.newsletter-row input{flex:1}
+@media(max-width:960px){
+  .hero-inner,.layout-2,.search-grid{grid-template-columns:1fr}
+  .grid-5,.grid-4,.grid-8{grid-template-columns:repeat(2,1fr)}
+  .grid-3{grid-template-columns:repeat(2,1fr)}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .main-nav{display:none;width:100%;flex-direction:column}
+  .main-nav.open{display:flex}
+  .nav-toggle{display:block}
+  .header-row{flex-wrap:wrap}
+  .header-actions{margin-left:auto}
+  h1{font-size:2rem}
+}
+@media(max-width:600px){
+  .grid-5,.grid-4,.grid-8,.grid-3,.grid-2,.form-row{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr}
+  .hero-img img{height:260px}
+}
+
+
+/* Admin layout (added on top of the public design system) */
+.admin-top{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60}
+.admin-top .container{display:flex;align-items:center;gap:18px;padding:12px 20px;flex-wrap:wrap}
+.admin-search{flex:1;min-width:220px}
+.admin-search input{margin:0}
+.admin-shell{display:grid;grid-template-columns:272px 1fr;align-items:start}
+.admin-sidebar{background:#0A2240;color:#CBD5E1;padding:20px 14px;position:sticky;top:61px;min-height:calc(100vh - 61px)}
+.admin-sidebar h4{color:#fff;margin:16px 8px 8px;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase}
+.admin-sidebar a{display:block;color:#CBD5E1;padding:9px 12px;border-radius:8px;font-weight:600;font-size:.93rem}
+.admin-sidebar a:hover{background:#14365E;color:#fff;text-decoration:none}
+.admin-sidebar a.active{background:#2563EB;color:#fff}
+.admin-main{padding:28px 28px 8px;min-width:0}
+.admin-main .breadcrumb{margin-bottom:8px}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:18px 0}
+.stat-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}
+.stat-card .label{color:var(--muted);font-size:.85rem;font-weight:600}
+.stat-card .value{color:var(--navy);font-size:1.7rem;font-weight:800;line-height:1.2}
+.stat-card .delta{font-size:.85rem;font-weight:700}
+.up{color:#16A34A}.down{color:#DC2626}
+table.data{width:100%;border-collapse:collapse;background:#fff}
+table.data th,table.data td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);font-size:.92rem;vertical-align:top}
+table.data th{background:var(--pale);color:var(--navy)}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.78rem;font-weight:700}
+.pill.green{background:#DCFCE7;color:#166534}.pill.amber{background:#FEF3C7;color:#92400E}
+.pill.red{background:#FEE2E2;color:#991B1B}.pill.blue{background:#DBEAFE;color:#1E40AF}
+.pill.grey{background:#F1F5F9;color:#475569}
+.bar{height:8px;background:#E2E8F0;border-radius:99px;overflow:hidden;min-width:90px}
+.bar i{display:block;height:100%;background:#2563EB;border-radius:99px}
+.switch{position:relative;display:inline-block;width:48px;height:26px;flex:0 0 auto}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#CBD5E1;border-radius:99px;transition:.2s;cursor:pointer}
+.slider:before{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.switch input:checked + .slider{background:#2563EB}
+.switch input:checked + .slider:before{transform:translateX(22px)}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid var(--pale)}
+.toggle-row:last-child{border-bottom:0}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0;align-items:center}
+.toolbar input,.toolbar select{flex:1;min-width:180px}
+@media(max-width:960px){.admin-shell{grid-template-columns:1fr}.admin-sidebar{position:static;min-height:0}.stat-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.stat-grid{grid-template-columns:1fr}}
+
+</style></head>
+<body>
+<div class="topbar"><div class="container"><span>👑 India's No.1 Real Estate Portal</span><span><a href="../../index.html">Public Website</a><a href="../../sitemap.html">Sitemap</a><a href="index.html">Section Index</a></span></div></div>
+<div class="admin-top"><div class="container">
+<a class="logo" href="../../index.html">Prime<span>Propertys</span><small>Find Your Dream Property</small></a>
+<div class="admin-search"><input placeholder="Search properties, users, leads, invoices, payments..." name="search"></div>
+<a class="btn small" href="index.html">+ Create</a><span>🔔 5 &nbsp; ✉ 12 &nbsp; <strong>Rohit Sharma</strong> — Super Admin</span>
+</div></div>
+<div class="admin-shell">
+<aside class="admin-sidebar"><h4>Super Admin</h4><a href="index.html" class="">▦ Section Index</a><a href="../../index.html">⌂ Public Website Home</a><a href="../../sitemap.html">🗺 Sitemap</a><h4>Pages in this section</h4><a href="approval-workflows.html" class="">Approval Workflows</a><a href="cities.html" class="">Cities</a><a href="countries.html" class="">Countries</a><a href="create-role.html" class="">Create Role</a><a href="edit-role.html" class="">Edit Role</a><a href="localities.html" class="">Localities</a><a href="permission-matrix.html" class="">Permission Matrix</a><a href="permission-overrides.html" class="">Permission Overrides</a><a href="permission-scope.html" class="">Permission Scope</a><a href="permissions.html" class="">Permissions</a><a href="property-types.html" class="">Property Types</a><a href="regions.html" class="">Regions</a><a href="roles.html" class="">Roles</a><a href="super-admin-dashboard.html" class="">Super Admin Dashboard</a><a href="temporary-permissions.html" class="">Temporary Permissions</a><a href="user-details.html" class="">User Details</a><a href="user-verification.html" class="">User Verification</a><a href="users.html" class="">Users</a><a href="amenities.html" class="">Amenities</a><a href="assignment-rules.html" class="">Assignment Rules</a><a href="blog-management.html" class="">Blog Management</a><a href="cms.html" class="">CMS</a><a href="crm-management.html" class="">CRM Management</a><a href="credit-management.html" class="">Credit Management</a><a href="feature-management.html" class="">Feature Management</a><a href="invoice-management.html" class="">Invoice Management</a><a href="lead-rules.html" class="">Lead Rules</a><a href="news-management.html" class="">News Management</a><a href="payment-management.html" class="">Payment Management</a><a href="plan-management.html" class="">Plan Management</a><a href="property-management.html" class="">Property Management</a><a href="seo-management.html" class="">SEO Management</a><a href="site-visit-rules.html" class="">Site Visit Rules</a><a href="subscription-management.html" class="">Subscription Management</a><a href="verification-management.html" class="">Verification Management</a><a href="ai-settings.html" class="">AI Settings</a><a href="api-management.html" class="">API Management</a><a href="activity-logs.html" class="">Activity Logs</a><a href="advertising-management.html" class="">Advertising Management</a><a href="analytics.html" class="">Analytics</a><a href="audit-logs.html" class="">Audit Logs</a><a href="backup.html" class="">Backup</a><a href="feature-flags.html" class="">Feature Flags</a><a href="fraud-detection.html" class="">Fraud Detection</a><a href="integration-management.html" class="">Integration Management</a><a href="login-logs.html" class="active">Login Logs</a><a href="marketing-management.html" class="">Marketing Management</a><a href="notification-management.html" class="">Notification Management</a><a href="reports.html" class="">Reports</a><a href="security-center.html" class="">Security Center</a><a href="system-health.html" class="">System Health</a><a href="system-settings.html" class="">System Settings</a><a href="webhooks.html" class="">Webhooks</a>
+<div class="card" style="background:#14365E;border-color:#14365E;color:#E2E8F0;margin-top:20px"><h4 style="margin-top:0">Need Help?</h4><p style="color:#CBD5E1">support@primepropertys.com<br>+91 98765 43210</p></div></aside>
+<main class="admin-main"><div class="breadcrumb"><a href="../../index.html">Home</a> &gt; <a href="index.html">Super Admin</a> &gt; Login Logs</div><h1>Login Logs</h1><p class="lead">Manage login logs for the PrimePropertys platform. Data below is demo admin data; forms show an inline success message and send nothing anywhere.</p><div class="toolbar"><input class="admin-filter" placeholder="Search logs by user, action or IP..." name="search-2"><select name="status"><option>All Status</option><option>Active</option><option>Pending</option><option>Blocked</option></select><button class="btn small" type="button">Export</button></div><div style="overflow-x:auto"><table class="data"><thead><tr><th>Time</th><th>Action</th><th>User</th><th>IP Address</th><th>Status</th></tr></thead><tbody><tr><td>May 16, 02:34 PM</td><td>Failed login attempt</td><td>Unknown User</td><td>185.199.110.24</td><td><span class="pill red">Failed</span></td></tr><tr><td>May 16, 11:12 AM</td><td>Successful login</td><td>Rohit Sharma</td><td>103.21.45.8</td><td><span class="pill green">Success</span></td></tr><tr><td>May 16, 10:47 AM</td><td>Suspicious activity</td><td>Amit Verma</td><td>Unknown</td><td><span class="pill amber">Warning</span></td></tr><tr><td>May 16, 09:22 AM</td><td>IP blocked</td><td>System</td><td>185.199.110.24</td><td><span class="pill red">Blocked</span></td></tr><tr><td>May 16, 08:15 AM</td><td>Permission changed</td><td>Neha Singh</td><td>103.21.45.8</td><td><span class="pill green">Success</span></td></tr><tr><td>May 15, 06:40 PM</td><td>Password reset requested</td><td>Priya Patel</td><td>49.36.12.7</td><td><span class="pill green">Success</span></td></tr></tbody></table></div></main>
+</div>
+<footer class="site-footer"><div class="container footer-grid">
+<div><a class="logo" href="../../index.html" style="color:#fff">Prime<span>Propertys</span></a><p>PrimePropertys is your trusted partner in finding the perfect property.</p></div>
+<div><h4>Section</h4><p><a href="index.html">Super Admin</a><br><a href="../../index.html">Public Website</a><br><a href="../../sitemap.html">Sitemap</a></p></div>
+<div><h4>Contact Us</h4><p>📞 +91 98765 43210<br>✉ support@primepropertys.com<br>📍 B-27, Sector 63, Noida, Uttar Pradesh - 201301</p></div>
+</div><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with love in India</span></div></footer>
+<script>
+// PrimePropertys — shared behaviour. No backend: forms show an inline success message.
+document.addEventListener('DOMContentLoaded', function () {
+  // Mobile nav
+  var toggle = document.querySelector('.nav-toggle');
+  var nav = document.querySelector('.main-nav');
+  if (toggle && nav) toggle.addEventListener('click', function () { nav.classList.toggle('open'); });
+
+  // Active nav link
+  var here = window.location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.main-nav a').forEach(function (a) {
+    if (a.getAttribute('href') === here) a.classList.add('active');
+  });
+
+  // Home search tabs
+  document.querySelectorAll('.search-tab').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('.search-tab').forEach(function (t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      var note = document.getElementById('search-note');
+      if (note) note.textContent = 'Showing ' + tab.textContent.trim() + ' properties across India.';
+    });
+  });
+
+  // Accordion: one open at a time per container
+  document.querySelectorAll('.acc-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item = btn.closest('.acc-item');
+      var container = btn.closest('.accordion') || document;
+      container.querySelectorAll('.acc-item').forEach(function (i) { if (i !== item) i.classList.remove('open'); });
+      item.classList.toggle('open');
+    });
+  });
+
+  // Pricing: Monthly / Yearly toggle
+  document.querySelectorAll('[data-billing]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('[data-billing]').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      var mode = btn.getAttribute('data-billing');
+      document.querySelectorAll('.billing-note').forEach(function (n) {
+        n.textContent = n.getAttribute('data-' + mode) || n.textContent;
+      });
+    });
+  });
+
+  // Pricing: audience tabs
+  document.querySelectorAll('[data-audience]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('[data-audience]').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      var note = document.getElementById('audience-note');
+      if (note) note.textContent = 'Plans for ' + btn.textContent.trim() + ' — same transparent pricing, tailored features.';
+    });
+  });
+
+  // FAQ / Help search filtering
+  function bindFilter(inputId, selector) {
+    var input = document.getElementById(inputId);
+    if (!input) return;
+    input.addEventListener('input', function () {
+      var q = input.value.trim().toLowerCase();
+      document.querySelectorAll(selector).forEach(function (el) {
+        el.style.display = (!q || el.textContent.toLowerCase().indexOf(q) !== -1) ? '' : 'none';
+      });
+    });
+  }
+  bindFilter('faqSearch', '.acc-item');
+  bindFilter('helpSearch', '.topic-card, .acc-item');
+
+  // Careers filtering
+  var jobSearch = document.getElementById('jobSearch');
+  var jobDept = document.getElementById('jobDept');
+  var jobLoc = document.getElementById('jobLoc');
+  function filterJobs() {
+    var q = jobSearch ? jobSearch.value.trim().toLowerCase() : '';
+    var d = jobDept ? jobDept.value : '';
+    var l = jobLoc ? jobLoc.value : '';
+    document.querySelectorAll('.job-card').forEach(function (job) {
+      var ok = (!q || job.textContent.toLowerCase().indexOf(q) !== -1) &&
+               (!d || job.getAttribute('data-dept') === d) &&
+               (!l || job.getAttribute('data-location') === l);
+      job.style.display = ok ? '' : 'none';
+    });
+  }
+  if (jobSearch) jobSearch.addEventListener('input', filterJobs);
+  if (jobDept) jobDept.addEventListener('change', filterJobs);
+  if (jobLoc) jobLoc.addEventListener('change', filterJobs);
+
+  // Forms: no backend is connected yet (Stage H). Never claim a save/send
+  // that did not happen, and never clear the user's input on a failed save.
+  // Client-side tool forms (onsubmit="return false") keep their own behaviour.
+  document.querySelectorAll('form').forEach(function (form) {
+    if (form.hasAttribute('onsubmit')) return;
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var msg = form.querySelector('.form-success') || form.parentElement.querySelector('.form-success');
+      if (msg) {
+        msg.classList.add('show');
+        if (!msg.querySelector('.demo-note')) {
+          var note = document.createElement('small');
+          note.className = 'demo-note';
+          note.textContent = ' Demo preview — no data was saved yet. This form will be connected to a real server in Stage H.';
+          msg.appendChild(note);
+        }
+      }
+    });
+  });
+
+  // Footer year, only if a year span is present
+  var yearEl = document.getElementById('year');
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
+});
+
+
+// Admin: filter any table on the page from the toolbar search box.
+document.addEventListener('DOMContentLoaded', function () {
+  var box = document.querySelector('.admin-filter');
+  if (box) box.addEventListener('input', function () {
+    var q = box.value.trim().toLowerCase();
+    document.querySelectorAll('table.data tbody tr').forEach(function (r) {
+      r.style.display = (!q || r.textContent.toLowerCase().indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+  // Matrix: clicking a cell cycles its access level label.
+  document.querySelectorAll('.matrix-cell').forEach(function (c) {
+    c.addEventListener('click', function () {
+      var levels = ['Full', 'View', 'Edit', 'None'];
+      var cur = levels.indexOf(c.textContent.trim());
+      c.textContent = levels[(cur + 1) % levels.length];
+    });
+  });
+});
+
+</script></body></html>
