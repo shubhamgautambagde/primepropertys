@@ -196,7 +196,7 @@ textarea{min-height:120px}
 <main class="portal-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> › <a href="index.html">Central CRM</a> › Lead Transfer</div>
 <h1>Lead Transfer</h1><p class="lead">Transfer a lead from one agent to another, with a reason.</p>
-<div class="card"><h3>Transfer a Lead</h3><form data-backend="not-connected"><label>Lead Name</label><input placeholder="Lead Name" name="lead-name"><label>From Agent</label><input placeholder="From Agent" name="from-agent"><label>To Agent</label><input placeholder="To Agent" name="to-agent"><label>Reason for Transfer</label><input placeholder="Reason for Transfer" name="reason-for-transfer"><button class="btn" type="submit">Transfer Lead</button><div class="form-success">Submitted successfully. Our team will follow up shortly.</div></form></div>
+<div class="card"><h3>Transfer a Lead</h3><form data-api="transfer"><input type="number" name="lead-id" required placeholder="Lead ID"><select name="assigned-to" required><option value="">Transfer to agent...</option></select><textarea name="reason" placeholder="Reason for transfer (optional)"></textarea><button type="submit">Transfer Lead</button></form></div>
 </main></div>
 <footer class="site-footer"><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with love in India</span></div></footer>
 <script>
@@ -210,6 +210,44 @@ document.addEventListener('DOMContentLoaded', function () {
   var here = window.location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.main-nav a').forEach(function (a) {
     if (a.getAttribute('href') === here) a.classList.add('active');
+  });
+});
+
+/* Stage H, Phase 4 — header session state (runs on every page).
+   (a) The static headers' "Sign In" links point at contact.html; point
+   them at the real login page. The correct relative prefix is derived
+   from the header's own index.html link, so it works at any depth and
+   under any hosting subpath.
+   (b) When a session exists, show the user's name and a real Logout
+   action in .header-actions (or the header row as fallback). */
+document.addEventListener('DOMContentLoaded', function () {
+  var homeLink = document.querySelector('a.logo, .main-nav a[href$="index.html"]');
+  var prefix = '';
+  if (homeLink) {
+    var href = homeLink.getAttribute('href') || 'index.html';
+    prefix = href.replace(/index\.html$/, '');
+  }
+  document.querySelectorAll('a').forEach(function (a) {
+    if (a.textContent.trim() === 'Sign In') a.setAttribute('href', prefix + 'login.html');
+  });
+  if (!window.PP || !window.PP.me) return;
+  window.PP.me().then(function (m) {
+    if (!m.ok || !m.data || !m.data.user) return;
+    var actions = document.querySelector('.header-actions') || document.querySelector('.header-row') || document.querySelector('header');
+    if (!actions) return;
+    var chip = document.createElement('span');
+    chip.textContent = (m.data.user.full_name || m.data.user.email) + ' (' + m.data.user.role + ')';
+    chip.style.fontWeight = '600';
+    chip.style.marginLeft = '12px';
+    actions.appendChild(chip);
+    var out = document.createElement('button');
+    out.textContent = 'Logout';
+    out.style.marginLeft = '8px';
+    out.style.cursor = 'pointer';
+    out.addEventListener('click', function () {
+      window.PP.logout().then(function () { window.location.href = prefix + 'index.html'; });
+    });
+    actions.appendChild(out);
   });
 });
 document.addEventListener('DOMContentLoaded', function () {
@@ -289,9 +327,315 @@ document.addEventListener('DOMContentLoaded', function () {
   if (jobDept) jobDept.addEventListener('change', filterJobs);
   if (jobLoc) jobLoc.addEventListener('change', filterJobs);
 });
+(function () {
+  var base = (typeof window.PP_API_BASE === 'string' ? window.PP_API_BASE : '').replace(/\/$/, '');
+  function request(path, opts) {
+    opts = opts || {};
+    if (typeof fetch === 'undefined') {
+      return Promise.resolve({ ok: false, status: 0, error: { code: 'NO_FETCH', message: 'This browser cannot reach the server.' } });
+    }
+    return fetch(base + path, {
+      method: opts.method || 'GET',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    }).then(function (res) {
+      return res.text().then(function (text) {
+        var data = null;
+        try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
+        if (!res.ok) {
+          return { ok: false, status: res.status, error: (data && data.error) || { code: 'BAD_RESPONSE', message: 'Server se sahi jawab nahi mila.' } };
+        }
+        return { ok: true, status: res.status, data: data };
+      });
+    }).catch(function () {
+      return { ok: false, status: 0, error: { code: 'API_UNREACHABLE', message: 'Server se connect nahi ho pa raha hai. Please try again later.' } };
+    });
+  }
+  function get(path) { return request(path, { method: 'GET' }); }
+  function post(path, body) { return request(path, { method: 'POST', body: body }); }
+  window.PP = window.PP || {};
+  window.PP.apiBase = base;
+  window.PP.request = request;
+  window.PP.get = get;
+  window.PP.post = post;
+  window.PP.me = function () { return get('/api/auth/me'); };
+  window.PP.login = function (email, password) { return post('/api/auth/login', { email: email, password: password }); };
+  window.PP.register = function (fields) { return post('/api/auth/register', fields); };
+  window.PP.logout = function () { return post('/api/auth/logout', {}); };
+  window.PP.listProperties = function (params) {
+    var q = [];
+    if (params) Object.keys(params).forEach(function (k) { if (params[k] !== undefined && params[k] !== '') q.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k])); });
+    return get('/api/properties' + (q.length ? '?' + q.join('&') : ''));
+  };
+  window.PP.getProperty = function (id) { return get('/api/properties/' + encodeURIComponent(id)); };
+  window.PP.submitInquiry = function (fields) { return post('/api/inquiries', fields); };
+  window.PP.submitContact = function (fields) { return post('/api/contact', fields); };
+  window.PP.savedList = function () { return get('/api/saved'); };
+  window.PP.notifications = function () { return get('/api/notifications'); };
+})();
 document.addEventListener('DOMContentLoaded', function () {
+  /* Role dashboards, relative to the site root (login/register pages
+     live at the root). Seller has no dedicated dashboard section, so
+     sellers land on the home page after login. */
+  var DASHBOARDS = {
+    Buyer: 'sections/buyer-portal/buyer-dashboard.html',
+    Owner: 'sections/owner-portal/owner-dashboard.html',
+    Agent: 'sections/agent-portal/agent-dashboard.html',
+    Builder: 'sections/builder-portal/builder-dashboard.html',
+    Investor: 'sections/investor-portal/investor-dashboard.html',
+    Admin: 'sections/super-admin/super-admin-dashboard.html',
+    'Super Admin': 'sections/super-admin/super-admin-dashboard.html',
+    Support: 'sections/super-admin/super-admin-dashboard.html'
+  };
+  function goToDashboard() {
+    if (!window.PP || !window.PP.me) return;
+    window.PP.me().then(function (m) {
+      var role = (m.data && m.data.user && m.data.user.role) || '';
+      window.location.href = DASHBOARDS[role] || 'index.html';
+    });
+  }
+  var authStatus = document.getElementById('pp-auth-status');
+  if (authStatus && window.PP && window.PP.me) {
+    window.PP.me().then(function (m) {
+      if (m.ok && m.data && m.data.user) {
+        var u = m.data.user;
+        authStatus.textContent = 'Logged in as ' + (u.full_name || u.email) + ' (' + u.role + ').';
+        var a = document.createElement('a');
+        a.href = DASHBOARDS[u.role] || 'index.html';
+        a.textContent = ' Go to dashboard →';
+        authStatus.appendChild(a);
+      }
+    });
+  }
+  function showNote(form, text, isError) {
+    var box = form.querySelector('.pp-form-msg');
+    if (!box) {
+      box = document.createElement('div');
+      box.className = 'pp-form-msg';
+      box.style.marginTop = '10px';
+      box.style.fontWeight = '600';
+      form.appendChild(box);
+    }
+    box.textContent = text;
+    box.style.color = isError ? '#f87171' : '#4ade80';
+    return box;
+  }
+  function field(form, name) {
+    var el = form.querySelector('[name="' + name + '"]');
+    return el ? el.value.trim() : '';
+  }
+  function showSuccess(form, text) {
+    var msg = form.querySelector('.form-success') || form.parentElement.querySelector('.form-success');
+    if (msg) {
+      msg.classList.add('show');
+      msg.textContent = text;
+    } else {
+      showNote(form, text, false);
+    }
+  }
+  function collectMapped(form) {
+    var out = {};
+    form.querySelectorAll('[data-api-field]').forEach(function (el) {
+      out[el.getAttribute('data-api-field')] = (el.value || '').trim();
+    });
+    if (!out.full_name) out.full_name = field(form, 'full-name');
+    if (!out.phone) out.phone = field(form, 'mobile-number');
+    if (!out.email) out.email = field(form, 'email') || field(form, 'email-address');
+    if (!out.message) {
+      var ta = form.querySelector('textarea');
+      out.message = ta ? ta.value.trim() : '';
+    }
+    return out;
+  }
   document.querySelectorAll('form').forEach(function (form) {
     if (form.hasAttribute('onsubmit')) return;
+    if (form.getAttribute('data-api') === 'inquiry') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.submitInquiry) {
+          showNote(form, 'Form wiring load nahi hui — kuch bhi save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var params = new URLSearchParams(window.location.search);
+        var propertyId = parseInt(params.get('property_id') || form.getAttribute('data-property-id') || '', 10);
+        if (!propertyId || propertyId <= 0) {
+          showNote(form, 'Is enquiry ke liye koi property chuni nahi gayi hai. Kisi property listing se Enquire dabakar aayein — tabhi ye form submit hoga.', true);
+          return;
+        }
+        var f = collectMapped(form);
+        var message = f.message || '';
+        var dateEl = form.querySelector('input[type="date"][name="date"]');
+        var timeEl = form.querySelector('input[type="time"]');
+        if (dateEl && dateEl.value) {
+          message = 'Site visit requested on ' + dateEl.value + (timeEl && timeEl.value ? ' at ' + timeEl.value : '') + '. ' + message;
+        }
+        var payload = { property_id: propertyId, full_name: f.full_name, phone: f.phone, message: message };
+        if (f.email) payload.email = f.email;
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.submitInquiry(payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            var text = 'Thank you! Your enquiry has been received.';
+            if (r.data && r.data.is_duplicate) text += ' (Note: ye enquiry pehle bhi darj hai.)';
+            showSuccess(form, text);
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Enquiry save nahi hui. Please try again later.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'contact') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.submitContact) {
+          showNote(form, 'Form wiring load nahi hui — kuch bhi save nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.submitContact({
+          full_name: field(form, 'full-name'),
+          email: field(form, 'email-address'),
+          phone: field(form, 'mobile-number'),
+          subject: field(form, 'field'),
+          message: field(form, 'message-here')
+        }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            var msg = form.querySelector('.form-success') || form.parentElement.querySelector('.form-success');
+            if (msg) {
+              msg.classList.add('show');
+              msg.textContent = 'Thank you! Your message has been received.';
+            } else {
+              showNote(form, 'Thank you! Your message has been received.', false);
+            }
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Message save nahi hua. Please try again later.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'assign') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — assign nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var leadId = parseInt(field(form, 'lead-id'), 10);
+        var assignee = parseInt(field(form, 'assigned-to'), 10);
+        if (!leadId || leadId <= 0 || !assignee || assignee <= 0) {
+          showNote(form, 'Lead ID aur agent dono chunein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/leads/' + leadId + '/assign', { assigned_to: assignee }).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (r.ok) {
+            showSuccess(form, 'Lead assigned successfully.');
+            form.reset();
+          } else {
+            showNote(form, (r.error && r.error.message) || 'Assign failed. Please try again.', true);
+          }
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'transfer') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.post) {
+          showNote(form, 'Form wiring load nahi hui — transfer nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var leadId = parseInt(field(form, 'lead-id'), 10);
+        var assignee = parseInt(field(form, 'assigned-to'), 10);
+        if (!leadId || leadId <= 0 || !assignee || assignee <= 0) {
+          showNote(form, 'Lead ID aur agent dono chunein.', true);
+          return;
+        }
+        var reason = field(form, 'reason');
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.post('/api/leads/' + leadId + '/assign', { assigned_to: assignee }).then(function (r) {
+          if (!r.ok) {
+            if (btn) btn.disabled = false;
+            showNote(form, (r.error && r.error.message) || 'Transfer failed. Please try again.', true);
+            return;
+          }
+          if (!reason) {
+            if (btn) btn.disabled = false;
+            showSuccess(form, 'Lead transferred successfully.');
+            form.reset();
+            return;
+          }
+          window.PP.post('/api/leads/' + leadId + '/notes', { note: 'Transfer reason: ' + reason }).then(function (n) {
+            if (btn) btn.disabled = false;
+            if (n.ok) showSuccess(form, 'Lead transferred successfully (reason saved).');
+            else showSuccess(form, 'Lead transferred, but the reason note could not be saved: ' + ((n.error && n.error.message) || 'unknown error') + '.');
+            form.reset();
+          });
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'login') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.login) {
+          showNote(form, 'Form wiring load nahi hui — login nahi hua. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.login(field(form, 'email'), field(form, 'password')).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (!r.ok) {
+            showNote(form, (r.error && r.error.message) || 'Login failed. Please try again.', true);
+            return;
+          }
+          showSuccess(form, 'Login successful! Redirecting to your dashboard...');
+          goToDashboard();
+        });
+      });
+      return;
+    }
+    if (form.getAttribute('data-api') === 'register') {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!window.PP || !window.PP.register) {
+          showNote(form, 'Form wiring load nahi hui — account nahi bana. Page reload karke dobara try karein.', true);
+          return;
+        }
+        var payload = {
+          full_name: field(form, 'full-name'),
+          email: field(form, 'email'),
+          password: field(form, 'password'),
+          role: field(form, 'role')
+        };
+        var phone = field(form, 'mobile-number');
+        if (phone) payload.phone = phone;
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        window.PP.register(payload).then(function (r) {
+          if (btn) btn.disabled = false;
+          if (!r.ok) {
+            showNote(form, (r.error && r.error.message) || 'Account nahi bana. Please try again.', true);
+            return;
+          }
+          showSuccess(form, 'Account created! Redirecting to your dashboard...');
+          goToDashboard();
+        });
+      });
+      return;
+    }
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var msg = form.querySelector('.form-success') || form.parentElement.querySelector('.form-success');
@@ -300,7 +644,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!msg.querySelector('.demo-note')) {
           var note = document.createElement('small');
           note.className = 'demo-note';
-          note.textContent = ' Demo preview — no data was saved yet. This form will be connected to a real server in Stage H.';
+          note.textContent = ' Demo preview — no data was saved yet. This form is not connected to the server yet.';
           msg.appendChild(note);
         }
       }
@@ -322,5 +666,576 @@ document.addEventListener('DOMContentLoaded', function () {
       r.style.display = (!q || r.textContent.toLowerCase().indexOf(q) !== -1) ? '' : 'none';
     });
   });
+});
+
+/* Stage CRM — live CRM pages (each block guarded by its own container).
+   All data comes from the real API; anonymous visitors get an honest
+   login notice instead of demo data. */
+document.addEventListener('DOMContentLoaded', function () {
+  if (!window.PP || !window.PP.me) return;
+  function loginNotice(el) {
+    if (!el) return;
+    el.textContent = 'Is page ke liye login zaroori hai. ';
+    var a = document.createElement('a');
+    a.href = '../../login.html';
+    a.textContent = 'Login karein →';
+    el.appendChild(a);
+  }
+  function card(title, meta) {
+    var c = document.createElement('div');
+    c.className = 'card';
+    c.setAttribute('style', 'padding:14px;margin:10px 0');
+    var t = document.createElement('strong');
+    t.textContent = title;
+    c.appendChild(t);
+    if (meta) {
+      var p = document.createElement('p');
+      p.textContent = meta;
+      c.appendChild(p);
+    }
+    return c;
+  }
+  function authed() {
+    return window.PP.me().then(function (m) {
+      return (m.ok && m.data && m.data.user) ? m.data.user : null;
+    });
+  }
+  /* Assignee dropdowns (lead assignment page): real users from the API.
+     Non-admins get a 403 here, and the dropdown simply stays empty. */
+  document.querySelectorAll('select[name="assigned-to"]').forEach(function (sel) {
+    window.PP.get('/api/users').then(function (r) {
+      if (!r.ok || !r.data || !r.data.data) return;
+      r.data.data.forEach(function (u) {
+        var o = document.createElement('option');
+        o.value = u.id;
+        o.textContent = (u.full_name || u.email) + ' (' + u.role + ')';
+        sel.appendChild(o);
+      });
+    });
+  });
+  /* All leads list. */
+  if (document.getElementById('pp-live-all-leads')) {
+    authed().then(function (u) {
+      if (!u) { loginNotice(document.getElementById('pp-live-all-leads-notice')); return; }
+      window.PP.get('/api/leads?limit=50').then(function (r) {
+        var box = document.getElementById('pp-live-all-leads-list');
+        if (!box) return;
+        if (!r.ok) { box.textContent = 'Leads load nahi ho pa rahi hain.'; return; }
+        var items = (r.data && r.data.data) || [];
+        var h = document.createElement('h3');
+        h.textContent = 'Leads (live): ' + items.length;
+        box.appendChild(h);
+        if (!items.length) { box.appendChild(document.createTextNode('No leads yet.')); return; }
+        items.forEach(function (l) {
+          if (!l || !Number.isInteger(l.id)) return;
+          var c = card(l.full_name || ('Lead #' + l.id),
+            (l.property_title || ('property #' + l.property_id)) + ' • status: ' + l.status + (l.assigned_to ? ' • assigned to user ' + l.assigned_to : ''));
+          var a = document.createElement('a');
+          a.setAttribute('href', 'lead-details.html?lead_id=' + l.id);
+          a.textContent = 'Open details →';
+          c.appendChild(a);
+          box.appendChild(c);
+        });
+      });
+    });
+  }
+  /* Follow-ups across visible leads, with Done buttons. */
+  if (document.getElementById('pp-live-followups')) {
+    authed().then(function (u) {
+      if (!u) { loginNotice(document.getElementById('pp-live-followups-notice')); return; }
+      window.PP.get('/api/followups?limit=50').then(function (r) {
+        var box = document.getElementById('pp-live-followups-list');
+        if (!box) return;
+        if (!r.ok) { box.textContent = 'Follow-ups load nahi ho pa rahe hain.'; return; }
+        var items = (r.data && r.data.data) || [];
+        var h = document.createElement('h3');
+        h.textContent = 'Follow-ups (live): ' + items.length;
+        box.appendChild(h);
+        if (!items.length) { box.appendChild(document.createTextNode('No follow-ups yet.')); return; }
+        items.forEach(function (f) {
+          if (!f || !Number.isInteger(f.id)) return;
+          var c = card((f.lead_name || 'Lead') + ' — ' + (f.property_title || ''),
+            'Due: ' + f.due_at + (f.note ? ' • ' + f.note : '') + ' • Lead status: ' + f.lead_status + (f.done_at ? ' • Done' : ' • Pending'));
+          if (!f.done_at) {
+            var btn = document.createElement('button');
+            btn.textContent = 'Mark done';
+            btn.addEventListener('click', function () {
+              window.PP.post('/api/leads/' + f.inquiry_id + '/followups/' + f.id + '/done', {}).then(function (rr) {
+                if (rr.ok) { btn.textContent = 'Done ✓'; btn.disabled = true; }
+              });
+            });
+            c.appendChild(btn);
+          }
+          box.appendChild(c);
+        });
+      });
+    });
+  }
+  /* Lead details workspace: detail + status + note + follow-up +
+     activities + follow-ups, driven by ?lead_id=. */
+  var details = document.getElementById('pp-live-lead-details');
+  if (details) {
+    var leadId = parseInt(new URLSearchParams(window.location.search).get('lead_id') || '', 10);
+    var notice = document.getElementById('pp-live-lead-details-notice');
+    var body = document.getElementById('pp-live-lead-details-body');
+    if (!leadId || leadId <= 0) {
+      if (notice) notice.textContent = 'Kisi lead ki details dekhne ke liye lead_id chahiye — All Leads page se kisi lead ko kholein.';
+      return;
+    }
+    authed().then(function (u) {
+      if (!u) { loginNotice(notice); return; }
+      var STATUSES = ['new', 'contacted', 'interested', 'site_visit', 'negotiation', 'closed', 'lost'];
+      function note(text, isError) {
+        var p = document.createElement('p');
+        p.textContent = text;
+        p.style.fontWeight = '600';
+        p.style.color = isError ? '#f87171' : '#4ade80';
+        body.appendChild(p);
+      }
+      function refreshLists() {
+        window.PP.get('/api/leads/' + leadId + '/activities').then(function (r) {
+          var old = document.getElementById('pp-activities');
+          if (old) old.remove();
+          var wrap = document.createElement('div');
+          wrap.id = 'pp-activities';
+          var h = document.createElement('h4');
+          h.textContent = 'Timeline (live)';
+          wrap.appendChild(h);
+          ((r.ok && r.data && r.data.data) || []).forEach(function (a) {
+            wrap.appendChild(card(a.action || 'activity', (a.note || '') + (a.created_at ? ' • ' + a.created_at : '')));
+          });
+          body.appendChild(wrap);
+        });
+        window.PP.get('/api/leads/' + leadId + '/followups').then(function (r) {
+          var old = document.getElementById('pp-followups');
+          if (old) old.remove();
+          var wrap = document.createElement('div');
+          wrap.id = 'pp-followups';
+          var h = document.createElement('h4');
+          h.textContent = 'Follow-ups (live)';
+          wrap.appendChild(h);
+          ((r.ok && r.data && r.data.data) || []).forEach(function (f) {
+            var c = card('Due: ' + f.due_at, (f.note || '') + (f.done_at ? ' • Done' : ' • Pending'));
+            if (!f.done_at) {
+              var btn = document.createElement('button');
+              btn.textContent = 'Mark done';
+              btn.addEventListener('click', function () {
+                window.PP.post('/api/leads/' + leadId + '/followups/' + f.id + '/done', {}).then(function (rr) {
+                  if (rr.ok) refreshLists();
+                });
+              });
+              c.appendChild(btn);
+            }
+            wrap.appendChild(c);
+          });
+          body.appendChild(wrap);
+        });
+      }
+      window.PP.get('/api/leads/' + leadId).then(function (r) {
+        if (!r.ok) {
+          if (notice) notice.textContent = (r.error && r.error.message) || 'Lead load nahi ho pa raha hai.';
+          return;
+        }
+        var l = r.data;
+        body.appendChild(card(l.full_name || ('Lead #' + l.id),
+          (l.property_title || '') + (l.property_city ? ', ' + l.property_city : '') + ' • status: ' + l.status + ' • ' + (l.phone || '') + (l.email ? ' • ' + l.email : '')));
+        /* Status form */
+        var sf = document.createElement('form');
+        var sel = document.createElement('select');
+        STATUSES.forEach(function (s) {
+          var o = document.createElement('option');
+          o.value = s;
+          o.textContent = s;
+          if (s === l.status) o.selected = true;
+          sel.appendChild(o);
+        });
+        var sb = document.createElement('button');
+        sb.type = 'submit';
+        sb.textContent = 'Update status';
+        sf.appendChild(sel);
+        sf.appendChild(sb);
+        sf.addEventListener('submit', function (e) {
+          e.preventDefault();
+          fetch('/api/leads/' + leadId, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: sel.value }) })
+            .then(function (res) { return res.json().then(function (j) { return { ok: res.ok, j: j }; }); })
+            .then(function (x) {
+              if (x.ok) { note('Status updated to ' + sel.value + '.'); refreshLists(); }
+              else note((x.j.error && x.j.error.message) || 'Status update failed.', true);
+            });
+        });
+        body.appendChild(sf);
+        /* Note form */
+        var nf = document.createElement('form');
+        var ta = document.createElement('textarea');
+        ta.placeholder = 'Add a note...';
+        ta.required = true;
+        var nb = document.createElement('button');
+        nb.type = 'submit';
+        nb.textContent = 'Add note';
+        nf.appendChild(ta);
+        nf.appendChild(nb);
+        nf.addEventListener('submit', function (e) {
+          e.preventDefault();
+          window.PP.post('/api/leads/' + leadId + '/notes', { note: ta.value }).then(function (x) {
+            if (x.ok) { note('Note saved.'); ta.value = ''; refreshLists(); }
+            else note((x.error && x.error.message) || 'Note save failed.', true);
+          });
+        });
+        body.appendChild(nf);
+        /* Follow-up form */
+        var ff = document.createElement('form');
+        var dt = document.createElement('input');
+        dt.type = 'datetime-local';
+        dt.required = true;
+        var fn = document.createElement('input');
+        fn.placeholder = 'Follow-up note (optional)';
+        var fb = document.createElement('button');
+        fb.type = 'submit';
+        fb.textContent = 'Schedule follow-up';
+        ff.appendChild(dt);
+        ff.appendChild(fn);
+        ff.appendChild(fb);
+        ff.addEventListener('submit', function (e) {
+          e.preventDefault();
+          window.PP.post('/api/leads/' + leadId + '/followups', { due_at: dt.value, note: fn.value }).then(function (x) {
+            if (x.ok) { note('Follow-up scheduled.'); dt.value = ''; fn.value = ''; refreshLists(); }
+            else note((x.error && x.error.message) || 'Follow-up failed.', true);
+          });
+        });
+        body.appendChild(ff);
+        refreshLists();
+      });
+    });
+  }
+});
+
+/* Stage CRM, Phase 2 — site-visit leads + visit calendar (guarded by
+   their containers). Site-visit leads are real leads with status
+   site_visit; the calendar groups real follow-ups by due date. */
+document.addEventListener('DOMContentLoaded', function () {
+  if (!window.PP || !window.PP.me) return;
+  function loginNotice(el) {
+    if (!el) return;
+    el.textContent = 'Is page ke liye login zaroori hai. ';
+    var a = document.createElement('a');
+    a.href = '../../login.html';
+    a.textContent = 'Login karein →';
+    el.appendChild(a);
+  }
+  function card(title, meta) {
+    var c = document.createElement('div');
+    c.className = 'card';
+    c.setAttribute('style', 'padding:14px;margin:10px 0');
+    var t = document.createElement('strong');
+    t.textContent = title;
+    c.appendChild(t);
+    if (meta) {
+      var p = document.createElement('p');
+      p.textContent = meta;
+      c.appendChild(p);
+    }
+    return c;
+  }
+  function authed() {
+    return window.PP.me().then(function (m) {
+      return (m.ok && m.data && m.data.user) ? m.data.user : null;
+    });
+  }
+  if (document.getElementById('pp-live-visit-leads')) {
+    authed().then(function (u) {
+      if (!u) { loginNotice(document.getElementById('pp-live-visit-leads-notice')); return; }
+      window.PP.get('/api/leads?status=site_visit&limit=50').then(function (r) {
+        var box = document.getElementById('pp-live-visit-leads-list');
+        if (!box) return;
+        if (!r.ok) { box.textContent = 'Site visit leads load nahi ho pa rahe hain.'; return; }
+        var items = (r.data && r.data.data) || [];
+        var h = document.createElement('h3');
+        h.textContent = 'Site Visit Leads (live): ' + items.length;
+        box.appendChild(h);
+        if (!items.length) { box.appendChild(document.createTextNode('No site visit leads yet.')); return; }
+        items.forEach(function (l) {
+          if (!l || !Number.isInteger(l.id)) return;
+          var c = card(l.full_name || ('Lead #' + l.id),
+            (l.property_title || ('property #' + l.property_id)) + ' • ' + (l.phone || '') + (l.assigned_to ? ' • assigned to user ' + l.assigned_to : ''));
+          var a = document.createElement('a');
+          a.setAttribute('href', 'lead-details.html?lead_id=' + l.id);
+          a.textContent = 'Open details →';
+          c.appendChild(a);
+          box.appendChild(c);
+        });
+      });
+    });
+  }
+  if (document.getElementById('pp-live-visit-calendar')) {
+    authed().then(function (u) {
+      if (!u) { loginNotice(document.getElementById('pp-live-visit-calendar-notice')); return; }
+      window.PP.get('/api/followups?limit=100').then(function (r) {
+        var box = document.getElementById('pp-live-visit-calendar-list');
+        if (!box) return;
+        if (!r.ok) { box.textContent = 'Follow-ups load nahi ho pa rahe hain.'; return; }
+        var items = (r.data && r.data.data) || [];
+        var h = document.createElement('h3');
+        h.textContent = 'Follow-ups by due date (live): ' + items.length;
+        box.appendChild(h);
+        if (!items.length) { box.appendChild(document.createTextNode('No follow-ups yet.')); return; }
+        var groups = {};
+        items.forEach(function (f) {
+          var day = (f.due_at || '').slice(0, 10) || 'No date';
+          (groups[day] = groups[day] || []).push(f);
+        });
+        Object.keys(groups).sort().forEach(function (day) {
+          var dh = document.createElement('h4');
+          dh.textContent = day;
+          box.appendChild(dh);
+          groups[day].forEach(function (f) {
+            box.appendChild(card((f.lead_name || 'Lead') + ' — ' + (f.property_title || ''),
+              'Due: ' + f.due_at + (f.note ? ' • ' + f.note : '') + (f.done_at ? ' • Done' : ' • Pending')));
+          });
+        });
+      });
+    });
+  }
+});
+
+/* Stage CRM, Phase 3 — reports from GET /api/leads/stats (guarded by
+   each page's container; one fetch serves whichever report page is
+   open). All numbers are computed from existing inquiries — nothing
+   is invented, and visibility is enforced server-side. */
+document.addEventListener('DOMContentLoaded', function () {
+  if (!window.PP || !window.PP.me) return;
+  var PAGES = {
+    'pp-live-reports': 'reports',
+    'pp-live-funnel': 'funnel',
+    'pp-live-source': 'source',
+    'pp-live-property': 'property',
+    'pp-live-team': 'team',
+    'pp-live-agent': 'agent'
+  };
+  var found = null;
+  Object.keys(PAGES).forEach(function (id) {
+    if (document.getElementById(id)) found = id;
+  });
+  if (!found) return;
+  var mode = PAGES[found];
+  function loginNotice() {
+    var el = document.getElementById(found + '-notice');
+    if (!el) return;
+    el.textContent = 'Is page ke liye login zaroori hai. ';
+    var a = document.createElement('a');
+    a.href = '../../login.html';
+    a.textContent = 'Login karein →';
+    el.appendChild(a);
+  }
+  function row(title, value) {
+    var p = document.createElement('p');
+    p.textContent = title + ': ' + value;
+    return p;
+  }
+  window.PP.me().then(function (m) {
+    if (!m.ok || !m.data || !m.data.user) { loginNotice(); return; }
+    window.PP.get('/api/leads/stats').then(function (r) {
+      var box = document.getElementById(found + '-body');
+      if (!box) return;
+      if (!r.ok) { box.textContent = 'Reports load nahi ho pa rahe hain.'; return; }
+      var s = r.data;
+      var h = document.createElement('h3');
+      h.textContent = 'Live Report: ' + s.total + ' leads (visible to you)';
+      box.appendChild(h);
+      if (mode === 'reports' || mode === 'funnel') {
+        var max = 1;
+        s.funnel.forEach(function (f) { if (f.count > max) max = f.count; });
+        s.funnel.forEach(function (f) {
+          var wrap = document.createElement('div');
+          wrap.setAttribute('style', 'margin:8px 0');
+          var label = document.createElement('div');
+          label.textContent = f.status + ': ' + f.count;
+          var bar = document.createElement('div');
+          bar.setAttribute('style', 'height:18px;background:#2563EB;border-radius:6px;width:' + Math.max(2, Math.round(f.count / max * 100)) + '%');
+          wrap.appendChild(label);
+          wrap.appendChild(bar);
+          box.appendChild(wrap);
+        });
+      }
+      if (mode === 'reports' || mode === 'source') {
+        var sh = document.createElement('h4');
+        sh.textContent = 'By source';
+        box.appendChild(sh);
+        (s.by_source || []).forEach(function (x) {
+          box.appendChild(row(x.source, x.n + (s.total ? ' (' + Math.round(x.n / s.total * 100) + '%)' : '')));
+        });
+      }
+      if (mode === 'reports' || mode === 'property') {
+        var ph = document.createElement('h4');
+        ph.textContent = 'Top properties';
+        box.appendChild(ph);
+        (s.by_property || []).forEach(function (x) {
+          box.appendChild(row(x.property_title || ('property #' + x.property_id), x.n));
+        });
+      }
+      if (mode === 'team' || mode === 'agent') {
+        var closedBy = {};
+        (s.by_assignee_closed || []).forEach(function (x) { closedBy[x.assigned_to] = x.closed; });
+        var ah = document.createElement('h4');
+        ah.textContent = 'By assignee (leads • closures • conversion)';
+        box.appendChild(ah);
+        (s.by_assignee || []).forEach(function (x) {
+          var closed = closedBy[x.assigned_to] || 0;
+          var conv = x.n ? Math.round(closed / x.n * 100) : 0;
+          box.appendChild(row(x.name, x.n + ' • ' + closed + ' • ' + conv + '%'));
+        });
+      }
+    });
+  });
+});
+
+/* Stage CRM, Phase 4 — status-filtered lead lists, CRM dashboard,
+   export download, lead timeline. All from existing endpoints; no new
+   backend needed. Each block is guarded by its own container. */
+document.addEventListener('DOMContentLoaded', function () {
+  if (!window.PP || !window.PP.me) return;
+  function loginNotice(cid) {
+    var el = document.getElementById(cid + '-notice');
+    if (!el) return;
+    el.textContent = 'Is page ke liye login zaroori hai. ';
+    var a = document.createElement('a');
+    a.href = '../../login.html';
+    a.textContent = 'Login karein →';
+    el.appendChild(a);
+  }
+  function card(title, meta, link) {
+    var c = document.createElement('div');
+    c.className = 'card';
+    c.setAttribute('style', 'padding:14px;margin:10px 0');
+    var t = document.createElement('strong');
+    t.textContent = title;
+    c.appendChild(t);
+    if (meta) {
+      var p = document.createElement('p');
+      p.textContent = meta;
+      c.appendChild(p);
+    }
+    if (link) {
+      var a = document.createElement('a');
+      a.setAttribute('href', link.href);
+      a.textContent = link.text;
+      c.appendChild(a);
+    }
+    return c;
+  }
+  function authed() {
+    return window.PP.me().then(function (m) {
+      return (m.ok && m.data && m.data.user) ? m.data.user : null;
+    });
+  }
+  /* Status-filtered lists: container id suffix = lead status. */
+  var STATUS_PAGES = {
+    'pp-live-leads-new': 'new',
+    'pp-live-leads-contacted': 'contacted',
+    'pp-live-leads-interested': 'interested',
+    'pp-live-leads-negotiation': 'negotiation',
+    'pp-live-leads-closed': 'closed',
+    'pp-live-leads-lost': 'lost'
+  };
+  Object.keys(STATUS_PAGES).forEach(function (cid) {
+    if (!document.getElementById(cid)) return;
+    var status = STATUS_PAGES[cid];
+    authed().then(function (u) {
+      if (!u) { loginNotice(cid); return; }
+      window.PP.get('/api/leads?status=' + status + '&limit=50').then(function (r) {
+        var box = document.getElementById(cid + '-body');
+        if (!box) return;
+        if (!r.ok) { box.textContent = 'Leads load nahi ho pa rahe hain.'; return; }
+        var items = (r.data && r.data.data) || [];
+        var h = document.createElement('h3');
+        h.textContent = status + ' leads (live): ' + items.length;
+        box.appendChild(h);
+        if (!items.length) { box.appendChild(document.createTextNode('No leads in this stage yet.')); return; }
+        items.forEach(function (l) {
+          if (!l || !Number.isInteger(l.id)) return;
+          box.appendChild(card(l.full_name || ('Lead #' + l.id),
+            (l.property_title || ('property #' + l.property_id)) + ' • ' + (l.phone || ''),
+            { href: 'lead-details.html?lead_id=' + l.id, text: 'Open details →' }));
+        });
+      });
+    });
+  });
+  /* CRM dashboard: stats summary. */
+  if (document.getElementById('pp-live-crm-dashboard')) {
+    authed().then(function (u) {
+      if (!u) { loginNotice('pp-live-crm-dashboard'); return; }
+      window.PP.get('/api/leads/stats').then(function (r) {
+        var box = document.getElementById('pp-live-crm-dashboard-body');
+        if (!box) return;
+        if (!r.ok) { box.textContent = 'Dashboard load nahi ho pa raha hai.'; return; }
+        var s = r.data;
+        var h = document.createElement('h3');
+        h.textContent = 'Overview (live): ' + s.total + ' leads visible to you';
+        box.appendChild(h);
+        Object.keys(s.by_status || {}).forEach(function (st) {
+          var p = document.createElement('p');
+          p.textContent = st + ': ' + s.by_status[st];
+          box.appendChild(p);
+        });
+      });
+    });
+  }
+  /* CRM export: real CSV download (raw fetch — the shared client
+     parses JSON, and CSV is not JSON). Export is admin-gated
+     server-side; others get an honest message. */
+  if (document.getElementById('pp-live-crm-export')) {
+    authed().then(function (u) {
+      var box = document.getElementById('pp-live-crm-export-body');
+      if (!box) return;
+      if (!u) { loginNotice('pp-live-crm-export'); return; }
+      var btn = document.createElement('button');
+      btn.textContent = 'Download leads CSV (live)';
+      var msg = document.createElement('p');
+      msg.style.fontWeight = '600';
+      btn.addEventListener('click', function () {
+        fetch((window.PP.apiBase || '') + '/api/leads/export', { credentials: 'same-origin' }).then(function (res) {
+          if (!res.ok) {
+            msg.textContent = res.status === 403 ? 'Export ke liye admin permission chahiye.' : 'Export download nahi ho pa raha hai.';
+            return null;
+          }
+          return res.text();
+        }).then(function (csv) {
+          if (csv == null) return;
+          var blob = new Blob([csv], { type: 'text/csv' });
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'leads.csv';
+          a.click();
+          URL.revokeObjectURL(a.href);
+          msg.textContent = 'CSV downloaded.';
+        });
+      });
+      box.appendChild(btn);
+      box.appendChild(msg);
+    });
+  }
+  /* Lead timeline: activities for ?lead_id=. */
+  if (document.getElementById('pp-live-lead-timeline')) {
+    var leadId = parseInt(new URLSearchParams(window.location.search).get('lead_id') || '', 10);
+    var notice = document.getElementById('pp-live-lead-timeline-notice');
+    if (!leadId || leadId <= 0) {
+      if (notice) notice.textContent = 'Kisi lead ki timeline dekhne ke liye lead_id chahiye — All Leads page se kisi lead ko kholein, phir timeline dekhein.';
+      return;
+    }
+    authed().then(function (u) {
+      if (!u) { loginNotice('pp-live-lead-timeline'); return; }
+      window.PP.get('/api/leads/' + leadId + '/activities').then(function (r) {
+        var box = document.getElementById('pp-live-lead-timeline-body');
+        if (!box) return;
+        if (!r.ok) { box.textContent = (r.error && r.error.message) || 'Timeline load nahi ho pa rahi hai.'; return; }
+        var items = (r.data && r.data.data) || [];
+        var h = document.createElement('h3');
+        h.textContent = 'Timeline for lead #' + leadId + ' (live): ' + items.length + ' events';
+        box.appendChild(h);
+        items.forEach(function (a) {
+          box.appendChild(card(a.action || 'activity', (a.note || '') + (a.created_at ? ' • ' + a.created_at : '')));
+        });
+      });
+    });
+  }
 });
 </script></body></html>
