@@ -791,7 +791,7 @@ NOT pushed to GitHub; the live Pages site still serves Stage C state.
   base; if the site moves to a root domain, change BASE_URL
   and re-run. <lastmod> is the file's modification date;
   no guessed <changefreq>/<priority>.
-- `robots.txt`: public content crawlable; 16 authenticated
+- `robots.txt`: public content crawlable; 18 authenticated
   sections disallowed (root-domain form, with a comment
   explaining the GitHub Pages subpath situation); points to
   the sitemap.
