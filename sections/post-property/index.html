@@ -2042,7 +2042,7 @@ document.addEventListener('DOMContentLoaded', function () {
     body.appendChild(h);
     var meta = document.createElement('p');
     meta.textContent = (d.locality ? d.locality + ', ' : '') + d.city + ' • ' + d.property_type + ' • ' +
-      (d.listing_type === 'rent' ? 'For Rent' : 'For Sale') + ' • ' + inrInt(d.price_inr) +
+      (d.listing_type === 'rent' ? 'For Rent' : d.listing_type === 'lease' ? 'For Lease' : 'For Sale') + ' • ' + inrInt(d.price_inr) +
       ' • ' + (d.bedrooms !== null ? d.bedrooms + ' Bed' : '') + ' ' +
       (d.bathrooms !== null ? d.bathrooms + ' Bath' : '') + ' ' +
       (d.area_sqft !== null ? d.area_sqft + ' sq.ft' : '');

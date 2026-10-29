@@ -2,8 +2,12 @@
 // Returns { ok, errors, clean }. For PATCH, `partial` allows missing fields;
 // for POST, required fields must be present.
 
-export const PROPERTY_TYPES = ['Apartment', 'Villa', 'Plot', 'Builder Floor', 'House', 'Commercial'];
-export const LISTING_TYPES = ['sale', 'rent'];
+// Extended 2026-10-29 (migration 029, user decision: extend via table
+// rebuild): PG / Office / Shop / Warehouse are real property types and
+// lease is a real listing type — they were wizard choice cards all along
+// and must no longer be rejected.
+export const PROPERTY_TYPES = ['Apartment', 'Villa', 'Plot', 'Builder Floor', 'House', 'Commercial', 'PG', 'Office', 'Shop', 'Warehouse'];
+export const LISTING_TYPES = ['sale', 'rent', 'lease'];
 
 function isInt(v) {
   return typeof v === 'number' && Number.isInteger(v);
@@ -47,7 +51,7 @@ export function validatePropertyInput(body, partial = false) {
   if (b.listing_type === undefined) {
     if (!partial) errors.push('listing_type is required');
   } else if (!LISTING_TYPES.includes(b.listing_type)) {
-    errors.push(`listing_type '${b.listing_type}' is not supported — must be sale or rent`);
+    errors.push(`listing_type '${b.listing_type}' is not supported — must be one of: ${LISTING_TYPES.join(', ')}`);
   } else clean.listing_type = b.listing_type;
   if (b.price_inr === undefined) {
     if (!partial) errors.push('price_inr is required');

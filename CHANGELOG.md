@@ -1941,3 +1941,57 @@ Baseline before this stage: 96/96 server tests. After: 100/100 (`server/test/per
 
 ### Still open after Priority 4 (do not claim fixed)
 - BUG-006 (bind-address log), BUG-007 (.env never loaded), BUG-011 (wizard early steps sessionStorage-only), BUG-015 (settings prefill, not re-checked), BUG-016 (non-user admin tables demo rows), BUG-020 (demo phone 693 matches), BUG-021 (canonical github.io, sitemap 105/653), BUG-022 (7-day sessions, no idle timeout), BUG-027 (WhatsApp number policy), BUG-029/030 (no manual a11y pass, no browser tests, no migration-rollback test), 2FA, account deletion, form-builder storage, PDF export, separate verification workflow, payment/email/SMS/WhatsApp/AI/push/map providers, named host + HTTPS + process manager + automated backup + error monitoring + incident runbook, and explicit user authorisation naming host + database. No push, no deploy.
+
+## Wizard enums — extend via table rebuild (2026-10-29, user decision)
+
+User decision 2026-10-29: extend `property_type` / `listing_type` via a
+properties table rebuild, NOT by restricting the Lease / PG / Office /
+Shop / Warehouse choice cards. Canonical domain github.io was decided
+the same day (already the default; no change for that decision).
+
+- Migration `server/migrations/029_wizard_enums.sql`:
+  - Old: property_type IN ('Apartment', 'Villa', 'Plot', 'Builder Floor',
+    'House', 'Commercial'); listing_type IN ('sale', 'rent').
+  - New: property_type adds 'PG', 'Office', 'Shop', 'Warehouse';
+    listing_type adds 'lease'. These are exactly the wizard choice-card
+    values (select-purpose.html 'lease'; select-property-type.html 'PG',
+    'Office', 'Shop', 'Warehouse'). 'Independent House' on the card is
+    value 'House', which already existed; no other value was added.
+  - Rebuild copies all 70 columns verbatim (only the two enum CHECKs
+    change) and recreates all 6 properties indexes. No triggers exist
+    on properties.
+  - Data-loss risk found and fixed during development: a first rebuild
+    test with foreign keys ON copied the property rows identically but
+    silently emptied child tables (property_images, saved_properties).
+    Fix: `server/src/db.js` now honours a `REQUIRES_FK_OFF` marker in a
+    migration file — FK is switched OFF before BEGIN and back ON after
+    COMMIT (PRAGMA foreign_keys is a no-op inside a transaction), and
+    `PRAGMA foreign_key_check` runs inside the transaction before COMMIT
+    so any violation rolls the rebuild back. Re-running the preservation
+    test after the fix: existing rows byte-identical, child rows intact,
+    FK check empty, all 6 indexes present, next AUTOINCREMENT id not
+    reused. No existing data is lost by this migration.
+- Validation (`server/src/validate.js`): PROPERTY_TYPES / LISTING_TYPES
+  extended to the same values; genuinely unsupported values
+  (e.g. 'Castle', 'auction') are still rejected with an error naming
+  the value.
+- Wizard UI: the "supported nahi hain" notes on select-purpose.html and
+  select-property-type.html are replaced with supported notes; the live
+  preview in `assets/js/groups/post-property.js` now shows 'For Lease'
+  for lease listings (previously it would have shown 'For Sale').
+  Build run twice — second run 0 pages changed (32 post-property pages
+  regenerated for the preview label only).
+- Tests: new `server/test/wizard-enums.js` (port 8977, added to
+  `package.json`) — create → admin publish → public detail for Lease,
+  PG, Office, Shop, Warehouse; old types still work; bogus values still
+  400; PATCH to a new type works; migration-preservation test as above.
+  `server/test/wizard-p1.js` updated: its old "unsupported choices fail"
+  test now asserts the same choices create a draft with the chosen type,
+  never remapped. No push, no deploy.
+
+## Search bug fix — urlParams (2026-10-29, uncommitted, NOT pushed, NOT deployed)
+
+- **Bug:** `assets/js/groups/search.js` line 32 used `urlParams.get(k)` but `urlParams` was never defined anywhere in `assets/js/`. On `sections/property-search/search-results.html?city=Nagpur` the console error was `urlParams is not defined`, the live-results handler threw before `listProperties` ran, and `#pp-live-results` never rendered — even though `GET /api/properties?city=Nagpur` returned the property. Found by Playwright browser journeys (Journey 3 failed on this exact error).
+- **Fix:** defined it in the correct scope in the same handler, before `apiParams` is built: `var urlParams = new URLSearchParams(window.location.search);` (now search.js lines 29 and 33). No API behaviour, search filters, or other groups changed.
+- **Build:** `python3 tools/build.py` run twice — first run 18 pages updated (all `sections/property-search/` pages), second run 0 pages changed. The inlined copy in `search-results.html` now contains the definition.
+- **Verification:** full server test suite **104/104 pass**; Playwright journeys script `~/workspace/primepropertys-audit/browser-tests/journeys.js` against a temp-DB server on port 8903: **9/9 pass**, including Journey 3 (Search → Detail → Enquiry) — log line "search results (city=Nagpur) contain journey property", View Details click through, and enquiry success message shown. Previously Journey 3 was the only failure (8/9).

@@ -27,14 +27,34 @@ function runMigrations(db) {
   for (const file of files) {
     if (applied.has(file)) continue;
     const sql = readFileSync(join(dir, file), 'utf8');
+    // Table rebuilds (SQLite 12-step procedure, e.g. 029_wizard_enums)
+    // must run with foreign keys OFF: with FK ON, dropping the parent
+    // table silently deletes rows in child tables that reference it
+    // (verified: property_images / saved_properties rows vanished on
+    // a rebuild test with FK ON, while the copied parent rows looked
+    // intact). PRAGMA foreign_keys is a no-op inside a transaction,
+    // so it is switched OFF before BEGIN and back ON after COMMIT.
+    // A migration opts into this by carrying a REQUIRES_FK_OFF marker.
+    // Integrity is still enforced: foreign_key_check runs inside the
+    // transaction before COMMIT, and any violation rolls back.
+    const needsFkOff = sql.includes('REQUIRES_FK_OFF');
+    if (needsFkOff) db.exec('PRAGMA foreign_keys = OFF');
     db.exec('BEGIN');
     try {
       db.exec(sql);
+      if (needsFkOff) {
+        const violations = db.prepare('PRAGMA foreign_key_check').all();
+        if (violations.length > 0) {
+          throw new Error(`foreign_key_check failed: ${JSON.stringify(violations)}`);
+        }
+      }
       mark.run(file);
       db.exec('COMMIT');
     } catch (err) {
       db.exec('ROLLBACK');
       throw new Error(`Migration ${file} failed: ${err.message}`);
+    } finally {
+      if (needsFkOff) db.exec('PRAGMA foreign_keys = ON');
     }
   }
 }

@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
      now server-side (see listProperties in server/src/server.js), so
      the API total is the filtered total and pagination is correct.
      Previously these were client-side over at most 100 rows. */
+  var urlParams = new URLSearchParams(window.location.search);
   var apiParams = { limit: 20 };
   ['city', 'locality', 'property_type', 'listing_type', 'min_price', 'max_price',
    'bedrooms', 'bedrooms_min', 'area_min', 'area_max', 'possession_status'].forEach(function (k) {

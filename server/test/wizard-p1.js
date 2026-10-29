@@ -55,16 +55,18 @@ after(() => {
   rmSync(tmp, { recursive: true, force: true });
 });
 
-test('wizard: unsupported choices fail explicitly naming the choice, never remapped', async () => {
+// Superseded 2026-10-29 by migration 029 (user decision: extend via
+// table rebuild). These choices are now real listings, not errors;
+// the new acceptance coverage lives in test/wizard-enums.js.
+test('wizard: formerly unsupported choices now create a draft with the chosen type, never remapped', async () => {
   for (const [field, value] of [['listing_type', 'lease'], ['property_type', 'PG'], ['property_type', 'Office'], ['property_type', 'Shop'], ['property_type', 'Warehouse']]) {
     const r = await api('/api/properties', { method: 'POST', cookie: seller, body: { ...valid, [field]: value } });
-    assert.equal(r.status, 400, `${field}=${value} must be rejected, not remapped`);
-    const body = await r.json();
-    assert.match(body.error.message, new RegExp(value), `error must name the unsupported choice ${value}`);
+    assert.equal(r.status, 201, `${field}=${value} must now be accepted`);
+    const draft = await r.json();
+    assert.equal(draft[field], value, `draft must keep the chosen ${field}, not a remap`);
   }
-  // No draft was created under a remapped type for those attempts.
   const mine = await (await api('/api/properties/mine', { cookie: seller })).json();
-  assert.equal(mine.pagination.total, 0);
+  assert.equal(mine.pagination.total, 5);
 });
 
 test('wizard: category is persisted on create and patch; bad category rejected', async () => {
@@ -82,8 +84,9 @@ test('wizard: category is persisted on create and patch; bad category rejected',
 test('wizard: choice pages carry the real choice values and an honest note', async () => {
   const purpose = await (await fetch(`${base}/sections/post-property/select-purpose.html`)).text();
   assert.ok(purpose.includes('data-choice-value="lease"'));
-  assert.ok(!purpose.includes('Lease</h3>') || purpose.includes('supported nahi hain'));
+  assert.ok(!purpose.includes('supported nahi hain'), 'the old unsupported note must be gone');
   const type = await (await fetch(`${base}/sections/post-property/select-property-type.html`)).text();
+  assert.ok(!type.includes('supported nahi hain'), 'the old unsupported note must be gone');
   assert.ok(type.includes('data-choice-value="PG"'));
   assert.ok(type.includes('data-choice-value="Office"'));
   assert.ok(type.includes('data-choice-value="Shop"'));
