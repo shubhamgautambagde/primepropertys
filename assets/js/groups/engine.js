@@ -2,161 +2,93 @@
 document.querySelectorAll('.gallery-filter').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.gallery-filter').forEach(function(x){x.classList.remove('active')});b.classList.add('active');var c=b.getAttribute('data-cat');document.querySelectorAll('.gallery-item').forEach(function(el){el.style.display=(!c||el.getAttribute('data-cat')===c)?'':'none'})})});
 var copyBtn=document.getElementById('copyLink');if(copyBtn){copyBtn.addEventListener('click',function(){var t=document.getElementById('shareLink');if(t){t.select();try{document.execCommand('copy')}catch(e){}}var m=document.getElementById('copyMsg');if(m){m.classList.add('show')}})};
 
-/* Priority 1 — live property detail (guarded by #pp-live-detail, only on
-   property-details.html). Renders GET /api/properties/:id when
-   ?property_id= is present. Published listings are public; a draft is
-   visible only to its owner or a properties:view_any holder when logged
-   in — everyone else gets 404 from the API, and this page says so
-   instead of inventing a listing. When no id is given, or the fetch
-   fails, the demo preview below stays visible and the notice says
-   plainly that it is not the requested listing. */
+/* Detail slice — live property detail rendering on
+   property-details.html only (guarded by #pp-live-property).
+   Reads ?property_id= (or ?id=), fetches the real record, and
+   renders it above the demo content, which stays untouched below.
+   No record = honest notice, never demo data presented as the
+   property. Action links (Contact Owner/Agent, Make Enquiry,
+   Request Callback, Request Site Visit) gain the property_id so
+   the already-wired enquiry flows open with context. The Report
+   link is left alone: reports are tickets without a property
+   link, and appending an id would imply otherwise. Save uses the
+   existing POST/DELETE /api/properties/:id/save endpoints. */
 document.addEventListener('DOMContentLoaded', function () {
-  var box = document.getElementById('pp-live-detail');
+  var box = document.getElementById('pp-live-property');
   if (!box || !window.PP || !window.PP.getProperty) return;
-  var notice = document.getElementById('pp-live-detail-notice');
-  var body = document.getElementById('pp-live-detail-body');
+  var notice = document.getElementById('pp-live-property-notice');
+  var body = document.getElementById('pp-live-property-body');
   var params = new URLSearchParams(window.location.search);
-  var id = parseInt(params.get('property_id') || '', 10);
+  var id = parseInt(params.get('property_id') || params.get('id') || '', 10);
   if (!id || id <= 0) {
-    if (notice) notice.textContent = 'Koi property chuni nahi gayi — search results se kisi listing par View Details dabayein (?property_id= ke saath). Neeche demo preview hai, koi real listing nahi.';
+    notice.textContent = 'Koi property select nahi hui — search results ya saved list se kisi property ke View Details par click karke aayein.';
     return;
   }
   function inr(n) {
     try { return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n); }
     catch (e) { return 'Rs ' + n; }
   }
-  function text(tag, str) {
+  function text(tag, str, style) {
     var el = document.createElement(tag);
     el.textContent = str == null ? '' : String(str);
+    if (style) el.setAttribute('style', style);
     return el;
   }
+  ['contact-owner.html', 'contact-agent.html', 'make-enquiry.html', 'request-callback.html', 'request-site-visit.html'].forEach(function (page) {
+    document.querySelectorAll('a[href="' + page + '"]').forEach(function (a) {
+      a.setAttribute('href', page + '?property_id=' + id);
+    });
+  });
   window.PP.getProperty(id).then(function (r) {
     if (!r.ok || !r.data) {
-      if (notice) notice.textContent = 'Property not found (404). Draft ya unpublished listing public nahi hoti — sirf uska owner (login karke) ya properties:view_any wala user use dekh sakta hai. Neeche demo preview hai, requested listing nahi.';
+      notice.textContent = 'Ye property nahi mili ya abhi publish nahi hui hai.';
+      notice.style.color = '#f87171';
       return;
     }
-    var d = r.data;
-    if (notice) notice.textContent = d.status === 'published'
-      ? 'Live property (database se):'
-      : 'Ye listing abhi public nahi hai (status: ' + d.status + ') — aap ise isliye dekh pa rahe hain kyunki aap owner hain ya view permission rakhte hain.';
-    if (body) {
-      body.textContent = '';
-      body.appendChild(text('h2', d.title));
-      body.appendChild(text('p', (d.property_type || '') + ' • ' + (d.listing_type || '') + ' • ' + (d.city || '') + (d.locality ? ', ' + d.locality : '')));
-      var price = document.createElement('p');
-      var strong = document.createElement('strong');
-      strong.textContent = inr(d.price_inr || 0);
-      price.appendChild(strong);
-      body.appendChild(price);
-      var specs = [];
-      if (d.bedrooms !== null && d.bedrooms !== undefined) specs.push(d.bedrooms + ' BHK');
-      if (d.bathrooms !== null && d.bathrooms !== undefined) specs.push(d.bathrooms + ' Bath');
-      if (d.area_sqft) specs.push(d.area_sqft + ' sqft');
-      if (d.facing) specs.push('Facing: ' + d.facing);
-      if (d.furnishing_status) specs.push('Furnishing: ' + d.furnishing_status);
-      if (d.possession_status) specs.push('Possession: ' + d.possession_status);
-      if (specs.length) body.appendChild(text('p', specs.join(' • ')));
-      if (d.description) body.appendChild(text('p', d.description));
-      if (d.amenities) {
-        try {
-          var am = JSON.parse(d.amenities);
-          if (am.length) body.appendChild(text('p', 'Amenities: ' + am.join(', ')));
-        } catch (e) { /* ignore unparseable amenities */ }
-      }
-      (d.images || []).forEach(function (img) {
-        if (!img || !img.url) return;
+    var p = r.data;
+    notice.textContent = 'Live data — neeche demo preview hai, ye record asli hai.';
+    var specs = [];
+    if (p.bedrooms) specs.push(p.bedrooms + ' BHK');
+    if (p.bathrooms) specs.push(p.bathrooms + ' bath');
+    if (p.area_sqft) specs.push(p.area_sqft + ' sqft');
+    if (p.facing) specs.push('Facing: ' + p.facing);
+    if (p.furnishing_status) specs.push(p.furnishing_status);
+    if (p.possession_status) specs.push(p.possession_status);
+    body.appendChild(text('h3', p.title, 'margin-top:0'));
+    body.appendChild(text('p', p.property_type + ' • ' + p.city + (p.locality ? ', ' + p.locality : '') + ' • ' + p.listing_type));
+    if (specs.length) body.appendChild(text('p', specs.join(' • ')));
+    var price = document.createElement('p');
+    var strong = document.createElement('strong');
+    strong.textContent = inr(p.price_inr);
+    price.appendChild(strong);
+    price.appendChild(document.createTextNode(' • Status: ' + p.status));
+    body.appendChild(price);
+    if (p.description) body.appendChild(text('p', p.description));
+    var amenities = null;
+    try { amenities = p.amenities ? JSON.parse(p.amenities) : null; } catch (e) { amenities = null; }
+    if (amenities && amenities.length) body.appendChild(text('p', 'Amenities: ' + amenities.join(', ')));
+    if (p.images && p.images.length) {
+      p.images.forEach(function (img) {
+        if (!img.url) return;
         var im = document.createElement('img');
         im.setAttribute('src', img.url);
-        im.setAttribute('alt', img.alt_text || d.title || 'Property photo');
+        im.setAttribute('alt', img.alt_text || p.title || 'Property image');
         im.setAttribute('style', 'max-width:100%;margin:8px 0');
         body.appendChild(im);
       });
-      var pl = document.createElement('p');
-      var a = document.createElement('a');
-      a.setAttribute('href', 'make-enquiry.html?property_id=' + d.id);
-      a.textContent = 'Make Enquiry →';
-      pl.appendChild(a);
-      body.appendChild(pl);
     }
-    try { document.title = (d.title || 'Property') + ' — PrimePropertys'; } catch (e) { /* ignore */ }
-    // Hide the demo preview siblings so the live listing is the page,
-    // not a second (fake) listing underneath it.
-    try {
-      var parent = box.parentElement;
-      if (parent) Array.prototype.forEach.call(parent.children, function (child) {
-        if (child !== box) child.style.display = 'none';
+    var saveBtn = document.createElement('button');
+    saveBtn.className = 'btn outline';
+    saveBtn.type = 'button';
+    saveBtn.textContent = 'Save Property';
+    var saveNote = document.createElement('p');
+    saveBtn.addEventListener('click', function () {
+      window.PP.post('/api/properties/' + id + '/save', {}).then(function (rr) {
+        if (rr.ok) { saveBtn.textContent = 'Saved ✓'; saveNote.textContent = 'Saved properties me add ho gaya.'; }
+        else saveNote.textContent = (rr.error && rr.error.message) || 'Save nahi ho pa raha hai. (Save ke liye login zaroori hai.)';
       });
-    } catch (e) { /* demo stays visible if hiding fails */ }
-  });
-});
-
-/* Priority 2 — approved property reviews (guarded by #pp-property-reviews,
-   only when ?property_id= is present). Only APPROVED reviews render;
-   pending reviews are moderator-only and never appear here. */
-document.addEventListener('DOMContentLoaded', function () {
-  var box = document.getElementById('pp-property-reviews');
-  if (!box || !window.PP || !window.PP.listReviews) return;
-  var params = new URLSearchParams(window.location.search);
-  var id = parseInt(params.get('property_id') || '', 10);
-  if (!id || id <= 0) { box.textContent = 'Reviews dekhne ke liye kisi property par View Details dabayein (?property_id= ke saath).'; return; }
-  window.PP.listReviews(id).then(function (r) {
-    box.textContent = '';
-    if (!r.ok || !r.data) { box.textContent = 'Reviews load nahi ho pa rahi hain.'; return; }
-    var agg = r.data.aggregation || {};
-    var h = document.createElement('h3');
-    h.textContent = 'Reviews' + (agg.approved_count ? ' — ' + agg.approved_count + ' approved, average ' + agg.average_rating + '/5' : ' — no approved reviews yet');
-    box.appendChild(h);
-    var items = r.data.data || [];
-    if (!items.length) { box.appendChild(document.createTextNode('No approved reviews yet. Reviews moderation ke baad yahan dikhengi.')); return; }
-    items.forEach(function (rev) {
-      var card = document.createElement('div');
-      card.className = 'card';
-      card.setAttribute('style', 'padding:12px;margin:10px 0');
-      var t = document.createElement('strong');
-      t.textContent = (rev.rating || '') + '/5' + (rev.verified ? ' • Verified visit' : '');
-      card.appendChild(t);
-      var p = document.createElement('p');
-      p.textContent = rev.text || '';
-      card.appendChild(p);
-      box.appendChild(card);
     });
-  });
-});
-
-/* Priority 3 — property price history (guarded by #pp-price-history).
-   Append-only history from the API: only real recorded changes appear,
-   with the actor and timestamp. No history is fabricated for edits
-   that predated the history table. */
-document.addEventListener('DOMContentLoaded', function () {
-  var box = document.getElementById('pp-price-history');
-  if (!box || !window.PP || !window.PP.get) return;
-  var params = new URLSearchParams(window.location.search);
-  var id = parseInt(params.get('property_id') || '', 10);
-  if (!id || id <= 0) {
-    box.textContent = 'Price history dekhne ke liye kisi property par View Details dabayein (?property_id= ke saath).';
-    return;
-  }
-  box.textContent = 'Loading price history…';
-  window.PP.get('/api/properties/' + id + '/price-history').then(function (r) {
-    box.textContent = '';
-    if (!r.ok || !r.data) {
-      box.textContent = 'Price history load nahi ho pa rahi hai (draft listings sirf owner ko dikhti hain).';
-      return;
-    }
-    var h = document.createElement('h3');
-    h.textContent = 'Price history (recorded changes only)';
-    box.appendChild(h);
-    var rows = r.data.data || [];
-    if (!rows.length) {
-      var p = document.createElement('p');
-      p.textContent = 'Is property ke liye koi recorded price change nahi hai. Purani edits ka history banaya nahi gaya hai.';
-      box.appendChild(p);
-      return;
-    }
-    rows.forEach(function (row) {
-      var p = document.createElement('p');
-      p.textContent = '₹' + row.old_price_inr + ' → ₹' + row.new_price_inr + ' · ' + (row.actor_name || 'unknown') + ' · ' + (row.created_at || '');
-      box.appendChild(p);
-    });
+    body.appendChild(saveBtn);
+    body.appendChild(saveNote);
   });
 });

@@ -65,14 +65,14 @@ document.addEventListener('DOMContentLoaded', function () {
       meta.textContent = (p.property_type || '') + ' • ' + (p.city || '') + (p.locality ? ', ' + p.locality : '') + ' • ' + inr(p.price_inr || 0);
       card.appendChild(meta);
       var a = document.createElement('a');
-      a.setAttribute('href', '../property-engine/property-details.html?property_id=' + p.id);
-      a.textContent = 'View Details →';
+      a.setAttribute('href', '../property-engine/make-enquiry.html?property_id=' + p.id);
+      a.textContent = 'Enquire →';
       card.appendChild(a);
       card.appendChild(document.createTextNode(' · '));
-      var a2 = document.createElement('a');
-      a2.setAttribute('href', '../property-engine/make-enquiry.html?property_id=' + p.id);
-      a2.textContent = 'Enquire →';
-      card.appendChild(a2);
+      var v = document.createElement('a');
+      v.setAttribute('href', '../property-engine/property-details.html?property_id=' + p.id);
+      v.textContent = 'View Details →';
+      card.appendChild(v);
       el.appendChild(card);
     });
   }
@@ -127,14 +127,14 @@ document.addEventListener('DOMContentLoaded', function () {
     meta.textContent = (p.property_type || '') + ' • ' + (p.city || '') + (p.locality ? ', ' + p.locality : '') + ' • ' + inr(p.price_inr || 0);
     card.appendChild(meta);
     var a = document.createElement('a');
-    a.setAttribute('href', '../property-engine/property-details.html?property_id=' + p.id);
-    a.textContent = 'View Details →';
+    a.setAttribute('href', '../property-engine/make-enquiry.html?property_id=' + p.id);
+    a.textContent = 'Enquire →';
     card.appendChild(a);
     card.appendChild(document.createTextNode(' · '));
-    var a2 = document.createElement('a');
-    a2.setAttribute('href', '../property-engine/make-enquiry.html?property_id=' + p.id);
-    a2.textContent = 'Enquire →';
-    card.appendChild(a2);
+    var v = document.createElement('a');
+    v.setAttribute('href', '../property-engine/property-details.html?property_id=' + p.id);
+    v.textContent = 'View Details →';
+    card.appendChild(v);
     return card;
   }
   function propList(box, items, heading, emptyText) {

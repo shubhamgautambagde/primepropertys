@@ -1787,3 +1787,49 @@ without live markers after the home-services slice:
 - FRONTEND_BACKEND_MAPPING.md was regenerated from source in the
   triage slice (44 wired cases, 138 unwired occurrences) and
   already agrees with this baseline.
+
+## Property detail rendering (expanded brief, Priority 1, 2026-10-29)
+
+### What was built
+- Live detail renderer in assets/js/groups/engine.js, guarded by
+  #pp-live-property on sections/property-engine/property-details.html
+  (container inserted first in <main>): reads ?property_id= (or
+  ?id=), fetches GET /api/properties/:id, and renders title, price,
+  type/city/locality, specs (beds/baths/area/facing/furnishing/
+  possession), status, description, amenities and URL images above
+  the untouched demo content. No id -> honest "select a property"
+  notice; missing/unpublished -> 404 notice, never demo data
+  presented as the property.
+- Action links on the detail page (Contact Owner/Agent, Make Enquiry,
+  Request Callback, Request Site Visit) gain ?property_id= at
+  runtime, so the already-wired enquiry flows open with context.
+  The Report link is deliberately left alone: reports are tickets
+  without a property link, and appending an id would imply one.
+- Save button on the detail render uses the existing POST/DELETE
+  /api/properties/:id/save endpoints (login required, said so).
+- Live cards now link to the detail page too: search-results cards,
+  buyer saved/recently-viewed cards and investor saved/recent
+  cards each gained a "View Details -> property-details.html
+  ?property_id=" link beside Enquire. This resolves the live-card
+  half of the buyer/investor View Details group; demo cards stay
+  demo (no record IDs exist for them).
+
+### Deliberately not built here
+- Price history rendering (needs the price-history domain, Phase P
+  Priority 3) and property verification badges (no verification
+  column exists) — the renderer shows no invented badge or history.
+- Per-property rendering for sibling engine pages (amenities,
+  photos, video, documents...): they have no property context and
+  are generic pages; only the detail page carries ?property_id=.
+
+### Verified
+- No new server surface: the detail, save and saved-list endpoints
+  already existed and were already tested. Client code
+  `node --check` PASS; build idempotent (88 pages updated).
+- Live flow on a fresh database (port 8965, temp DB deleted
+  afterwards): create 201 -> draft 404 anonymous / 200 owner ->
+  image 201 -> admin publish 200 -> detail 200 with amenities +
+  images -> buyer save 201 -> saved list contains it -> missing
+  id 404.
+- Backup before this change:
+  ~/workspace/primepropertys-backup-detail/.
