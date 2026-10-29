@@ -156,11 +156,6 @@ textarea{min-height:120px}
   .grid-5,.grid-4,.grid-8,.grid-3,.grid-2,.form-row{grid-template-columns:1fr}
   .footer-grid{grid-template-columns:1fr}
   .hero-img img{height:260px}
-  /* Priority 4 responsive tables: admin/CRM tables (.tbl) previously
-     overflowed the viewport on narrow screens with no scroll affordance.
-     Scrolling the table itself keeps columns readable without hiding
-     data or changing the desktop layout. */
-  .tbl{display:block;overflow-x:auto;max-width:100%}
 }
 .portal{display:grid;grid-template-columns:250px 1fr;align-items:start}
 .sidebar{background:#0A2240;color:#CBD5E1;padding:18px 0 28px;position:sticky;top:64px;min-height:calc(100vh - 64px)}
@@ -199,26 +194,14 @@ th{color:#0A2240;white-space:nowrap}
 <div class="portal"><aside class="sidebar"><h4>Manager / Staff</h4><a href="index.html">📋 All Pages</a><a href="manager-dashboard.html">Manager Dashboard</a><a href="assigned-tasks.html">Assigned Tasks</a><a href="assigned-leads.html">Assigned Leads</a><a href="property-queue.html">Property Queue</a><a href="verification-queue.html">Verification Queue</a><a href="approval-queue.html">Approval Queue</a><a href="site-visit-queue.html">Site Visit Queue</a><a href="follow-up-queue.html">Follow-up Queue</a><a href="team.html">Team</a><a href="agent-performance.html">Agent Performance</a><a href="reports.html">Reports</a><a href="notifications.html">Notifications</a><a href="tasks.html" class="active">Tasks</a><a href="activity.html">Activity</a><a href="profile.html">Profile</a><a href="security.html">Security</a><div style="padding:18px 20px"><div class="card" style="background:#0E2F56;border-color:#1E3A5F;color:#CBD5E1"><h4 style="padding:0">Need Help?</h4><p style="color:#CBD5E1">Contact Support<br>+91 98765 43210</p><a class="btn small" href="../../help-center.html">Help Center</a></div></div></aside>
 <main id="main-content" tabindex="-1" class="portal-main"><div class="portal-head"><div><p class="breadcrumb"><a href="../../index.html">Home</a> &gt; Manager / Staff &gt; Tasks</p><h1>Tasks</h1><p>All tasks for the manager and team, with status tracking.</p></div></div>
 <div class="table-wrap"><table><thead><tr><th>Task</th><th>Assigned To</th><th>Priority</th><th>Due</th><th>Status</th></tr></thead><tbody><tr class="filter-row"><td>Follow up with Prakash</td><td>Priya Singh</td><td>High</td><td>24 Aug 2025</td><td>Open</td></tr><tr class="filter-row"><td>Call new leads (10)</td><td>Amit Kumar</td><td>Medium</td><td>24 Aug 2025</td><td>Open</td></tr><tr class="filter-row"><td>Review property documents</td><td>Neha Sharma</td><td>Medium</td><td>24 Aug 2025</td><td>In Progress</td></tr><tr class="filter-row"><td>Prepare weekly report</td><td>Rohit Sharma</td><td>Low</td><td>25 Aug 2025</td><td>Scheduled</td></tr></tbody></table></div><form data-backend="not-connected"><label>Task Title</label><input type="text" placeholder="Task title" name="task-title" aria-label="Task title"><label>Assign To</label><select name="field" aria-label="Field"><option>Team member</option><option>Option 1</option><option>Option 2</option></select><div style="margin-top:16px"><button class="btn" type="submit">Create Task</button></div><div class="form-success">Saved successfully. This is a front-end demo — nothing is sent to a server.</div></form>
-<div id="pp-staff-tasks"><p>Live tasks load ho rahe hain (login zaroori hai)…</p></div>
 </main></div>
 <footer class="site-footer"><div class="container footer-grid"><div><h4>PrimePropertys</h4><p>India's trusted real estate platform for builders, managers, buyers and owners.</p></div><div><h4>Portal</h4><p><a href="index.html">All Pages</a><br><a href="../../index.html">Public Website</a><br><a href="../../sitemap.html">Sitemap</a></p></div><div><h4>Support</h4><p><a href="../../help-center.html">Help Center</a><br><a href="../../faq.html">FAQs</a><br><a href="../../contact.html">Contact Us</a></p></div></div><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with love in India</span></div></footer>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   // Mobile nav
-  // Priority 4 accessibility: the toggle now exposes its state, so
-  // assistive tech can tell whether the menu is open. Previously it
-  // was only aria-label="Menu" with no expanded state.
   var toggle = document.querySelector('.nav-toggle');
   var nav = document.querySelector('.main-nav');
-  if (toggle && nav) {
-    if (!nav.id) nav.id = 'main-nav';
-    toggle.setAttribute('aria-controls', nav.id);
-    toggle.setAttribute('aria-expanded', 'false');
-    toggle.addEventListener('click', function () {
-      var open = nav.classList.toggle('open');
-      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
-  }
+  if (toggle && nav) toggle.addEventListener('click', function () { nav.classList.toggle('open'); });
 
   // Active nav link
   var here = window.location.pathname.split('/').pop() || 'index.html';
@@ -387,24 +370,6 @@ document.addEventListener('DOMContentLoaded', function () {
   window.PP.submitContact = function (fields) { return post('/api/contact', fields); };
   window.PP.savedList = function () { return get('/api/saved'); };
   window.PP.notifications = function () { return get('/api/notifications'); };
-  /* Priority 2 helpers (same honest-request pattern as above). */
-  window.PP.listBuilderProjects = function (params) { return get('/api/builder-projects' + (params ? '?' + params : '')); };
-  window.PP.listReviews = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/reviews'); };
-  window.PP.listTasks = function (params) { return get('/api/tasks' + (params ? '?' + params : '')); };
-  window.PP.listPlans = function () { return get('/api/subscription-plans'); };
-  window.PP.mySubscriptions = function () { return get('/api/subscriptions/mine'); };
-  window.PP.entitlement = function () { return get('/api/subscriptions/entitlement'); };
-  window.PP.listConversations = function () { return get('/api/conversations'); };
-  window.PP.listCustomRoles = function () { return get('/api/custom-roles'); };
-  window.PP.listAuditLog = function () { return get('/api/admin-audit-log'); };
-  /* Priority 3 helpers (same honest-request pattern as above). */
-  window.PP.analyticsSummary = function () { return get('/api/analytics/summary'); };
-  window.PP.listSavedSearches = function () { return get('/api/saved-searches'); };
-  window.PP.listSearchAlerts = function () { return get('/api/search-alerts'); };
-  window.PP.listPriceHistory = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/price-history'); };
-  window.PP.recommendations = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/recommendations'); };
-  window.PP.aiGenerations = function () { return get('/api/ai/generations'); };
-  window.PP.aiGenerate = function (fields) { return post('/api/ai/generate', fields); };
 })();
 document.addEventListener('DOMContentLoaded', function () {
   /* Role dashboards, relative to the site root (login/register pages
@@ -450,13 +415,7 @@ document.addEventListener('DOMContentLoaded', function () {
       form.appendChild(box);
     }
     box.textContent = text;
-    // Priority 4 accessibility: errors are announced (role=alert) and
-    // success is a live status, so screen-reader users get the same
-    // result sighted users see. Colours are the dark variants: the old
-    // #f87171/#4ade80 measured 2.77:1 / 1.74:1 on white (WCAG AA fail);
-    // #B91C1C/#166534 measure 6.47:1 / 7.13:1 on white.
-    box.setAttribute('role', isError ? 'alert' : 'status');
-    box.style.color = isError ? '#B91C1C' : '#166534';
+    box.style.color = isError ? '#f87171' : '#4ade80';
     return box;
   }
   function field(form, name) {
@@ -1282,10 +1241,42 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       return;
     }
-    if (form.getAttribute('data-api') === 'wizard-upload-notice') {
+    /* Phase E: real binary upload. Multipart via FormData (PP.request
+       is JSON-only, so this case uses raw fetch). Property id comes
+       from ?property_id=, else the wizard draft id in sessionStorage
+       (pp-wizard-draft). Same-origin only: on GitHub Pages the fetch
+       fails honestly and the input is kept. Server re-validates
+       everything (magic bytes, size); the client checks below are
+       UX only. Success dispatches pp-upload-done so list renderers
+       refresh without a reload. */
+    if (form.getAttribute('data-api') === 'property-upload') {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
-        showNote(form, 'Photo/document upload abhi implement nahi hai — binary upload ke liye backend support chahiye. Draft banne ke baad Edit Property se image URLs add ki ja sakti hain.', true);
+        var fileInput = form.querySelector('input[type="file"]');
+        var file = fileInput && fileInput.files && fileInput.files[0];
+        if (!file) { showNote(form, 'Pehle ek file chunein.', true); return; }
+        var kind = form.getAttribute('data-kind') || 'image';
+        var maxMB = kind === 'document' ? 25 : 10;
+        if (file.size > maxMB * 1024 * 1024) { showNote(form, 'File bahut badi hai — ' + maxMB + ' MB se kam honi chahiye.', true); return; }
+        var params = new URLSearchParams(window.location.search);
+        var propId = params.get('property_id') || '';
+        if (!propId) { try { propId = window.sessionStorage.getItem('pp-wizard-draft') || ''; } catch (err) { propId = ''; } }
+        if (!propId) { showNote(form, 'Pehle property draft banayein (description step tak jayein) ya URL me ?property_id= ke saath kholein.', true); return; }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        fetch('/api/properties/' + encodeURIComponent(propId) + '/uploads', { method: 'POST', credentials: 'same-origin', body: new FormData(form) }).then(function (res) {
+          return res.text().then(function (text) {
+            var data = null; try { data = text ? JSON.parse(text) : null; } catch (err) { data = null; }
+            if (btn) btn.disabled = false;
+            if (!res.ok) { showNote(form, (data && data.error && data.error.message) || 'Upload nahi ho pa raha hai.', true); return; }
+            showSuccess(form, 'Upload ho gaya: ' + ((data && data.original_filename) || file.name) + '.');
+            form.reset();
+            document.dispatchEvent(new CustomEvent('pp-upload-done', { detail: { propertyId: propId } }));
+          });
+        }).catch(function () {
+          if (btn) btn.disabled = false;
+          showNote(form, 'Server se connect nahi ho pa raha hai. Please try again later.', true);
+        });
       });
       return;
     }
@@ -1598,61 +1589,5 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
   });
-});
-
-/* Priority 2 — live builder projects + staff tasks (guarded containers).
-   My Projects shows the logged-in builder's own projects; staff tasks
-   show tasks visible to the logged-in user. Demo rows stay untouched
-   below; these live lists are the real data. */
-document.addEventListener('DOMContentLoaded', function () {
-  if (!window.PP || !window.PP.me) return;
-  function card(title, meta) {
-    var c = document.createElement('div');
-    c.className = 'card';
-    c.setAttribute('style', 'padding:12px;margin:10px 0');
-    var t = document.createElement('strong');
-    t.textContent = title;
-    c.appendChild(t);
-    var p = document.createElement('p');
-    p.textContent = meta;
-    c.appendChild(p);
-    return c;
-  }
-  var proj = document.getElementById('pp-builder-projects');
-  if (proj) {
-    window.PP.me().then(function (m) {
-      if (!m.ok || !m.data || !m.data.user) { proj.textContent = 'Apne projects dekhne ke liye login karein.'; return; }
-      window.PP.listBuilderProjects('mine=1&limit=100').then(function (r) {
-        proj.textContent = '';
-        if (!r.ok) { proj.textContent = 'Projects load nahi ho pa rahe hain.'; return; }
-        var items = (r.data && r.data.data) || [];
-        var h = document.createElement('h3');
-        h.textContent = 'Your Projects (live): ' + items.length;
-        proj.appendChild(h);
-        if (!items.length) { proj.appendChild(document.createTextNode('No projects yet.')); return; }
-        items.forEach(function (p) {
-          proj.appendChild(card(p.name, (p.city || '') + ' • ' + (p.project_type || '') + ' • Status: ' + p.status + ' • Units: ' + ((p.unit_counts && p.unit_counts.total) || 0)));
-        });
-      });
-    });
-  }
-  var tasks = document.getElementById('pp-staff-tasks');
-  if (tasks) {
-    window.PP.me().then(function (m) {
-      if (!m.ok || !m.data || !m.data.user) { tasks.textContent = 'Tasks dekhne ke liye login karein.'; return; }
-      window.PP.listTasks('limit=100').then(function (r) {
-        tasks.textContent = '';
-        if (!r.ok) { tasks.textContent = 'Tasks load nahi ho pa rahi hain.'; return; }
-        var items = (r.data && r.data.data) || [];
-        var h = document.createElement('h3');
-        h.textContent = 'Your Tasks (live): ' + items.length;
-        tasks.appendChild(h);
-        if (!items.length) { tasks.appendChild(document.createTextNode('No tasks assigned to you.')); return; }
-        items.forEach(function (t) {
-          tasks.appendChild(card(t.title, 'Status: ' + t.status + ' • Priority: ' + t.priority + (t.due_date ? ' • Due: ' + t.due_date : '')));
-        });
-      });
-    });
-  }
 });
 </script></body></html>
