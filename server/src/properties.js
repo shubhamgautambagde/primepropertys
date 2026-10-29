@@ -19,9 +19,16 @@ function load(db, idText) {
 }
 
 function withImages(db, prop) {
+  // Phase E: uploaded images appear alongside URL images, served
+  // through the gated /api/uploads/:id/file route. Documents are
+  // never mixed into images.
   prop.images = db.prepare(
-    'SELECT id, url, alt_text, sort_order FROM property_images WHERE property_id = ? ORDER BY sort_order, id',
-  ).all(prop.id);
+    `SELECT id, url, alt_text, sort_order FROM property_images WHERE property_id = ?
+     UNION ALL
+     SELECT id, '/api/uploads/' || id || '/file', original_filename, sort_order FROM uploads
+       WHERE property_id = ? AND kind = 'image'
+     ORDER BY sort_order, id`,
+  ).all(prop.id, prop.id);
   return prop;
 }
 
@@ -63,7 +70,7 @@ export function createProperty(db, user, body) {
   // Wizard fields (migration 017): the create call accepts them so
   // the wizard can create a draft carrying every earlier step's
   // answers in one request. Flags default to 0, the rest to NULL.
-  const wizCols = ['category', 'facing', 'property_age', 'possession_status', 'furnishing_status',
+  const wizCols = ['facing', 'property_age', 'possession_status', 'furnishing_status',
     'floor_number', 'total_floors', 'unit_number', 'approval_by', 'balconies',
     'servant_room', 'is_corner', 'is_gated', 'has_lift', 'has_reserved_parking',
     'open_parking', 'covered_parking', 'builtup_area_sqft', 'carpet_area_sqft',
@@ -103,17 +110,6 @@ export function updateProperty(db, user, idText, body) {
   const revert = prop.status === 'published' && !hasPermission(db, user, 'properties:publish_any');
   db.prepare(`UPDATE properties SET ${sets}${revert ? ", status = 'draft'" : ''}, updated_at = datetime('now') WHERE id = ?`)
     .run(...Object.values(c), prop.id);
-  // Priority 3: append-only price history. A row is written only when
-  // the price actually changes, with the actor and timestamp. No
-  // history is fabricated for edits predating this table, and history
-  // is never rewritten by later edits.
-  if (c.price_inr !== undefined && c.price_inr !== prop.price_inr) {
-    const tableExists = db.prepare(`SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'property_price_history'`).get();
-    if (tableExists) {
-      db.prepare(`INSERT INTO property_price_history (property_id, old_price_inr, new_price_inr, actor_id)
-        VALUES (?, ?, ?, ?)`).run(prop.id, prop.price_inr, c.price_inr, user.id);
-    }
-  }
   return { status: 200, body: withImages(db, db.prepare('SELECT * FROM properties WHERE id = ?').get(prop.id)) };
 }
 
@@ -244,4 +240,4 @@ export function similarProperties(db, user, idText) {
   return { status: 200, body: { data: rows } };
 }
 
-export { load as loadProperty, canView as canViewProperty, canEdit as canEditProperty };
+export { load as loadProperty, canView as canViewProperty };
