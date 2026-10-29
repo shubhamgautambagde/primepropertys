@@ -1,75 +1,119 @@
-# FEATURE GAP ANALYSIS — PrimePropertys (Phase A)
+# FEATURE GAP ANALYSIS — PrimePropertys (2026-10-28)
 
-Rule used: a feature "exists" only if a table + route + test exist. A page alone is
-not a feature. All "absent" verdicts below were checked by grepping `server/src/`
-and `server/migrations/` for the domain's tables/routes.
+Method: every brief phase (A–V) checked against the shipped code
+(migrations 001–017, 59 tests, audit 187). Status: DONE (shipped and
+tested), PARTIAL (some endpoints/pages live, some missing),
+MISSING (no domain), BLOCKED (needs a credential, provider, or
+product decision — never invented).
 
-## 1. Exists and tested (do not rebuild)
+## DONE
 
-Auth + roles (9 roles, 15 permissions, seeded), property CRUD + draft→publish approval
-+ soft delete + images-as-URLs + save/recent/similar, public search (limited filters,
-see BUG-009), enquiries→leads pipeline with assignment/notes/follow-ups/tags/scores/SLA/
-stats/CSV export, in-app notifications (read-only except mark-read), site visits
-(request/assign/schedule/complete/feedback/stats/analytics), support tickets + replies,
-service requests, contact inbox, newsletter subscribe/unsubscribe, offline/manual
-payments + billing profile + refund requests, campaigns + message templates + queued
-(not sent) messages, site settings (4 keys), user admin list/detail/PATCH, wizard
-draft flow (sessionStorage until description, then PATCH accumulation).
+- Audit + bug fixing (Stages A–C): shared CSS/JS, build.py, 1,495 →
+  187 audit entries, 0 broken links.
+- Auth + RBAC (Stage E): 9 roles, 15+ permissions, scrypt, throttling,
+  token-hash sessions, reset (1h) + verification (24h) tokens.
+- Property management core (Stage F + wizard): create/edit/draft/
+  publish/unpublish/soft-delete, save, recently viewed, similar,
+  sort, wizard draft flow (51 columns), duplicate check, completeness
+  score. Missing pieces are listed under PARTIAL, not here.
+- Leads + CRM (Stage G + phases 1–6): inquiries, transitions, assign,
+  notes, follow-ups, CSV export, tags, scoring, SLA, stats, timeline.
+- Site visits, tickets, services, portal lists, newsletter,
+  payments (offline records), campaigns + templates + queued
+  messages, settings (4-key allowlist), admin user tables + user edit.
+- SEO basics (Stage I): sitemap (105 URLs), robots, canonical + OG.
+- Performance + security basics (Stage I): gzip, security headers,
+  indexes, DOM-based rendering (no user-data innerHTML).
+- Accessibility basics (Stage I): aria labels, skip links,
+  focus-visible, AA-passing brand contrast (measured, not changed).
 
-## 2. Missing domains (spec §9–§19 vs reality)
+## PARTIAL (shipped part works; rest is a gap)
 
-| Spec domain | Server today | Frontend pages (unwired) | Blocking reason |
-|---|---|---|---|
-| Builder Projects / Towers / Units / Milestones / Offers / Project CRM | None. No projects table. `project_name` is only a text column on properties. | builder-portal: add-project1/2, construction-progress, floor-plans, project-crm2, project-location, project-offers, project-videos, unit-details (14 forms) | New domain + migration + APIs + tests. No credential blocker; needs the data model decision (towers vs flat unit list). |
-| Reviews + moderation + aggregation | None. Visit feedback (rating 1–5 on a visit) is the only rating in the system, and it is not a property review. | property-engine/property-reviews, buyer-portal/reviews (demo "4.6/5") | New domain. Decision: who may review (verified visit/transaction only?) and moderation policy. |
-| Staff Tasks | None. Lead follow-ups exist but are lead-linked, not general tasks. | manager-staff/tasks, assigned-tasks (3 forms) | New domain. No credential blocker. |
-| Advanced RBAC: custom roles, matrix, overrides, scoped/temp permissions | Fixed roles + 15 permissions in 002_auth.sql seed. No roles table, no editor endpoint. | super-admin create-role/edit-role/roles/permission-matrix/overrides/scope/permissions, security-center permission-changes (9 forms) | New domain + migration of role_permissions to a roles table. Decision: migrate existing assignments or keep seed roles as built-ins. |
-| Real Subscriptions + billing | No plan catalog, no subscription records, no entitlement checks. Payments checkout sells "PRO plan yearly" as a pending record only. | subscription cancel/downgrade/upgrade/checkout (4), owner listing-credits | **Credential + product decision**: plan catalog (prices, listing limits, credits) AND a payment provider in test mode (see §4). Never activate paid entitlements without verified webhooks. |
-| Coupons / Promotions / Boosts / Featured | None. Campaigns (marketing spend records) are a different domain. | marketing coupons, featured-property, property-boost (3) | New domain; depends on the subscription catalog for eligible plans. |
-| User-to-User Chat | None. `queued_messages` is an SMS/WhatsApp queue, not conversations; there is no conversation/message table, no membership check, no unread-count write path. | communication chat/messages, agent/owner messages, push-notifications, communication-preferences (4) | New domain. Decision: in-app chat only, or also bridge to WhatsApp (provider needed for the latter). |
-| AI Assistants (12 listed in spec) | None. No provider, no key handling, no usage table. | ai-intelligence all 14 pages, 13 forms | **Credential**: an AI provider + server-side key + usage limits. Until then the honest state is "unavailable", never a simulated answer. |
-| Analytics / Reporting | Only visits analytics + lead stats/SLA/scores. No event table (property views are stored per user, not as an analytics event stream), no exports except leads CSV. | analytics all 18 pages, 17 forms | New domain (events table + aggregation). Decision: which metrics are contractual vs informational; retention period. |
-| SEO Management | Static only: build.py injects canonical + OG from page title/meta description; sitemap.xml has 105/653 URLs; robots.txt is static. No SEO records, no redirect table, no crawler. | seo all 24 pages, 14 forms | New domain + crawler/analyser. Decision: canonical domain (github.io vs primepropertys.in). |
-| Search Alerts | None. | property-search/search-alerts (1) | New domain (saved search + alert dispatch needs an email provider for delivery; in-app alerts alone are possible without one). |
-| Price History | None. Properties table has a single current price; no history table, and PATCH overwrites it. | property-engine/property-price-history (1) | New domain (append-only price_events on PATCH). No credential blocker. |
-| Property Verification (beyond publish) | Publish approval (`properties:publish_any`) exists; there is no separate verification status, document check, or verifier field. | property-engine/property-verification, owner/builder/buyer verification pages | New workflow + document upload (blocked on Phase E binary upload for document evidence). |
-| Profiles (bio/city/etc.) | users: email, password_hash, full_name, phone, role, status, email_verified_at. Nothing else. | agent/owner/builder/manager/buyer profile forms | New columns + endpoint. No credential blocker. |
-| Notification Preferences / Push | No prefs store; notifications are lead-scoped in-app rows. | communication-preferences, push-notifications, privacy-settings | New domain; push needs a provider (VAPID/web-push keys) — credential decision. |
-| Form Builder storage | None. | form-builder create-form/form-editor/submission-details/validation-rules (5) | New domain. |
-| Visit Reminders | None (follow-ups are lead-linked). | site-visit/visit-reminder (1) | New domain or extend follow-ups with a visit link. Decision: reminder channel (in-app only vs email/SMS provider). |
-| Account Deletion | No endpoint, no retention workflow. | buyer-portal/delete-account (1) | **Explicit user decision required** (retention, anonymisation, what happens to listings/leads). Never autopilot. |
+- **Property detail rendering:** search-results cards link to the
+  wired enquiry flow, and saved/recently-viewed render live — but
+  no live property-detail page renderer exists, so demo-card View
+  Details links cannot point at real records yet.
+- **Property search:** city/type/listing_type/price + client-side
+  bedrooms/possession/area filters work; amenities, possession-date,
+  verified-only, builder-project, saved-search and alert filters do
+  not exist as data filters.
+- **Payments:** full offline/manual record domain (pending → verified
+  / rejected / refund flow, billing profiles, invoices derived from
+  records). No gateway, no webhooks, no entitlement activation.
+- **Campaigns:** ad-campaign CRUD + status flow + templates + queued
+  SMS/WhatsApp. No ad-platform metrics (no platform connected) and
+  no delivery.
+- **Notifications:** in-app DB rows only. No preferences store, no
+  mark-all-read write endpoint, no email/SMS/WhatsApp/push delivery.
+- **Settings:** the 4-field settings row only; per-page titles
+  (SMTP, API, OTP, 2FA…) have no fields and no provider backing.
+- **Visits analytics:** computed from visits only (no by-source).
+- **SEO:** static sitemap/robots/meta only; no metadata records,
+  redirects store, crawler, or audit history.
 
-## 3. Partially present — do not mistake for complete
+## MISSING (no domain — brief Phases E–V, Priority 2–3)
 
-- **Property search**: city/type/listing_type/price/sort work server-side; bedrooms, area,
-  possession, amenities, locality, verified-only, builder filters do not (BUG-009).
-- **Property detail rendering**: exists as an API (GET /api/properties/:id + images),
-  but no page renders it (BUG-008). Saved/recent/search-results render live; detail does not.
-- **Payments**: record-keeping only (BUG-013). **Campaigns**: records only, no delivery
-  (BUG-014). **Settings**: 4 keys only; every other settings page (AI keys, payment keys,
-  SMTP, OTP) is a form that the allowlist will refuse with 400 — by design, but the UI
-  does not always say that before submit.
-- **Wizard**: draft creation + step PATCH + quality/duplicate (client-side over own
-  listings) + verification (client-side) + submit (stays draft) all work; uploads,
-  category persistence, and pre-description persistence do not (BUG-010/011/012).
-- **Notifications**: in-app rows + mark-one-read exist; mark-all-read, preferences,
-  and any external delivery do not.
+- **Phase E (Priority 1):** binary image/document upload — the
+  single largest Priority-1 gap. URL references only today.
+- **Phase F:** builder projects, towers, units, milestones, offers,
+  project enquiries/CRM.
+- **Phase G:** reviews + moderation + reporting + aggregation.
+- **Phase H:** staff tasks (creation, assignment, comments,
+  reminders, overdue alerts, reporting).
+- **Phase I:** subscription catalog, plans, credits, renewals,
+  upgrade/downgrade, expiration, entitlement checks.
+- **Phase J:** coupons, discount rules, boosts, featured packages,
+  promotion purchase history.
+- **Phase K:** AI assistants (all 12 listed) — no provider, no
+  abstraction yet. Must ship with an honest unavailable state.
+- **Phase L:** analytics from real events — property views are
+  counted (property_views table) but no event pipeline, exports,
+  scheduled reports, or revenue/promotion reporting.
+- **Phase M:** user-to-user chat (dedicated model), conversation
+  lists, unread counts, visit/follow-up reminders, delivery status.
+- **Phase N:** custom roles, permission matrix/overrides/scope,
+  temporary permissions, admin audit log, login activity, session
+  revocation UI, 2FA, suspicious-login alerts, account-deletion
+  workflow, privacy preferences. (Account suspension exists as a
+  user status; the rest does not.)
+- **Phase O:** SEO management system (metadata records, redirects,
+  crawler/analyzer, audit history, indexing status).
+- **Phase P:** saved searches, search alerts, recommendations
+  engine, map search (no coordinates exist — never invent them).
+- **Phase Q:** beyond gzip/headers/indexes: no asset versioning,
+  lazy loading, responsive images, or measured before/after
+  performance report.
+- **Phase R:** all external providers (email, SMS, WhatsApp, payment
+  gateway, AI) — configuration documented, none connected.
+- **Phase S:** beyond the automated checks: no manual screen-reader
+  or keyboard walkthrough, no device testing record.
+- **Phase T:** no browser-automation (Playwright) journeys yet;
+  journeys 1–12 are partially covered by API tests, not browser runs.
+- **Phase U/V:** this document + PRODUCTION_READINESS.md close the
+  documentation gap; production verification itself is blocked on
+  the hosting decision.
 
-## 4. External-provider gaps (all need a credential or a decision, none exist today)
+## BLOCKED (needs a decision or credential — do not invent)
 
-Email (transactional, reset, verification, receipts, enquiry notices): no provider;
-`EMAIL_BACKEND=console` (log) or anything else → 503. SMS: none. WhatsApp Business:
-none (no number policy either — BUG-027). Payment gateway: none. AI provider: none.
-Push: none. Maps: none (no coordinates stored; never invent them). PDF generation:
-none (Download Plan PDF links are dead). Malware scanning for uploads: not applicable
-until uploads exist; document the choice when Phase E lands.
+- Live payment gateway (provider + keys + webhook secret).
+- Email/SMS/WhatsApp providers (keys + sender identities).
+- AI provider (key + model choice).
+- WhatsApp per-listing number policy (privacy decision).
+- Hosting: Node vs PHP-only port.
+- Account deletion policy (confirmation + retention rules).
+- Plan catalog prices/rules (subscription domain input).
 
-## 5. What the spec asks for that this audit recommends NOT building as specified
+## Priority order (brief §26, applied)
 
-- "AI Property Valuation" as an official figure: build only as a clearly-labelled
-  estimate with human review, never as a valuation (spec §14 already requires this).
-- "Download all listings to the browser" search: explicitly rejected by spec §19;
-  server filtering (BUG-009) is the fix, not a bigger client fetch.
-- Any feature that would require inventing listings, reviews, ratings, revenue,
-  impressions or locations: refused by the spec's own non-negotiables and by this audit.
-  Demo rows must be labelled or replaced, never presented as data.
+1. Remaining critical forms + detail rendering + browser journeys,
+   then binary uploads (Phase E).
+2. Projects, reviews, tasks, custom roles, subscriptions, coupons,
+   notification preferences, chat.
+3. AI, analytics, SEO management, search alerts, price history,
+   reminders, reports.
+4. Performance, accessibility, provider integrations, backup/
+   recovery, production verification.
+
+Detail per remaining form/link: TRIAGE.md. Counts: audit 187
+(132 form files, 52 link files), not-connected occurrences 138,
+href="#" occurrences 186, tests 59/59 — all recounted 2026-10-28.

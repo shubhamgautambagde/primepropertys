@@ -1753,245 +1753,37 @@ without live markers after the home-services slice:
 - Backup before this change:
   `~/workspace/primepropertys-backup-triage/`.
 
-## Priority 1 — Module 1: Documentation reconciliation (2026-10-28)
+## Expanded brief, Phase A baseline (2026-10-29)
 
-Working copy only; no push, no deploy. Backup: `~/workspace/primepropertys-audit/primepropertys-backup-2026-10-28`.
-- README.md: "54 tests" → 59 (verified by `npm test`, 59/59 before this change); "263 not-connected forms" → 138 (verified by grep over all 653 pages); Option 2 path corrected to the site root (no `primepropertys-website/` directory exists); structure tree corrected to the site root.
-- ACCESSIBILITY.md: "652 pages" → 653 (verified by file walk).
-- DEPLOYMENT.md: "48/48 tests" → 59/59; "652 pages" → 653; the inconsistent "339 vs 341 audit entries" figures removed and replaced with a pointer to SOURCE_CODE_AUDIT.md, with the older breakdown explicitly labelled superseded (Phase A recount: 138 not-connected forms, 186 `href="#"` occurrences).
-- FRONTEND_BACKEND_MAPPING.md: endpoint column corrected from FRONTEND_BACKEND_MAPPING_AUDIT.md (BUG-004) for login, register, inquiry, contact, wizard-step, wizard-edit, wizard-upload-notice, service-track, campaign-filter, wizard-choice. Page counts in §1 were re-verified as distinct-file counts (every row matches a fresh distinct-file recount); they differ from occurrence counts (newsletter 105 files / 106 forms, settings 34 files / 62 forms, wizard-step 32 files / 46 forms) because a page can carry more than one form of the same type — the audit file's occurrence numbers were not copied over the file counts.
-- No `data-backend="not-connected"` marker was deleted or changed.
+### Baseline recount (brief §2 numbers verified, not assumed)
+- Tests: 59/59 pass. Audit: 187 entries (132 form files, 52
+  placeholder-link files, 3 others), 0 broken links.
+- Raw markers: data-backend="not-connected" 138 occurrences,
+  href="#" 186 occurrences — exactly the brief's stated counts.
+- Inventory files: 765 (was 764; +1 from the triage docs).
 
-## Priority 1 — Module 2: Security defaults (2026-10-28)
+### New Phase A documents
+- SECURITY_AUDIT.md: verified controls (scrypt, token-hash sessions,
+  HttpOnly+SameSite=Lax cookie with opt-in Secure flag, login
+  throttling, public-submit rate limits, permission gates with
+  404-not-403 visibility, parameterized SQL, DOM-based rendering
+  with zero user-data innerHTML, security headers/CSP, settings
+  allowlist) and 8 open gaps (CSRF, Secure-by-default, upload
+  validation, admin audit log, 2FA, deletion workflow, email
+  provider, global session revocation).
+- PRODUCTION_READINESS.md: verdict NOT production-ready, with a
+  10-item blocker list and a launch-time operational checklist.
+- FEATURE_GAP_ANALYSIS.md: every brief phase A–V mapped to
+  DONE / PARTIAL / MISSING / BLOCKED, with the brief priority order
+  applied. TRIAGE.md remains the per-form/per-link detail.
+- FILE_INVENTORY.json regenerated from the current tree
+  (audit-dir artifact, not site content).
 
-- Session cookie (`server/src/auth.js`, `server/src/server.js`): `Secure` is now set when the request arrived over TLS, when `X-Forwarded-Proto: https` is present, or when `SESSION_COOKIE_SECURE=1` / `FORCE_HTTPS=1` is set. Plain-HTTP local development still works (no `Secure` flag, login verified). Logout clears with the same flag.
-- Token logging (`server/src/server.js`): password-reset and email-verification tokens are printed to the server log ONLY when `EMAIL_BACKEND=console` AND (`NODE_ENV=development` OR `PP_DEV_CONSOLE_EMAIL=1`). In default mode both endpoints answer 503 `EMAIL_NOT_CONFIGURED` and issue no token to any log (verified: default log contains no "password reset for" / "token="; dev log token was used to reset and log in).
-- CSRF (`server/src/server.js`): cookie-authenticated POST/PATCH/PUT/DELETE requests with an `Origin` or `Referer` host that does not match the request host are rejected with 403 `CSRF_FORBIDDEN`. Same-origin browser requests pass; requests with neither header (curl, test clients) are allowed. GET is excluded on purpose (email-verification link). Limitation: a login-CSRF attempt with no prior session cookie is not covered by this check, because it is not a cookie-authenticated request.
-- Rate limits (`server/src/auth.js`, `server/src/server.js`): all write endpoints now have a limit. New: register 30/hour/IP, password-reset requests 10/hour/IP+email, verification requests 30/hour/user, newsletter unsubscribe 30/hour/IP, all other writes 300/hour per user (or per IP when anonymous) per route group. Existing stricter limiters (login, inquiries, contact, newsletter subscribe) are unchanged and are not double-counted. All buckets are in-memory and single-instance only (lost on restart; a multi-process deployment needs a shared store) — documented in server/README.md.
-- Docs: server/README.md environment/CSRF/rate-limit sections and DEPLOYMENT.md security notes updated to match the new behaviour.
-- Tests: new `server/test/security-p1.js` (4 tests, ports 8962–8966) covering Secure flag on/off, CSRF reject/allow/no-origin, register rate-limit trip at the 31st attempt, and token-log gating in both modes. Added to `package.json` test list.
-
-## Priority 1 — Module 3: Live property detail (2026-10-28)
-
-- `sections/property-engine/property-details.html`: added a `#pp-live-detail` container (notice + body) after the H1. No demo markup was deleted; the demo stays visible when no id is given or the fetch fails, with a notice saying so.
-- `assets/js/groups/engine.js`: new renderer (built into property-engine pages via `tools/build.py`, second run 0 changes). With `?property_id=<id>` it fetches `GET /api/properties/:id` and renders title, type, listing type, city/locality, price, BHK/bath/area/facing/furnishing/possession, description, amenities and images from the API, plus a Make Enquiry link carrying the same id. Published listings render publicly; a draft renders only for its owner / `properties:view_any` holder (the API already 404s everyone else, and the page says so). Missing, invalid and draft ids show a 404 notice and do not fabricate a listing. On a successful live render the demo preview siblings are hidden so the page does not show two listings.
-- View Details links now point to real ids where the row has one: live search-result cards (`assets/js/groups/search.js`), live saved/recent cards (`assets/js/groups/buyer.js`, both renderers) now include `property-details.html?property_id=<id>` alongside Enquire. Static demo cards (`href="#"`, no id in source) were NOT rewritten — they have no real id to point to, and guessing one would fabricate a link.
-- Tests: new `server/test/detail-p1.js` (2 tests, port 8967) — published detail public, draft/missing/invalid ids 404, and served detail/search/saved pages contain the live container / View Details link. Added to `package.json`.
-
-## Priority 1 — Module 4: Server-side search (2026-10-28)
-
-- `server/src/server.js` `listProperties`: added `bedrooms` (exact), `bedrooms_min`, `area_min`, `area_max`, `possession_status` and `locality` filters. Invalid numeric filters return 400 instead of being silently ignored. Existing city / property_type / listing_type / price / sort behaviour is unchanged. `pagination.total` is now the filtered count from `COUNT(*)` over the same WHERE clause (it already was, for the old filters; the fix is that the new filters are in that clause, so the total is no longer the client-filtered subset).
-- `server/migrations/018_search_filters_index.sql`: new index on `properties (status, bedrooms, area_sqft, possession_status)` for the new filters.
-- `assets/js/groups/search.js`: search-results now passes bedrooms / bedrooms_min / area / possession / locality through to the API and reports the API total. The old client-side filter over at most 100 rows (BUG-009/BUG-028) is removed. Build run twice, second run 0 changes.
-- Tests: new `server/test/search-p1.js` (3 tests, port 8968) — each new filter, combined filters, pagination total vs page size, invalid filters 400, existing city/price behaviour unchanged, and the served search page no longer contains the client-filter code. Added to `package.json`.
-
-## Priority 1 — Module 5: Wizard correctness (2026-10-28)
-
-- Decision (documented, not silent): unsupported choices are NOT remapped and the product enums are NOT extended. Extending them would require rebuilding the `properties` table because migration 001 puts `property_type` / `listing_type` in CHECK constraints — a product decision with data-migration risk, not a Priority 1 repair. Instead, the wizard now carries the user's actual choice and the server rejects it with an explicit error naming that choice (e.g. `listing_type 'lease' is not supported`, `property_type 'PG' is not supported`). Product decision still needed from the user: extend the enums via a table rebuild (then Lease/PG/Office/Shop/Warehouse become real listings) or remove/restrict those choice cards — until then those choices cannot create a draft.
-- Choice cards changed (page markup, not inlined JS): select-purpose Lease now carries `lease` (was `rent`); select-property-type PG/Office/Shop/Warehouse now carry `PG`/`Office`/`Shop`/`Warehouse` (were all `Commercial`). Both pages now carry a visible note saying those choices are not yet supported and will error at the description step instead of creating a draft under a different type.
-- Category persisted: new migration `019_property_category.sql` adds a nullable `category` column; `validate.js` restricts it to residential/commercial/land/project (bad values 400 with the value named); `properties.js` create now stores it (PATCH already went through validation, so it stores too).
-- SessionStorage-only early steps: NOT changed — a server draft still cannot exist before the description step because create requires title + property_type + listing_type + price + city, which only all exist then. The limitation is already stated honestly in `post-property.js`'s header, in the pre-draft notice inserted on step pages, and here; no server draft at step 1 was faked.
-- Tests: new `server/test/wizard-p1.js` (3 tests, port 8969) — all five unsupported choices 400 with the choice named and no draft created, category create/patch/bad-value, and served choice pages carry the real values. Added to `package.json`. Build: 0 pages changed (only server code + two page bodies, no shared JS body change beyond a stripped header comment).
-
-## Priority 1 — Module 6: Binary upload (Phase E, scoped) (2026-10-28)
-
-- Backend (`server/src/uploads.js`, migration `020_property_uploads.sql`): `POST /api/properties/:id/uploads` (multipart, one file per request), `GET /api/properties/:id/uploads`, `PATCH .../uploads/:uploadId` (sort_order), `DELETE .../uploads/:uploadId`, `GET /api/uploads/:id` (controlled download). Validation, all server-side: JPEG/PNG/WEBP/GIF/PDF by file signature only, declared MIME must match the signature, max 10 MB, empty files rejected, executable files rejected by signature (never by extension alone). Storage filenames are random 32-hex + validated extension; the user name is display-only and never a path. `UPLOAD_DIR` defaults to a sibling of the static root and uploads are refused with 500 `UPLOAD_DIR_UNSAFE` if it resolves inside the static root, so files cannot be fetched by guessing a static URL. Images also become `property_images` rows at `/api/uploads/:id` (public only when published, like other property data); documents are private — owner or `properties:view_any` only, even on published listings, served as attachments. Static serving now also refuses `/server/*` (source/data tree) with 404.
-- Not implemented / honestly left: malware scanning — no scanner exists in this environment, so none is claimed (signature/MIME/size/permission checks are the controls); external URLs are NOT accepted as a substitute for upload (URL images remain a separate, pre-existing feature, not a new upload path); wizard floor-plan, 360°, verification and report-screenshot upload buttons are still unwired and keep their honest notices.
-- Frontend: wizard Photos / Documents pickers (`assets/js/groups/post-property.js`, built into post-property pages) now upload real files one by one to the upload API when a draft exists, and say so when no draft exists. The old `wizard-upload-notice` form notices remain for the unwired steps.
-- Docs: server/README.md (Uploads section, `UPLOAD_DIR`, migrations 018–020) and DEPLOYMENT.md file-upload notes updated.
-- Tests: new `server/test/upload-p1.js` (4 tests, ports 8970–8971) — valid image stored/served/listed and shown in detail, invalid/MIME-mismatched/oversized/executable/unauthorised/anonymous rejected, documents private on a published listing, reorder/replace/delete, unsafe `UPLOAD_DIR` refused with 500, `/server/*` static 404. Added to `package.json`.
-
-## Priority 1 — Module 7: Browser journeys (2026-10-28)
-
-- Playwright is NOT available in this environment (no playwright package, no browser binaries, no global install, no Python playwright), so browser tests were NOT run and are not claimed. Per the task, the equivalent API-level journeys were run instead in new `server/test/journeys-p1.js` (4 tests, port 8972): (1) registration → login → me → logout → me 401; (2) property draft → admin publish → public search/detail (the wizard "submit" step keeps a listing as a draft for review — there is no server submit endpoint, so publish remains the admin step); (3) search → detail → enquiry → lead visible to admin; (4) unauthorised denied — anonymous create 401, stranger draft 404 (no existence leak), stranger PATCH 404, owner publish 403; (5) invalid upload rejected 400. Added to `package.json`.
-- Blocker for real browser journeys: install Playwright + a browser in an environment that allows it, then re-run journeys 1–6, 9–11 from the spec against a served copy — that step was not done here.
-
-## Priority 2 — Core features (2026-10-28)
-
-Working copy only; no push, no deploy. Backup: `~/workspace/primepropertys-audit/primepropertys-backup-2026-10-28`. Baseline before this stage: 79/79 server tests; after: 86/86 (`server/test/priority2.js`, 7 tests, port 8973, added to `package.json`).
-
-### Module 1: Builder Projects + Units — DONE
-- Migrations `021_builder.sql`: builder_projects (draft → pending → approved/rejected → published → approved on unpublish / archived), project_locations (lat/lng stored only when supplied, never invented), project_towers, project_units (available/reserved/sold), project_milestones (progress 0–100), project_amenities, project_documents (http(s) URL references only — binary upload for projects is NOT implemented because Priority 1 uploads are property-scoped; see Module 1 limitation), project_enquiries, project_crm_activities, project_offers.
-- `server/src/builder.js` + routes `/api/builder-projects…`: create (Builder/Admin), list with city/type/status/price filters and mine=1, detail with children + unit counts, submit/verify/publish/unpublish/archive with the state machine above, towers/units/unit-status/milestones/amenities/documents/offers, enquiries (published projects only, anonymous allowed with name+phone) + enquiry list + CRM activities. Builders manage only their own projects; strangers get 404 on drafts and on manage endpoints.
-- Frontend: live "Your Projects" list in `sections/builder-portal/my-projects.html` (`#pp-builder-projects`, `assets/js/groups/builder.js`); the demo project table is untouched below it. The add-project demo form keeps its honest demo notice — it was NOT converted, because its field names do not map to the API.
-
-### Module 2: Property Reviews — DONE
-- Migration `022_reviews.sql`: property_reviews (rating 1–5, pending by default, one non-rejected review per user per property via partial unique index), review_reports (one report per reporter per review).
-- `server/src/reviews.js` + routes `/api/properties/:id/reviews`, `/api/reviews/:id` (moderate/delete), `/api/reviews/:id/report`: public list shows APPROVED reviews only with approved-only count/average; moderators (reviews:moderate) can filter by status and approve/reject from pending only. `verified` is set only when a completed site visit for that user+property exists and the reviewer is not the owner — never from an enquiry or lead. Owners cannot review their own property.
-- Frontend: approved reviews + aggregation render on `sections/property-engine/property-details.html` (`#pp-property-reviews`, `assets/js/groups/engine.js`) when `?property_id=` is present.
-
-### Module 3: Staff Tasks — DONE
-- Migration `023_tasks.sql`: staff_tasks, task_comments, task_activity.
-- `server/src/tasks.js` + routes `/api/tasks…`: create (login-gated; assignee must exist), list with status/priority/assignee/overdue filters, detail with comments + activity, update with the transition map (todo→in_progress/blocked/cancelled, in_progress→blocked/done/cancelled, blocked→in_progress/cancelled, done/cancelled→todo by manager/creator only), comments, stats (totals by status + overdue count). Visibility: creator, assignee, or tasks:view_any. Assignees may change status and comment only — retitling, reassigning, due-date or priority changes by a non-manager assignee are 403.
-- Frontend: live task list in `sections/manager-staff/tasks.html` (`#pp-staff-tasks`, `assets/js/groups/builder.js`); the demo task form keeps its honest demo notice.
-
-### Module 4: Advanced RBAC — DONE (2FA blocked, documented)
-- Migration `024_rbac.sql`: custom_roles, custom_role_permissions, user_custom_roles, admin_audit_log; new permissions roles:manage, audit:view (Super Admin + Admin).
-- `server/src/auth.js` `listPermissions` now returns the UNION of the fixed role's permissions and the user's custom roles (with a fallback to fixed roles if the Priority 2 tables are absent). Custom roles only ADD permissions; deleting a custom role drops its grants via ON DELETE CASCADE. Built-in roles are untouched.
-- `server/src/rbac.js` + routes `/api/custom-roles…` (create/list/get/update/delete/assign/unassign), `/api/admin-audit-log` (audit:view), `/api/auth/sessions` (own sessions list, revoke by id — own or users:manage), `/api/auth/revoke-other-sessions`. Sensitive actions are audited: role create/update/delete/assign/unassign, project verify/publish states, review moderation, plan/coupon/subscription activation, user suspension and role changes (hooked in `server.js` user PATCH).
-- Frontend: live custom-role list on `sections/super-admin/roles.html` (`#pp-custom-roles`) and live audit log on `sections/super-admin/audit-logs.html` (`#pp-audit-log`), both in `assets/js/groups/admin.js`.
-- 2FA NOT implemented (blocked): the existing auth has no TOTP secret storage, enrolment, backup-code or recovery flow, and inventing one ad-hoc would be unsafe. What exists instead and is now wired: session revocation UI/API, login throttling, and the audit log. Product decision needed: approve a proper TOTP design (secret storage + enrolment + recovery) before 2FA is built.
-
-### Module 5: Subscriptions + Coupons + Promotions — DONE (no gateway, by design)
-- Migration `025_subscriptions.sql`: subscription_plans, user_subscriptions, property_promotions, coupons, coupon_redemptions; `properties.featured` flag; `payments.subscription_id` link for invoice history.
-- Prices are NOT invented: the seeded catalog is exactly the public prices on `pricing.html` — FREE ₹0 (1 listing, 5 photos, 0 featured), BASIC ₹499/mo (5, 20, 0), PRO ₹1,199/mo (20, 50, 1 featured), PREMIUM ₹2,499/mo (unlimited, 100, 5 featured), with yearly prices from the same cards (₹5,988 / ₹14,388 / ₹29,988). Admins may create/edit plans via `POST/PATCH /api/subscription-plans` (subscriptions:manage).
-- `server/src/subscriptions.js` + routes: plans list, subscription create (FREE → active immediately; paid → pending), activate (staff with subscriptions:manage or payments:manage, ONLY against a VERIFIED payment for the same user of at least the plan price — otherwise 400; the payment is then linked as the invoice), change-plan (paid target → pending), cancel, expire (staff), mine, entitlement (plan + listings used/limit/remaining + featured credits used/remaining), invoices (payments linked to the subscription), feature/unfeature a published property (active subscription, featured credits remaining, 30-day promotion row), coupons create/apply/redeem (percent/fixed, dates, global + per-user limits, eligible plans; duplicate redemption prevented by the limit checks, not by a UNIQUE constraint alone).
-- Payment webhook: `POST /api/webhooks/payment` always answers 501 `WEBHOOK_NOT_CONFIGURED` and stores/activates nothing — no provider is configured, so no webhook can ever activate an entitlement.
-- Listing-limit note (honest limitation): the entitlement endpoint reports limits and usage, and featured credits ARE enforced, but property creation is NOT retroactively blocked for users with no subscription (legacy behaviour — blocking it would break the existing property tests and every pre-subscription listing flow). A create-time gate should call the entitlement check; that is a product decision, not a silent change.
-- Frontend: live plan list on `sections/subscription/plans.html` (`#pp-subscription-plans`) and live subscriptions + entitlement on `sections/subscription/my-subscription.html` (`#pp-my-subscription`), new group `assets/js/groups/subscriptions.js` wired in `tools/section-map.json` (`subscription` section). The subscription checkout/coupon demo pages keep their honest demo notices.
-
-### Module 6: User-to-user Chat + Notifications — DONE (in-app only)
-- Migration `026_chat.sql`: conversations, conversation_members, chat_messages, message_reads, user_notification_preferences. Permission chat:use granted to all 9 roles.
-- `server/src/chat.js` + routes `/api/conversations…` (create/list/get/messages/read) and `/api/notification-preferences` (get/put): dedicated conversation model, NOT the SMS/WhatsApp queue. Membership is enforced on every read/write (strangers get 404, never 403 with existence); creating a conversation with exactly the same member set returns the existing thread (no duplicate). Member listings expose id + full_name only — no phone numbers or emails. Unread counts exclude the reader's own messages; mark-read inserts reads for others' messages only. Sending a message creates an in-app notification (existing notifications table, listed via `/api/notifications`) for each other member whose preference allows message alerts; email/SMS/WhatsApp/Push toggles are stored but CANNOT deliver — the preference response says so explicitly, and no delivery is claimed.
-- Frontend: live conversation list on `sections/communication/conversations.html` (`#pp-conversations`, `assets/js/groups/communication.js`). The chat compose demo form keeps its honest demo notice; message sending is API-tested, not faked on the page.
-- Rate limiting: all new writes go through the existing Priority 1 write limiter (300/hour per user per route group, plus login/inquiry/contact/newsletter limiters where applicable); no separate chat limiter was added, and none is claimed.
-
-### Frontend wiring (all modules)
-- `assets/js/api.js`: Priority 2 helpers (listBuilderProjects, listReviews, listTasks, listPlans, mySubscriptions, entitlement, listConversations, listCustomRoles, listAuditLog).
-- Build: `python3 tools/build.py` run twice after frontend changes — second run 0 pages changed. All pages' inlined scripts were regenerated (core api.js changed), which is why the working-copy diff touches many pages; page bodies changed only on the 8 pages listed above.
-- No `data-backend="not-connected"` marker was deleted. Demo forms that were not converted keep the forms.js demo notice.
-
-## Priority 3 — Advanced features (2026-10-28)
-
-Working copy only; no push, no deploy. Backup: `~/workspace/primepropertys-audit/primepropertys-backup-2026-10-28`. Baseline before this stage: 86/86 server tests; after: 96/96 (`server/test/priority3.js`, 10 tests, port 8974 + a stub-provider port + a plain port 8975 for the unconfigured test, added to `package.json`).
-
-### Module 1: AI assistants — DONE (provider abstraction; no real provider configured)
-- `server/src/ai.js` + migration `027_priority3.sql` (ai_generations table, ai:use permission granted to all 9 roles). Provider is a generic OpenAI-compatible chat-completions client: `AI_PROVIDER`, `AI_API_KEY`, `AI_MODEL`, `AI_BASE_URL`, `AI_TIMEOUT_MS` from environment only; keys never touch the database or frontend.
-- Unconfigured behaviour verified: a server without AI env answers 503 `AI_NOT_CONFIGURED` and generates nothing — no template text dressed as AI output. With a local stub provider (test double only, never a paid provider), generation returns the provider's text plus its reported token counts (10 in / 20 out in tests); counts are NULL when a provider reports none, never invented.
-- Guardrails: untrusted property text is wrapped as data (control characters stripped, truncated to 2000 chars, system instruction to use it as facts only); limit 20 generations/user/day (stored rows counted); generations stay `generated` until the owner approves, and only then can be applied to an editable property (title/description; SEO generations are metadata only and cannot be applied). Unapproved apply is 400.
-- Quality check is rule-based on stored facts (title/description length, price, city, images, area, bedrooms) and is labelled as such — not an AI judgement.
-- NOT built, on purpose: AI Property Valuation as an endpoint (an automated figure must never be presented as an official valuation); AI lead/support/search/locality/price/marketing assistants beyond the three implemented kinds (title, description, SEO) — their pages keep honest demo notices.
-- Frontend: live generate + generations list on `sections/ai-intelligence/ai-description-generator.html` (`#pp-ai`, new group `assets/js/groups/priority3.js`, mapped in `tools/section-map.json` for ai-intelligence).
-
-### Module 2: Analytics + Reports — DONE (real events only; PDF blocked)
-- `server/src/priority3.js` + `analytics_events` table (027). Property list/detail handlers record a search event (filters only, no PII) and a view event (including anonymous views) from Priority 3 onward. Earlier activity has no event rows and is not reconstructed — the summary says so.
-- `GET /api/analytics/summary`: views, searches + top search cities, properties, inquiries by status + closed conversion (null when no inquiries, not 0), agent performance (assigned/closed), builder performance (projects, units available/sold), visits + completion rate, subscription revenue = SUM of `verified` payments linked to a subscription in range (unverified/unlinked excluded; no gateway revenue implied), promotions, lead sources. Formulas are returned in the response. Staff see all; other analytics:view holders see only their own rows. Buyer without the permission gets 403.
-- `GET /api/analytics/export`: CSV of the same summary metrics. PDF export is NOT implemented — this zero-dependency codebase has no PDF library; no PDF output is claimed anywhere.
-- Frontend: live summary on `sections/analytics/analytics-dashboard.html` (`#pp-analytics`, priority3 group).
-
-### Module 3: SEO Management — DONE (no indexing claims)
-- `GET/POST /api/seo/metadata` (seo:manage: Super Admin/Admin only), `GET/POST/DELETE /api/seo/redirects` (redirects honoured with stored 301/302 on real static requests), `GET /api/seo/duplicates` (stored records only), `GET/PUT /api/seo/robots` (stored override or not set), `GET /api/seo/sitemap` (live XML: static .html files that exist + published properties only; drafts and deleted properties excluded — verified in tests), `POST /api/seo/link-check` (internal href/src of a real page checked against files on disk; result stored, seo_metadata.last_checked_at stamped) and `GET /api/seo/broken-links` (stored checks with broken > 0).
-- No search-engine indexing status is stored or reported: the app receives none. Canonical base defaults to the existing build.py github.io base and is overridable via `SITE_BASE_URL`; the canonical-domain decision (github.io vs primepropertys.in) remains open for the user.
-- Frontend: live broken-link list on `sections/seo/broken-links.html` (`#pp-seo`, priority3 group).
-
-### Module 4: Search Alerts + Saved Searches — DONE (in-app only)
-- `POST/GET/DELETE /api/saved-searches` (filters validated to a fixed allowlist; unknown keys and min > max rejected), `GET /api/saved-searches/:id/match` (server-filtered over published properties with a real filtered total — no full-table download to the browser), `GET /api/search-alerts`.
-- Publishing a property (`server/src/server.js` publish route) runs alert matching: one deduplicated in-app notification per matching saved search, with the notification text stating in-app only. Email/SMS delivery is not configured and is never attempted or claimed. Verified: a matching Nagpur Apartment alerted, a Mumbai property did not.
-- Frontend: live saved searches + alerts on `sections/property-search/saved-search.html` and `search-alerts.html` (`#pp-saved-searches`, `assets/js/groups/search.js`). The pages' create-alert demo forms keep their honest demo notices — they were not converted, because their field names do not map to the API filters.
-
-### Module 5: Property Price History — DONE
-- `property_price_history` table (027, append-only) + hook in `server/src/properties.js` `updateProperty`: a row is written only when the price actually changes (old/new price, actor id, timestamp); a same-price PATCH writes nothing. No history is backfilled for edits predating the table.
-- `GET /api/properties/:id/price-history` follows normal property visibility (published: public; draft: owner / properties:view_any only — a test initially fetching a draft anonymously correctly got 404 and was fixed to fetch as owner).
-- Frontend: live history on `sections/property-engine/property-details.html` (`#pp-price-history`, `assets/js/groups/engine.js`).
-
-### Module 6: Automated Reminders — DONE (computed on read, never pushed)
-- `GET /api/reminders`: site visits (requested/confirmed, within 7 days), lead follow-ups (undone, within 7 days), staff tasks (not done/cancelled, due within 7 days), subscriptions (active, expiring within 30 days) — all from real rows, each with an overdue count, scoped to the caller (staff see all). Reminders are computed when the endpoint is read and are pushed nowhere; the response states email/SMS/WhatsApp delivery is not configured. No dedicated reminders page exists, so there is no frontend renderer for this module (API only, documented — not faked on a page).
-
-### Module 7: Advanced Recommendations — DONE
-- `GET /api/properties/:id/recommendations` (server-paginated, max 20): published properties sharing city or type, ranked by count of matching attributes (city, type, listing type, bedrooms, price within 25%), each row carrying its `match_reasons` and `match_attributes`. The existing `/similar` endpoint is untouched. The response states the count is a count of matching attributes, not a measured similarity score.
-- Frontend: live recommendations on `sections/property-search/recommended-properties.html` (`#pp-recommendations`, search.js group; requires `?property_id=`).
-
-### Frontend wiring (all modules)
-- `assets/js/api.js`: Priority 3 helpers (analyticsSummary, listSavedSearches, listSearchAlerts, listPriceHistory, recommendations, aiGenerations, aiGenerate). All renderers build DOM with textContent (no innerHTML), following the existing group-file pattern.
-- Build: `python3 tools/build.py` run twice after frontend changes — second run 0 pages changed. As in Priority 2, the regenerated inlined bundle touches many pages; page bodies changed only on the 7 pages listed above, plus `tools/section-map.json` (analytics, ai-intelligence, seo → priority3 group).
-- Served-page verification (fresh server, temp DB, deleted afterwards): all 7 live containers present in served HTML.
-- No `data-backend="not-connected"` marker was deleted. Demo forms that were not converted keep the forms.js demo notice.
-- Decisions/credentials still needed from the user (unchanged from Priority 1/2, now scoped to Priority 3): an AI provider + server-side key before any real generation works (currently 503); canonical domain choice (github.io vs primepropertys.in); PDF-report method if PDF export is ever wanted (blocked, no library); email/SMS providers before alerts/reminders can leave the app (currently in-app only).
-
-## Priority 4 — Production hardening + final report (2026-10-28)
-
-Baseline before this stage: 96/96 server tests. After: 100/100 (`server/test/perf-p4.js`, 4 tests, port 8976, added to `package.json`).
-
-### Performance (measured, not estimated)
-- Fresh empty database, local Node server: homepage 85,150 bytes raw / 16,871 bytes gzipped (-80%) before; 86,296 bytes raw after (+1,146 bytes = lazy-loading attributes on article images). API list/detail/search on an empty database: 3–8 ms before and after — no speed improvement is claimed on an empty database.
-- `server/migrations/028_newest_index.sql`: `idx_properties_newest (status, id DESC)`. Before, the default list plan used `idx_properties_search_filters` plus "USE TEMP B-TREE FOR ORDER BY"; after, it is `SEARCH … USING INDEX idx_properties_newest` with no temp b-tree (EXPLAIN QUERY PLAN verified, asserted in `perf-p4.js`).
-- Caching: API responses now `Cache-Control: no-store`; controlled upload downloads `no-store`; non-HTML static assets `public, max-age=3600`; HTML pages get no public cache header, so rebuilds are never masked. No private data is cached in a shared cache.
-- Images: 140 article images now `loading="lazy" decoding="async"` (42 pages; fixed 150 px height in marketing.css, so no layout shift). The other 234 images are external Unsplash 1200 px with no `srcset` — no responsive-image claim is made for them.
-- Page weight remains ~94 KB/page (61.4 MB total) by design (inlined single-file pages); a linked-asset build was not built.
-
-### Accessibility (verified defects only)
-- Form error/success note colours failed WCAG AA (#F87171 = 2.77:1, #4ADE80 = 1.74:1 on white) → now #B91C1C = 6.47:1, #166534 = 7.13:1, same red/green meaning.
-- Form messages now carry `role="alert"` (errors) / `role="status"` (success) in `assets/js/forms.js`.
-- Mobile nav toggle now exposes `aria-expanded` / `aria-controls` in `assets/js/navigation.js`.
-- `.tbl` tables scroll horizontally under 600 px (`assets/css/responsive.css`).
-- Brand contrast re-measured and passing: navy 15.96:1, royal blue 5.17:1, red 4.70:1, muted 4.76:1, body 7.58:1 on white. No modals/dialogs exist (0 `<dialog>` elements), so no modal focus trap to audit.
-- NOT done and not claimed: no manual keyboard/screen-reader pass.
-
-### External integrations (configuration only — nothing new verified)
-- No provider, key, or webhook was added. Current honest states documented in DEPLOYMENT.md: email 503 outside dev console mode, SMS/WhatsApp queued rows only, payment webhook a 501 stub that never activates anything, AI 503 without a key, push toggles only, no map provider and no stored coordinates.
-- Env vars documented: `AI_PROVIDER`, `AI_API_KEY`, `AI_MODEL`, `AI_BASE_URL` (default `https://api.openai.com/v1`), `AI_TIMEOUT_MS` (default 15000), plus the pre-existing `PORT`, `DATABASE_PATH`, `STATIC_ROOT`, `EMAIL_BACKEND`, `SESSION_COOKIE_SECURE`, `FORCE_HTTPS`, `PP_DEV_CONSOLE_EMAIL`, `UPLOAD_DIR`.
-
-### Backup + restore (actually tested)
-- Procedure documented in DEPLOYMENT.md (SQLite backup API, upload directory backed up alongside the database, owner-only permissions, matching backup pair on restore, never mix points in time).
-- Restore test on temporary copies: register → create property `RESTORE-CHECK-VILLA` (id 1) → backup API → fresh server on the copy → login → `/api/properties/mine` returned the same property. Result: RESTORE_OK.
-- Still missing: no automated/scheduled backup in this repo, no backup encryption in-repo, no restore test on a real host.
-
-### Security testing (Priority 4)
-- Re-ran security-relevant suites as part of the 100/100 run (`security-p1`, `auth`, `users-admin`, `upload-p1`). New tests cover only real behaviours (cache headers, index plan, accessibility source checks, lazy images). No penetration test, fuzzing, dependency scan beyond zero runtime dependencies, or review of production hosting was done, and none is claimed.
-
-### Documentation reconciliation (Priority 4)
-- README.md: tests 59 → 100, `data-api` handlers 17 → 44 values, wired/unwired counts, P2/P3 domains summarised, binary-upload and Secure-cookie descriptions corrected to the Priority 1 behaviour.
-- DEPLOYMENT.md: final verification 59/59 → 100/100, migrations 001–008 → 001–028, Priority 4 performance/backup/integrations sections added, production verdict restated as NOT ready.
-- server/README.md: migration table completed to 028, tests 59+ → 100, Priority 4 section added.
-- ACCESSIBILITY.md: Priority 4 fixes + contrast table extended, manual-pass limit restated.
-- PRODUCTION_READINESS.md: checklist updated to Priority 4 evidence; verdict remains NOT READY.
-- TRIAGE.md: Priority 4 note at the top marking it a historical slice log; BUG_REGISTER.md: Priority 4 status note at the top (Phase A rows unchanged).
-- FINAL_REPORT.md (new): complete audit summary, bug register status, feature gap status, implemented list, remaining 138 disconnected forms, remaining 186 `href="#"` occurrences, schema 001–028, API summary, modified files, test results (100/100), browser test status (NOT run — Playwright unavailable), security review, performance before/after, deployment checklist, known limitations, recommended next phase, production verdict NOT ready.
-- Build: `python3 tools/build.py` run twice after shared-file changes — second run 0 pages changed.
-
-### Still open after Priority 4 (do not claim fixed)
-- BUG-006 (bind-address log), BUG-007 (.env never loaded), BUG-011 (wizard early steps sessionStorage-only), BUG-015 (settings prefill, not re-checked), BUG-016 (non-user admin tables demo rows), BUG-020 (demo phone 693 matches), BUG-021 (canonical github.io, sitemap 105/653), BUG-022 (7-day sessions, no idle timeout), BUG-027 (WhatsApp number policy), BUG-029/030 (no manual a11y pass, no browser tests, no migration-rollback test), 2FA, account deletion, form-builder storage, PDF export, separate verification workflow, payment/email/SMS/WhatsApp/AI/push/map providers, named host + HTTPS + process manager + automated backup + error monitoring + incident runbook, and explicit user authorisation naming host + database. No push, no deploy.
-
-## Wizard enums — extend via table rebuild (2026-10-29, user decision)
-
-User decision 2026-10-29: extend `property_type` / `listing_type` via a
-properties table rebuild, NOT by restricting the Lease / PG / Office /
-Shop / Warehouse choice cards. Canonical domain github.io was decided
-the same day (already the default; no change for that decision).
-
-- Migration `server/migrations/029_wizard_enums.sql`:
-  - Old: property_type IN ('Apartment', 'Villa', 'Plot', 'Builder Floor',
-    'House', 'Commercial'); listing_type IN ('sale', 'rent').
-  - New: property_type adds 'PG', 'Office', 'Shop', 'Warehouse';
-    listing_type adds 'lease'. These are exactly the wizard choice-card
-    values (select-purpose.html 'lease'; select-property-type.html 'PG',
-    'Office', 'Shop', 'Warehouse'). 'Independent House' on the card is
-    value 'House', which already existed; no other value was added.
-  - Rebuild copies all 70 columns verbatim (only the two enum CHECKs
-    change) and recreates all 6 properties indexes. No triggers exist
-    on properties.
-  - Data-loss risk found and fixed during development: a first rebuild
-    test with foreign keys ON copied the property rows identically but
-    silently emptied child tables (property_images, saved_properties).
-    Fix: `server/src/db.js` now honours a `REQUIRES_FK_OFF` marker in a
-    migration file — FK is switched OFF before BEGIN and back ON after
-    COMMIT (PRAGMA foreign_keys is a no-op inside a transaction), and
-    `PRAGMA foreign_key_check` runs inside the transaction before COMMIT
-    so any violation rolls the rebuild back. Re-running the preservation
-    test after the fix: existing rows byte-identical, child rows intact,
-    FK check empty, all 6 indexes present, next AUTOINCREMENT id not
-    reused. No existing data is lost by this migration.
-- Validation (`server/src/validate.js`): PROPERTY_TYPES / LISTING_TYPES
-  extended to the same values; genuinely unsupported values
-  (e.g. 'Castle', 'auction') are still rejected with an error naming
-  the value.
-- Wizard UI: the "supported nahi hain" notes on select-purpose.html and
-  select-property-type.html are replaced with supported notes; the live
-  preview in `assets/js/groups/post-property.js` now shows 'For Lease'
-  for lease listings (previously it would have shown 'For Sale').
-  Build run twice — second run 0 pages changed (32 post-property pages
-  regenerated for the preview label only).
-- Tests: new `server/test/wizard-enums.js` (port 8977, added to
-  `package.json`) — create → admin publish → public detail for Lease,
-  PG, Office, Shop, Warehouse; old types still work; bogus values still
-  400; PATCH to a new type works; migration-preservation test as above.
-  `server/test/wizard-p1.js` updated: its old "unsupported choices fail"
-  test now asserts the same choices create a draft with the chosen type,
-  never remapped. No push, no deploy.
-
-## Search bug fix — urlParams (2026-10-29, uncommitted, NOT pushed, NOT deployed)
-
-- **Bug:** `assets/js/groups/search.js` line 32 used `urlParams.get(k)` but `urlParams` was never defined anywhere in `assets/js/`. On `sections/property-search/search-results.html?city=Nagpur` the console error was `urlParams is not defined`, the live-results handler threw before `listProperties` ran, and `#pp-live-results` never rendered — even though `GET /api/properties?city=Nagpur` returned the property. Found by Playwright browser journeys (Journey 3 failed on this exact error).
-- **Fix:** defined it in the correct scope in the same handler, before `apiParams` is built: `var urlParams = new URLSearchParams(window.location.search);` (now search.js lines 29 and 33). No API behaviour, search filters, or other groups changed.
-- **Build:** `python3 tools/build.py` run twice — first run 18 pages updated (all `sections/property-search/` pages), second run 0 pages changed. The inlined copy in `search-results.html` now contains the definition.
-- **Verification:** full server test suite **104/104 pass**; Playwright journeys script `~/workspace/primepropertys-audit/browser-tests/journeys.js` against a temp-DB server on port 8903: **9/9 pass**, including Journey 3 (Search → Detail → Enquiry) — log line "search results (city=Nagpur) contain journey property", View Details click through, and enquiry success message shown. Previously Journey 3 was the only failure (8/9).
+### Documentation corrections (brief §2 "outdated counts")
+- DEPLOYMENT.md header claimed "48/48 tests pass" (Stage J era) —
+  corrected to 59/59 + audit 187. Its Secure-cookie note corrected
+  too: the flag exists as opt-in `SESSION_COOKIE_SECURE=1`, it is
+  not absent from the code.
+- FRONTEND_BACKEND_MAPPING.md was regenerated from source in the
+  triage slice (44 wired cases, 138 unwired occurrences) and
+  already agrees with this baseline.

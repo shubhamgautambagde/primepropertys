@@ -1,21 +1,16 @@
 # PrimePropertys — Deployment guide (Stage J)
 
-Final verification state (2026-10-28, Priority 4): 100/100 tests pass
-(including the end-to-end journey test below), build idempotent
-(second run 0 pages changed), audit 0 broken internal links.
-Verified recounts: 653 pages, 362 forms (224 wired + 138
-`data-backend="not-connected"`), 186 `href="#"` occurrences in
-source. Stages A–J of the brief are done; the items under "Not
-production-ready yet" are the remaining work, and each needs a
-user decision or real credentials. This document is NOT a
-production-readiness sign-off — see PRODUCTION_READINESS.md and
-FINAL_REPORT.md (verdict: NOT ready).
+Final verification state (2026-10-28): 59/59 tests pass
+(including the end-to-end journey test below), build idempotent,
+audit 187 entries, 0 broken internal links. Stages A–J of the brief are done;
+the items under "Not production-ready yet" are the remaining
+work, and each needs a user decision or real credentials.
 
 ## Architecture: two halves, honestly separated
 
 | Half | Where it runs | What works there |
 | --- | --- | --- |
-| Static site (653 pages) | GitHub Pages: https://shubhamgautambagde.github.io/primepropertys/ | All public content, blog/news, property browse pages, forms' UI |
+| Static site (652 pages) | GitHub Pages: https://shubhamgautambagde.github.io/primepropertys/ | All public content, blog/news, property browse pages, forms' UI |
 | Node.js API + SQLite | A Node host (not Pages) | Login, live listings, dashboards, CRM, export, contact inbox |
 
 GitHub Pages serves static files only. On Pages, API-backed
@@ -34,7 +29,7 @@ PORT=8902 DATABASE_PATH=data/primepropertys.db node src/server.js
 ```
 
 On start the server applies every migration in
-`server/migrations/` in order (001–028). A fresh database
+`server/migrations/` in order (001–008). A fresh database
 starts **empty**: no demo properties, leads, or users are
 seeded. That is deliberate — the brief forbids hardcoded
 sample data as production data.
@@ -85,11 +80,9 @@ is documented in the file itself.
 
 ## Email, SMS, WhatsApp: not configured
 
-- `EMAIL_BACKEND=console` prints password-reset and verification
-  links to the server log ONLY in dev mode (`NODE_ENV=development`
-  or `PP_DEV_CONSOLE_EMAIL=1`). In default mode those endpoints
-  answer 503 and log no token. Nothing is delivered in any mode
-  without a real provider.
+- `EMAIL_BACKEND=console` (default): password-reset and
+  verification links are printed to the server log instead of
+  being sent. Nothing is delivered.
 - Any other value without a real provider configured returns
   `503 EMAIL_NOT_CONFIGURED` — the API never pretends an
   email was sent.
@@ -108,28 +101,17 @@ is documented in the file itself.
   for the DOM-construction discipline (see `ACCESSIBILITY.md`
   and the innerHTML regression test).
 - Sessions are HttpOnly, SameSite=Lax cookies holding token
-  hashes only (never the token itself). `Secure` is set on HTTPS
-  requests, when `X-Forwarded-Proto: https` is present, or when
-  `SESSION_COOKIE_SECURE=1` / `FORCE_HTTPS=1` is set; plain-HTTP
-  local development keeps working without it.
+  hashes only (never the token itself). Known gap: the cookie
+  does not set the `Secure` flag, so if you serve HTTPS-only
+  (recommended), add `Secure` to the session cookie in
+  `server/src/auth.js` or terminate TLS at a reverse proxy
+  that you trust.
 - Login is throttled (5 failures per IP+email per 10 minutes
   → 429); public inquiry is IP-limited (10/hour) and contact
-  is IP-limited (20/hour). Since Priority 1, all other writes are
-  also limited in memory (register 30/hour/IP, reset requests
-  10/hour/IP+email, other writes 300/hour/user or IP per route
-  group) — single-instance only; see server/README.md.
-- Cookie-authenticated state-changing requests with a mismatched
-  `Origin`/`Referer` host are rejected with 403 `CSRF_FORBIDDEN`.
-- File uploads: binary multipart upload is implemented for
-  property images/documents (Priority 1): JPEG/PNG/WEBP/GIF/PDF
-  by file signature, declared MIME must match, max 10 MB, random
-  server filenames, storage under `UPLOAD_DIR` (must be outside
-  the static root, otherwise uploads are refused), images public
-  only when published, documents private. No malware scanner is
-  available in this environment, so none is claimed. The wizard
-  Photos/Documents pickers use it; floor-plan, 360°, verification
-  and report-screenshot buttons are still unwired. Property
-  images can still also be URL references.
+  is IP-limited (20/hour).
+- File uploads are URL references only: binary multipart
+  upload is not implemented, so property images must be
+  hosted URLs (currently Unsplash URLs in the pages).
 - No secrets, API keys, or credentials are committed. Test
   fixtures use a dummy password (`Secret123`) that is not a
   real credential.
@@ -146,54 +128,10 @@ is documented in the file itself.
   schema is versioned by the migration files, so a backup
   pairs with the code that created it.
 
-### Backup + restore procedure (Priority 4, tested 2026-10-28)
-
-1. Back up with SQLite's online backup API, not a raw `cp` of a
-   live file: `python3 -c "import sqlite3; s=sqlite3.connect(
-   'data/primepropertys.db'); d=sqlite3.connect('backup.db');
-   s.backup(d); d.close(); s.close()"`. Back up the upload
-   directory (`UPLOAD_DIR`, outside the static root) alongside
-   the database — uploads are referenced by database rows, so
-   a database backup without its uploads is incomplete.
-2. Store the backup off the web root, readable only by the
-   operator account (DB file permissions: owner read/write
-   only, e.g. `chmod 600`; the same for the upload directory
-   and its files). No backup encryption is implemented in this
-   repo — encrypt at the host/filesystem level if backups leave
-   the host.
-3. Restore test (actually run 2026-10-28, not assumed): a
-   temporary server registered a user and created a property
-   (`RESTORE-CHECK-VILLA`, id 1), the database was backed up
-   with the API above, copied to a fresh path, and a second
-   temporary server started on that copy — login succeeded and
-   `/api/properties/mine` returned the same property.
-   Result: RESTORE_OK. Re-run this procedure on the real host
-   before relying on it there; this repo has no automated or
-   scheduled backup, and that gap alone blocks a production
-   launch (see PRODUCTION_READINESS.md).
-4. Rollback: stop the server, replace the database + upload
-   directory with the matching backup pair, restart. Never mix
-   a database backup with uploads from a different point in
-   time, and never restore a backup onto a newer schema
-   without checking the migration list (001–028).
-
-## Performance (measured, Stage I + Priority 4)
+## Performance (measured, Stage I)
 
 - Homepage over the Node server: 42,385 bytes plain,
-  10,887 bytes gzipped (-74%) when the client accepts gzip
-  (Stage I numbers, on the older smaller homepage).
-- Priority 4 re-measurement (2026-10-28, fresh empty database):
-  homepage 85,150 bytes raw / 16,871 bytes gzipped (-80%);
-  after Priority 4 changes 86,296 bytes raw (the +1,146 bytes
-  are the lazy-loading attributes on article images).
-  API list/detail/search on an empty database: 3–8 ms — no
-  speed improvement is claimed on an empty database.
-- Caching (Priority 4): API responses now carry
-  `Cache-Control: no-store` (private data must never sit in a
-  shared cache); controlled upload downloads also carry
-  `no-store`; non-HTML static assets carry `public,
-  max-age=3600`; HTML pages carry no public cache header, so a
-  rebuild is never masked by a stale cached page.
+  10,887 bytes gzipped (-74%) when the client accepts gzip.
 - Database: migration 008 indexes turned the leads
   status-filter query from a full table SCAN into an index
   SEARCH (verified with `EXPLAIN QUERY PLAN` on 200-row
@@ -201,38 +139,10 @@ is documented in the file itself.
   index. GitHub Pages applies its own compression to the
   static site; the Node gzip numbers above are for the
   hosted-server case.
-- Priority 4 index (migration 028): the default public list
-  (`status='published'`, newest first) previously used
-  `idx_properties_search_filters` plus "USE TEMP B-TREE FOR
-  ORDER BY"; with `idx_properties_newest (status, id DESC)`
-  the plan is `SEARCH … USING INDEX idx_properties_newest`
-  with no temp b-tree (verified with EXPLAIN QUERY PLAN and
-  asserted in `server/test/perf-p4.js`).
-- Images: 140 article images now carry `loading="lazy"
-  decoding="async"` (fixed 150 px height in marketing.css, so
-  lazy loading cannot shift layout). The other 234 images are
-  external Unsplash URLs at 1200 px width with no `srcset` —
-  no responsive-image claim is made for them.
 
-## External integrations — configuration only (Priority 4)
+## Final verification (Stage J)
 
-No provider, key, or webhook in this section is configured or
-verified. Do not treat any row as "integrated" until its
-credential exists and its test-mode flow has been run.
-
-| Integration | Current honest state | Configuration when a provider is chosen |
-|---|---|---|
-| Transactional email (reset, verification, receipts, enquiry notices) | Not configured. Reset/verification answer 503 outside dev console mode; no token is logged there. | Server-side env vars only, never in the repo or in `site_settings` (the settings allowlist refuses secrets with 400). Timeout + retry where safe, idempotency where the provider supports it, delivery status logged where available. |
-| SMS | Not configured. Messages are queued rows only, never sent. | Provider + sender ID + env-var credentials; rate limits; consent/unsubscribe handling. |
-| WhatsApp Business | Not configured. Queued rows only; no Business account, no number policy (owner phones are gated by `hide_number` — exposing them publicly is a user privacy decision). | WhatsApp Business account + phone number + Meta app credentials, all server-side. |
-| Payment gateway | Not configured. `POST /api/webhooks/payment` is a 501 stub that never activates anything; payments are staff-verified pending records. | Test-mode keys + webhook secret first; webhook signature verification; idempotent webhook handling; never trust client-submitted success; never store card details; never activate a paid entitlement without verified payment. |
-| AI provider | Not configured. `POST /api/ai/generate` answers 503 `AI_NOT_CONFIGURED`. | `AI_PROVIDER`, `AI_API_KEY`, `AI_MODEL`, `AI_BASE_URL` (default `https://api.openai.com/v1`), `AI_TIMEOUT_MS` (default 15000). Keys server-side only, never in the database or frontend. Limit: 20 generations/user/UTC day. Generated content needs human approval before publish and is never presented as an official valuation. |
-| Push notifications | Not configured. Preferences are stored toggles only. | VAPID keys + subscription storage, once a provider decision is made. |
-| Map search | Not implemented. No coordinates are stored and none are invented. | A real map provider + valid property coordinates, only if the user wants it. |
-
-## Final verification (Stage J + Priority 4)
-
-- `npm test` in `server/`: 100/100 pass (Priority 4), including
+- `npm test` in `server/`: 59/59 pass, including
   `test/journey.js` — one test that walks the whole product:
   admin creates a draft property (invisible publicly),
   publishes it (visible), a buyer enquires, the admin
@@ -242,11 +152,11 @@ credential exists and its test-mode flow has been run.
   contact inbox, saved properties, and my-enquiries are all
   checked, plus the homepage, sitemap, and robots responses.
 - `python3 tools/build.py` twice: second run 0 changes.
-- Audit: 0 broken internal links (see SOURCE_CODE_AUDIT.md; the 339/341 entry figures previously printed here were inconsistent and are not reused).
+- Audit: 339 bug entries, 0 broken internal links.
 
 ## Remaining audit items — what they actually need
 
-The older entry counts in this section (339/341) are superseded by the Phase A recount — 138 `data-backend="not-connected"` forms and 186 `href="#"` occurrences (SOURCE_CODE_AUDIT.md). The breakdown below is that older slice's classification, not a current count, and its items are not defects to fix blindly:
+The 341 entries are not 341 defects to fix blindly:
 
 - 284 "form without backend action": demo forms awaiting a
   real endpoint. Each needs a product decision (which
