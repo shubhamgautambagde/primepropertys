@@ -1833,3 +1833,90 @@ without live markers after the home-services slice:
   id 404.
 - Backup before this change:
   ~/workspace/primepropertys-backup-detail/.
+
+## Binary uploads + static-handler security fix (expanded brief, Phase E backend, 2026-10-29)
+
+### CRITICAL fix (found live during this slice)
+- The static handler served ANY file under the site root, including
+  /server/data/*.db (verified: the local DB returned 200 with
+  352,256 bytes — password hashes downloadable over HTTP from any
+  running server) and server source files. handleStatic now returns
+  404 for any /server/* path and any *.db path, before the existence
+  check (so existence is not confirmed). Uploads rely on this block:
+  files live under server/data/uploads and are served ONLY through
+  the gated /api/uploads/:id/file route. SECURITY_AUDIT.md corrected
+  accordingly (its "no critical flaw" line was wrong).
+
+### New domain (migration 018: uploads)
+- POST /api/properties/:id/uploads (multipart/form-data, raw-byte
+  reader bypassing the 100 KB JSON cap, 50 MB request cap): one
+  file per request; kind image|document; magic-byte sniffing
+  (JPEG/PNG/WebP/GIF/PDF only — an .exe renamed to .png is rejected
+  415, and extension must match sniffed type); limits 10 MB images,
+  25 MB documents; server-generated stored filenames
+  (random hex + extension, user name kept for display only);
+  sort_order auto-increments; replaces_id atomically replaces a
+  previous upload of the same property (old file + row deleted
+  after the new file is stored). Gates mirror addImage: 401
+  anonymous, 404 invisible property, 403 visible-but-not-editable.
+- GET /api/properties/:id/uploads: images public on published
+  properties; documents and draft uploads visible only to
+  owner/uploader/manage roles.
+- GET /api/uploads/:id/file: images public when the property is
+  published, otherwise owner/uploader/manage only; documents always
+  private (owner/uploader/manage, else 404). Inline for images,
+  attachment for documents, nosniff header, original name sanitized.
+- DELETE /api/uploads/:id and PATCH sort_order (0-10000), gated on
+  uploader, property owner, or edit permission.
+- Property detail responses (both withImages and the server's own
+  getProperty) now include uploaded images as
+  /api/uploads/:id/file URLs alongside URL images.
+
+### Tests
+- server/test/uploads.js (new, in package.json): static block
+  (server tree + .db -> 404), sniffing unit checks, full lifecycle
+  (401/403/404/413/415 rejections, publish visibility, private
+  document access, detail integration, reorder, replace, delete).
+  Full suite: 62/62 pass (was 59/59 + 3 new upload tests).
+- Backup before this change:
+  ~/workspace/primepropertys-backup-uploads/.
+
+## Binary uploads, frontend wiring (expanded brief, Phase E frontend, 2026-10-29)
+
+### What was built
+- forms.js: the wizard-upload-notice case (which only showed a
+  "not implemented" note) is replaced by a real property-upload
+  case: multipart FormData POST to /api/properties/:id/uploads,
+  property id from ?property_id= else the wizard draft id in
+  sessionStorage (pp-wizard-draft), client size guard (10 MB
+  images / 25 MB documents; server re-validates by magic bytes),
+  honest error notes that keep the input, success note + a
+  pp-upload-done event so lists refresh without reload. Same-origin
+  only: on GitHub Pages the fetch fails honestly.
+- Wizard steps sections/post-property/property-photos.html,
+  property-photos2.html, property-documents.html: the old forms
+  (which contained a misleading static "Photos saved." /
+  "Documents saved." message while saving nothing) are now real
+  upload forms (file input + kind) with an upload list container.
+  post-property.js renders that list (image previews, document
+  links, delete buttons) and refreshes on pp-upload-done. Its stale
+  header comment ("binary upload is not implemented") is corrected.
+- sections/property-engine/property-documents.html: a live upload
+  block (PDF form + documents list, engine.js renderer) first in
+  <main>; the detail page sidebar now links here with ?property_id=
+  so the flow is reachable with context. The page's demo forms are
+  untouched (they remain audit entries, not live flows).
+- Deliberately not wired: video, floor-plan and 360 wizard steps
+  (they save step answers only; video MIME types are out of Phase E
+  scope) and ticket screenshot uploads (no ticket-attachment domain).
+
+### Verified
+- Client code node --check PASS; build idempotent (653 pages
+  updated — the shared bundle changed, so every page re-inlined).
+- Live multipart flow with curl (exactly what the browser form
+  sends): draft -> PNG upload 201 -> PDF upload 201 -> list shows
+  both with correct kind/privacy/file_url. Temp DB + temp upload
+  dir deleted afterwards.
+- Backend tests still 62/62 (no server change in this slice).
+- Backup before the whole Phase E (backend + frontend):
+  ~/workspace/primepropertys-backup-uploads/.

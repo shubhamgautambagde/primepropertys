@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (style) el.setAttribute('style', style);
     return el;
   }
-  ['contact-owner.html', 'contact-agent.html', 'make-enquiry.html', 'request-callback.html', 'request-site-visit.html'].forEach(function (page) {
+  ['contact-owner.html', 'contact-agent.html', 'make-enquiry.html', 'request-callback.html', 'request-site-visit.html', 'property-documents.html'].forEach(function (page) {
     document.querySelectorAll('a[href="' + page + '"]').forEach(function (a) {
       a.setAttribute('href', page + '?property_id=' + id);
     });
@@ -91,4 +91,52 @@ document.addEventListener('DOMContentLoaded', function () {
     body.appendChild(saveBtn);
     body.appendChild(saveNote);
   });
+});
+
+/* Phase E — documents list for property-documents.html.
+   Guarded by #pp-doc-list. Property id from ?property_id= only
+   (documents belong to a property; the detail page sidebar now
+   links here with the id). Same delete + pp-upload-done refresh
+   pattern as the wizard list. */
+document.addEventListener('DOMContentLoaded', function () {
+  var box = document.getElementById('pp-doc-list');
+  if (!box || !window.PP || !window.PP.get) return;
+  var notice = document.getElementById('pp-doc-upload-notice');
+  var id = new URLSearchParams(window.location.search).get('property_id') || '';
+  if (!id) {
+    if (notice) notice.textContent = 'Documents dekhne/upload karne ke liye URL me ?property_id= chahiye — property detail page se aayein.';
+    return;
+  }
+  function load() {
+    window.PP.get('/api/properties/' + encodeURIComponent(id) + '/uploads').then(function (r) {
+      box.textContent = '';
+      if (!r.ok) { box.textContent = 'Documents load nahi ho pa rahe hain.'; return; }
+      var items = ((r.data && r.data.data) || []).filter(function (u) { return u.kind === 'document'; });
+      if (!items.length) { box.textContent = 'Abhi koi document upload nahi hai.'; return; }
+      items.forEach(function (u) {
+        var row = document.createElement('div');
+        row.className = 'card';
+        row.setAttribute('style', 'padding:10px;margin:8px 0');
+        var t = document.createElement('strong');
+        t.textContent = u.original_filename;
+        row.appendChild(t);
+        var a = document.createElement('a');
+        a.setAttribute('href', u.file_url);
+        a.textContent = 'Download →';
+        a.setAttribute('style', 'margin-left:10px');
+        row.appendChild(a);
+        var del = document.createElement('button');
+        del.type = 'button';
+        del.textContent = 'Delete';
+        del.setAttribute('style', 'margin-left:10px');
+        del.addEventListener('click', function () {
+          window.PP.request('/api/uploads/' + u.id, { method: 'DELETE' }).then(function (rr) { if (rr.ok) load(); });
+        });
+        row.appendChild(del);
+        box.appendChild(row);
+      });
+    });
+  }
+  document.addEventListener('pp-upload-done', load);
+  load();
 });

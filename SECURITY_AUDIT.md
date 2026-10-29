@@ -93,7 +93,19 @@ was checked in the code, not inferred from documentation.
 
 ## Verdict
 
-No critical remotely-exploitable flaw was found in the existing
-server code. Production readiness is still blocked by the gaps
-above (CSRF, Secure flag enforcement, upload validation, admin
-audit log) plus the product blockers in PRODUCTION_READINESS.md.
+CORRECTED 2026-10-29: the original verdict ("no critical flaw")
+was wrong. During Phase E work, live testing proved the static
+handler served ANY file under the site root, including
+/server/data/*.db (200, 352,256 bytes — password hashes
+downloadable over HTTP from any running server) and server source
+files. This was a critical, remotely-exploitable flaw in every
+running server. Fixed the same day: handleStatic now returns 404
+for any /server/* path and any *.db path, before the existence
+check. Covered by server/test/uploads.js (static-block tests).
+Upload validation (gap 3 above) is also now implemented — see
+CHANGELOG.md, Phase E backend entry.
+
+Remaining production blockers: CSRF, Secure flag enforcement,
+admin audit log, 2FA, deletion workflow, email provider, global
+session revocation, plus the product blockers in
+PRODUCTION_READINESS.md.

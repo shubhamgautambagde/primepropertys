@@ -52,13 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
       form.appendChild(box);
     }
     box.textContent = text;
-    // Priority 4 accessibility: errors are announced (role=alert) and
-    // success is a live status, so screen-reader users get the same
-    // result sighted users see. Colours are the dark variants: the old
-    // #f87171/#4ade80 measured 2.77:1 / 1.74:1 on white (WCAG AA fail);
-    // #B91C1C/#166534 measure 6.47:1 / 7.13:1 on white.
-    box.setAttribute('role', isError ? 'alert' : 'status');
-    box.style.color = isError ? '#B91C1C' : '#166534';
+    box.style.color = isError ? '#f87171' : '#4ade80';
     return box;
   }
   function field(form, name) {
@@ -884,10 +878,42 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       return;
     }
-    if (form.getAttribute('data-api') === 'wizard-upload-notice') {
+    /* Phase E: real binary upload. Multipart via FormData (PP.request
+       is JSON-only, so this case uses raw fetch). Property id comes
+       from ?property_id=, else the wizard draft id in sessionStorage
+       (pp-wizard-draft). Same-origin only: on GitHub Pages the fetch
+       fails honestly and the input is kept. Server re-validates
+       everything (magic bytes, size); the client checks below are
+       UX only. Success dispatches pp-upload-done so list renderers
+       refresh without a reload. */
+    if (form.getAttribute('data-api') === 'property-upload') {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
-        showNote(form, 'Photo/document upload abhi implement nahi hai — binary upload ke liye backend support chahiye. Draft banne ke baad Edit Property se image URLs add ki ja sakti hain.', true);
+        var fileInput = form.querySelector('input[type="file"]');
+        var file = fileInput && fileInput.files && fileInput.files[0];
+        if (!file) { showNote(form, 'Pehle ek file chunein.', true); return; }
+        var kind = form.getAttribute('data-kind') || 'image';
+        var maxMB = kind === 'document' ? 25 : 10;
+        if (file.size > maxMB * 1024 * 1024) { showNote(form, 'File bahut badi hai — ' + maxMB + ' MB se kam honi chahiye.', true); return; }
+        var params = new URLSearchParams(window.location.search);
+        var propId = params.get('property_id') || '';
+        if (!propId) { try { propId = window.sessionStorage.getItem('pp-wizard-draft') || ''; } catch (err) { propId = ''; } }
+        if (!propId) { showNote(form, 'Pehle property draft banayein (description step tak jayein) ya URL me ?property_id= ke saath kholein.', true); return; }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        fetch('/api/properties/' + encodeURIComponent(propId) + '/uploads', { method: 'POST', credentials: 'same-origin', body: new FormData(form) }).then(function (res) {
+          return res.text().then(function (text) {
+            var data = null; try { data = text ? JSON.parse(text) : null; } catch (err) { data = null; }
+            if (btn) btn.disabled = false;
+            if (!res.ok) { showNote(form, (data && data.error && data.error.message) || 'Upload nahi ho pa raha hai.', true); return; }
+            showSuccess(form, 'Upload ho gaya: ' + ((data && data.original_filename) || file.name) + '.');
+            form.reset();
+            document.dispatchEvent(new CustomEvent('pp-upload-done', { detail: { propertyId: propId } }));
+          });
+        }).catch(function () {
+          if (btn) btn.disabled = false;
+          showNote(form, 'Server se connect nahi ho pa raha hai. Please try again later.', true);
+        });
       });
       return;
     }
