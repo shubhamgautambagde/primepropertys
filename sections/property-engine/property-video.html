@@ -1235,10 +1235,42 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       return;
     }
-    if (form.getAttribute('data-api') === 'wizard-upload-notice') {
+    /* Phase E: real binary upload. Multipart via FormData (PP.request
+       is JSON-only, so this case uses raw fetch). Property id comes
+       from ?property_id=, else the wizard draft id in sessionStorage
+       (pp-wizard-draft). Same-origin only: on GitHub Pages the fetch
+       fails honestly and the input is kept. Server re-validates
+       everything (magic bytes, size); the client checks below are
+       UX only. Success dispatches pp-upload-done so list renderers
+       refresh without a reload. */
+    if (form.getAttribute('data-api') === 'property-upload') {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
-        showNote(form, 'Photo/document upload abhi implement nahi hai — binary upload ke liye backend support chahiye. Draft banne ke baad Edit Property se image URLs add ki ja sakti hain.', true);
+        var fileInput = form.querySelector('input[type="file"]');
+        var file = fileInput && fileInput.files && fileInput.files[0];
+        if (!file) { showNote(form, 'Pehle ek file chunein.', true); return; }
+        var kind = form.getAttribute('data-kind') || 'image';
+        var maxMB = kind === 'document' ? 25 : 10;
+        if (file.size > maxMB * 1024 * 1024) { showNote(form, 'File bahut badi hai — ' + maxMB + ' MB se kam honi chahiye.', true); return; }
+        var params = new URLSearchParams(window.location.search);
+        var propId = params.get('property_id') || '';
+        if (!propId) { try { propId = window.sessionStorage.getItem('pp-wizard-draft') || ''; } catch (err) { propId = ''; } }
+        if (!propId) { showNote(form, 'Pehle property draft banayein (description step tak jayein) ya URL me ?property_id= ke saath kholein.', true); return; }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        fetch('/api/properties/' + encodeURIComponent(propId) + '/uploads', { method: 'POST', credentials: 'same-origin', body: new FormData(form) }).then(function (res) {
+          return res.text().then(function (text) {
+            var data = null; try { data = text ? JSON.parse(text) : null; } catch (err) { data = null; }
+            if (btn) btn.disabled = false;
+            if (!res.ok) { showNote(form, (data && data.error && data.error.message) || 'Upload nahi ho pa raha hai.', true); return; }
+            showSuccess(form, 'Upload ho gaya: ' + ((data && data.original_filename) || file.name) + '.');
+            form.reset();
+            document.dispatchEvent(new CustomEvent('pp-upload-done', { detail: { propertyId: propId } }));
+          });
+        }).catch(function () {
+          if (btn) btn.disabled = false;
+          showNote(form, 'Server se connect nahi ho pa raha hai. Please try again later.', true);
+        });
       });
       return;
     }
@@ -1536,7 +1568,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (style) el.setAttribute('style', style);
     return el;
   }
-  ['contact-owner.html', 'contact-agent.html', 'make-enquiry.html', 'request-callback.html', 'request-site-visit.html'].forEach(function (page) {
+  ['contact-owner.html', 'contact-agent.html', 'make-enquiry.html', 'request-callback.html', 'request-site-visit.html', 'property-documents.html'].forEach(function (page) {
     document.querySelectorAll('a[href="' + page + '"]').forEach(function (a) {
       a.setAttribute('href', page + '?property_id=' + id);
     });
@@ -1593,5 +1625,53 @@ document.addEventListener('DOMContentLoaded', function () {
     body.appendChild(saveBtn);
     body.appendChild(saveNote);
   });
+});
+
+/* Phase E — documents list for property-documents.html.
+   Guarded by #pp-doc-list. Property id from ?property_id= only
+   (documents belong to a property; the detail page sidebar now
+   links here with the id). Same delete + pp-upload-done refresh
+   pattern as the wizard list. */
+document.addEventListener('DOMContentLoaded', function () {
+  var box = document.getElementById('pp-doc-list');
+  if (!box || !window.PP || !window.PP.get) return;
+  var notice = document.getElementById('pp-doc-upload-notice');
+  var id = new URLSearchParams(window.location.search).get('property_id') || '';
+  if (!id) {
+    if (notice) notice.textContent = 'Documents dekhne/upload karne ke liye URL me ?property_id= chahiye — property detail page se aayein.';
+    return;
+  }
+  function load() {
+    window.PP.get('/api/properties/' + encodeURIComponent(id) + '/uploads').then(function (r) {
+      box.textContent = '';
+      if (!r.ok) { box.textContent = 'Documents load nahi ho pa rahe hain.'; return; }
+      var items = ((r.data && r.data.data) || []).filter(function (u) { return u.kind === 'document'; });
+      if (!items.length) { box.textContent = 'Abhi koi document upload nahi hai.'; return; }
+      items.forEach(function (u) {
+        var row = document.createElement('div');
+        row.className = 'card';
+        row.setAttribute('style', 'padding:10px;margin:8px 0');
+        var t = document.createElement('strong');
+        t.textContent = u.original_filename;
+        row.appendChild(t);
+        var a = document.createElement('a');
+        a.setAttribute('href', u.file_url);
+        a.textContent = 'Download →';
+        a.setAttribute('style', 'margin-left:10px');
+        row.appendChild(a);
+        var del = document.createElement('button');
+        del.type = 'button';
+        del.textContent = 'Delete';
+        del.setAttribute('style', 'margin-left:10px');
+        del.addEventListener('click', function () {
+          window.PP.request('/api/uploads/' + u.id, { method: 'DELETE' }).then(function (rr) { if (rr.ok) load(); });
+        });
+        row.appendChild(del);
+        box.appendChild(row);
+      });
+    });
+  }
+  document.addEventListener('pp-upload-done', load);
+  load();
 });
 </script></body></html>
