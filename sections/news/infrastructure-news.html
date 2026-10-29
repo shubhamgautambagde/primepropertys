@@ -157,11 +157,6 @@ textarea{min-height:120px}
   .grid-5,.grid-4,.grid-8,.grid-3,.grid-2,.form-row{grid-template-columns:1fr}
   .footer-grid{grid-template-columns:1fr}
   .hero-img img{height:260px}
-  /* Priority 4 responsive tables: admin/CRM tables (.tbl) previously
-     overflowed the viewport on narrow screens with no scroll affordance.
-     Scrolling the table itself keeps columns readable without hiding
-     data or changing the desktop layout. */
-  .tbl{display:block;overflow-x:auto;max-width:100%}
 }
 .app-layout{display:grid;grid-template-columns:250px 1fr;gap:0;align-items:start}
 .sidebar{background:#0A2240;color:#CBD5E1;padding:20px 14px;min-height:70vh;position:sticky;top:60px}
@@ -202,26 +197,15 @@ table.data th{color:#0A2240;background:#F8FAFC;white-space:nowrap}
 <main id="main-content" tabindex="-1" class="app-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> &gt; News &gt; Infrastructure News</div>
 <div class="app-top"><div><h1>Infrastructure News</h1><p class="lead">Metro, highway and infrastructure news that moves property values.</p></div><a class="btn outline small" href="index.html">← All News Pages</a></div>
-<div class="grid grid-2"><div class="card"><img class="article-img" src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1200&q=80" alt="News" loading="lazy" decoding="async"><span class="badge blue">Infrastructure</span><h3><a href="news-detail.html">Delhi-NCR Metro Expansion: New Corridors to Boost Property Values</a></h3><p>The new metro corridors in Delhi-NCR are expected to significantly improve connectivity and drive real estate demand.</p><p>Rajiv Mehta • 20 May 2024 • 4 min read</p></div><div class="card"><img class="article-img" src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1200&q=80" alt="Delhi-NCR Metro Expansion: New Corridors to Boost Property Values" loading="lazy" decoding="async"><span class="badge blue">Infrastructure</span><h3><a href="news-detail.html">Mumbai Metro Line 3 Fully Operational from Today</a></h3><p>Mumbai Metro Line 3 opens fully, easing commutes and lifting property interest along the corridor.</p><p>Rajiv Mehta • 20 May 2024 • 3 min read</p></div></div>
+<div class="grid grid-2"><div class="card"><img class="article-img" src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1200&q=80" alt="News"><span class="badge blue">Infrastructure</span><h3><a href="news-detail.html">Delhi-NCR Metro Expansion: New Corridors to Boost Property Values</a></h3><p>The new metro corridors in Delhi-NCR are expected to significantly improve connectivity and drive real estate demand.</p><p>Rajiv Mehta • 20 May 2024 • 4 min read</p></div><div class="card"><img class="article-img" src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1200&q=80" alt="Delhi-NCR Metro Expansion: New Corridors to Boost Property Values"><span class="badge blue">Infrastructure</span><h3><a href="news-detail.html">Mumbai Metro Line 3 Fully Operational from Today</a></h3><p>Mumbai Metro Line 3 opens fully, easing commutes and lifting property interest along the corridor.</p><p>Rajiv Mehta • 20 May 2024 • 3 min read</p></div></div>
 </main></div>
 <footer class="site-footer" style="margin-top:0"><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with love in India</span></div></footer>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   // Mobile nav
-  // Priority 4 accessibility: the toggle now exposes its state, so
-  // assistive tech can tell whether the menu is open. Previously it
-  // was only aria-label="Menu" with no expanded state.
   var toggle = document.querySelector('.nav-toggle');
   var nav = document.querySelector('.main-nav');
-  if (toggle && nav) {
-    if (!nav.id) nav.id = 'main-nav';
-    toggle.setAttribute('aria-controls', nav.id);
-    toggle.setAttribute('aria-expanded', 'false');
-    toggle.addEventListener('click', function () {
-      var open = nav.classList.toggle('open');
-      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
-  }
+  if (toggle && nav) toggle.addEventListener('click', function () { nav.classList.toggle('open'); });
 
   // Active nav link
   var here = window.location.pathname.split('/').pop() || 'index.html';
@@ -390,24 +374,6 @@ document.addEventListener('DOMContentLoaded', function () {
   window.PP.submitContact = function (fields) { return post('/api/contact', fields); };
   window.PP.savedList = function () { return get('/api/saved'); };
   window.PP.notifications = function () { return get('/api/notifications'); };
-  /* Priority 2 helpers (same honest-request pattern as above). */
-  window.PP.listBuilderProjects = function (params) { return get('/api/builder-projects' + (params ? '?' + params : '')); };
-  window.PP.listReviews = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/reviews'); };
-  window.PP.listTasks = function (params) { return get('/api/tasks' + (params ? '?' + params : '')); };
-  window.PP.listPlans = function () { return get('/api/subscription-plans'); };
-  window.PP.mySubscriptions = function () { return get('/api/subscriptions/mine'); };
-  window.PP.entitlement = function () { return get('/api/subscriptions/entitlement'); };
-  window.PP.listConversations = function () { return get('/api/conversations'); };
-  window.PP.listCustomRoles = function () { return get('/api/custom-roles'); };
-  window.PP.listAuditLog = function () { return get('/api/admin-audit-log'); };
-  /* Priority 3 helpers (same honest-request pattern as above). */
-  window.PP.analyticsSummary = function () { return get('/api/analytics/summary'); };
-  window.PP.listSavedSearches = function () { return get('/api/saved-searches'); };
-  window.PP.listSearchAlerts = function () { return get('/api/search-alerts'); };
-  window.PP.listPriceHistory = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/price-history'); };
-  window.PP.recommendations = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/recommendations'); };
-  window.PP.aiGenerations = function () { return get('/api/ai/generations'); };
-  window.PP.aiGenerate = function (fields) { return post('/api/ai/generate', fields); };
 })();
 document.addEventListener('DOMContentLoaded', function () {
   /* Role dashboards, relative to the site root (login/register pages
@@ -453,13 +419,7 @@ document.addEventListener('DOMContentLoaded', function () {
       form.appendChild(box);
     }
     box.textContent = text;
-    // Priority 4 accessibility: errors are announced (role=alert) and
-    // success is a live status, so screen-reader users get the same
-    // result sighted users see. Colours are the dark variants: the old
-    // #f87171/#4ade80 measured 2.77:1 / 1.74:1 on white (WCAG AA fail);
-    // #B91C1C/#166534 measure 6.47:1 / 7.13:1 on white.
-    box.setAttribute('role', isError ? 'alert' : 'status');
-    box.style.color = isError ? '#B91C1C' : '#166534';
+    box.style.color = isError ? '#f87171' : '#4ade80';
     return box;
   }
   function field(form, name) {
@@ -1285,10 +1245,42 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       return;
     }
-    if (form.getAttribute('data-api') === 'wizard-upload-notice') {
+    /* Phase E: real binary upload. Multipart via FormData (PP.request
+       is JSON-only, so this case uses raw fetch). Property id comes
+       from ?property_id=, else the wizard draft id in sessionStorage
+       (pp-wizard-draft). Same-origin only: on GitHub Pages the fetch
+       fails honestly and the input is kept. Server re-validates
+       everything (magic bytes, size); the client checks below are
+       UX only. Success dispatches pp-upload-done so list renderers
+       refresh without a reload. */
+    if (form.getAttribute('data-api') === 'property-upload') {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
-        showNote(form, 'Photo/document upload abhi implement nahi hai — binary upload ke liye backend support chahiye. Draft banne ke baad Edit Property se image URLs add ki ja sakti hain.', true);
+        var fileInput = form.querySelector('input[type="file"]');
+        var file = fileInput && fileInput.files && fileInput.files[0];
+        if (!file) { showNote(form, 'Pehle ek file chunein.', true); return; }
+        var kind = form.getAttribute('data-kind') || 'image';
+        var maxMB = kind === 'document' ? 25 : 10;
+        if (file.size > maxMB * 1024 * 1024) { showNote(form, 'File bahut badi hai — ' + maxMB + ' MB se kam honi chahiye.', true); return; }
+        var params = new URLSearchParams(window.location.search);
+        var propId = params.get('property_id') || '';
+        if (!propId) { try { propId = window.sessionStorage.getItem('pp-wizard-draft') || ''; } catch (err) { propId = ''; } }
+        if (!propId) { showNote(form, 'Pehle property draft banayein (description step tak jayein) ya URL me ?property_id= ke saath kholein.', true); return; }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        fetch('/api/properties/' + encodeURIComponent(propId) + '/uploads', { method: 'POST', credentials: 'same-origin', body: new FormData(form) }).then(function (res) {
+          return res.text().then(function (text) {
+            var data = null; try { data = text ? JSON.parse(text) : null; } catch (err) { data = null; }
+            if (btn) btn.disabled = false;
+            if (!res.ok) { showNote(form, (data && data.error && data.error.message) || 'Upload nahi ho pa raha hai.', true); return; }
+            showSuccess(form, 'Upload ho gaya: ' + ((data && data.original_filename) || file.name) + '.');
+            form.reset();
+            document.dispatchEvent(new CustomEvent('pp-upload-done', { detail: { propertyId: propId } }));
+          });
+        }).catch(function () {
+          if (btn) btn.disabled = false;
+          showNote(form, 'Server se connect nahi ho pa raha hai. Please try again later.', true);
+        });
       });
       return;
     }
