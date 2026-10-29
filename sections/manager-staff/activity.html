@@ -156,6 +156,11 @@ textarea{min-height:120px}
   .grid-5,.grid-4,.grid-8,.grid-3,.grid-2,.form-row{grid-template-columns:1fr}
   .footer-grid{grid-template-columns:1fr}
   .hero-img img{height:260px}
+  /* Priority 4 responsive tables: admin/CRM tables (.tbl) previously
+     overflowed the viewport on narrow screens with no scroll affordance.
+     Scrolling the table itself keeps columns readable without hiding
+     data or changing the desktop layout. */
+  .tbl{display:block;overflow-x:auto;max-width:100%}
 }
 .portal{display:grid;grid-template-columns:250px 1fr;align-items:start}
 .sidebar{background:#0A2240;color:#CBD5E1;padding:18px 0 28px;position:sticky;top:64px;min-height:calc(100vh - 64px)}
@@ -199,9 +204,20 @@ th{color:#0A2240;white-space:nowrap}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   // Mobile nav
+  // Priority 4 accessibility: the toggle now exposes its state, so
+  // assistive tech can tell whether the menu is open. Previously it
+  // was only aria-label="Menu" with no expanded state.
   var toggle = document.querySelector('.nav-toggle');
   var nav = document.querySelector('.main-nav');
-  if (toggle && nav) toggle.addEventListener('click', function () { nav.classList.toggle('open'); });
+  if (toggle && nav) {
+    if (!nav.id) nav.id = 'main-nav';
+    toggle.setAttribute('aria-controls', nav.id);
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.addEventListener('click', function () {
+      var open = nav.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }
 
   // Active nav link
   var here = window.location.pathname.split('/').pop() || 'index.html';
@@ -370,6 +386,24 @@ document.addEventListener('DOMContentLoaded', function () {
   window.PP.submitContact = function (fields) { return post('/api/contact', fields); };
   window.PP.savedList = function () { return get('/api/saved'); };
   window.PP.notifications = function () { return get('/api/notifications'); };
+  /* Priority 2 helpers (same honest-request pattern as above). */
+  window.PP.listBuilderProjects = function (params) { return get('/api/builder-projects' + (params ? '?' + params : '')); };
+  window.PP.listReviews = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/reviews'); };
+  window.PP.listTasks = function (params) { return get('/api/tasks' + (params ? '?' + params : '')); };
+  window.PP.listPlans = function () { return get('/api/subscription-plans'); };
+  window.PP.mySubscriptions = function () { return get('/api/subscriptions/mine'); };
+  window.PP.entitlement = function () { return get('/api/subscriptions/entitlement'); };
+  window.PP.listConversations = function () { return get('/api/conversations'); };
+  window.PP.listCustomRoles = function () { return get('/api/custom-roles'); };
+  window.PP.listAuditLog = function () { return get('/api/admin-audit-log'); };
+  /* Priority 3 helpers (same honest-request pattern as above). */
+  window.PP.analyticsSummary = function () { return get('/api/analytics/summary'); };
+  window.PP.listSavedSearches = function () { return get('/api/saved-searches'); };
+  window.PP.listSearchAlerts = function () { return get('/api/search-alerts'); };
+  window.PP.listPriceHistory = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/price-history'); };
+  window.PP.recommendations = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/recommendations'); };
+  window.PP.aiGenerations = function () { return get('/api/ai/generations'); };
+  window.PP.aiGenerate = function (fields) { return post('/api/ai/generate', fields); };
 })();
 document.addEventListener('DOMContentLoaded', function () {
   /* Role dashboards, relative to the site root (login/register pages
@@ -415,7 +449,13 @@ document.addEventListener('DOMContentLoaded', function () {
       form.appendChild(box);
     }
     box.textContent = text;
-    box.style.color = isError ? '#f87171' : '#4ade80';
+    // Priority 4 accessibility: errors are announced (role=alert) and
+    // success is a live status, so screen-reader users get the same
+    // result sighted users see. Colours are the dark variants: the old
+    // #f87171/#4ade80 measured 2.77:1 / 1.74:1 on white (WCAG AA fail);
+    // #B91C1C/#166534 measure 6.47:1 / 7.13:1 on white.
+    box.setAttribute('role', isError ? 'alert' : 'status');
+    box.style.color = isError ? '#B91C1C' : '#166534';
     return box;
   }
   function field(form, name) {
@@ -1557,5 +1597,61 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
   });
+});
+
+/* Priority 2 — live builder projects + staff tasks (guarded containers).
+   My Projects shows the logged-in builder's own projects; staff tasks
+   show tasks visible to the logged-in user. Demo rows stay untouched
+   below; these live lists are the real data. */
+document.addEventListener('DOMContentLoaded', function () {
+  if (!window.PP || !window.PP.me) return;
+  function card(title, meta) {
+    var c = document.createElement('div');
+    c.className = 'card';
+    c.setAttribute('style', 'padding:12px;margin:10px 0');
+    var t = document.createElement('strong');
+    t.textContent = title;
+    c.appendChild(t);
+    var p = document.createElement('p');
+    p.textContent = meta;
+    c.appendChild(p);
+    return c;
+  }
+  var proj = document.getElementById('pp-builder-projects');
+  if (proj) {
+    window.PP.me().then(function (m) {
+      if (!m.ok || !m.data || !m.data.user) { proj.textContent = 'Apne projects dekhne ke liye login karein.'; return; }
+      window.PP.listBuilderProjects('mine=1&limit=100').then(function (r) {
+        proj.textContent = '';
+        if (!r.ok) { proj.textContent = 'Projects load nahi ho pa rahe hain.'; return; }
+        var items = (r.data && r.data.data) || [];
+        var h = document.createElement('h3');
+        h.textContent = 'Your Projects (live): ' + items.length;
+        proj.appendChild(h);
+        if (!items.length) { proj.appendChild(document.createTextNode('No projects yet.')); return; }
+        items.forEach(function (p) {
+          proj.appendChild(card(p.name, (p.city || '') + ' • ' + (p.project_type || '') + ' • Status: ' + p.status + ' • Units: ' + ((p.unit_counts && p.unit_counts.total) || 0)));
+        });
+      });
+    });
+  }
+  var tasks = document.getElementById('pp-staff-tasks');
+  if (tasks) {
+    window.PP.me().then(function (m) {
+      if (!m.ok || !m.data || !m.data.user) { tasks.textContent = 'Tasks dekhne ke liye login karein.'; return; }
+      window.PP.listTasks('limit=100').then(function (r) {
+        tasks.textContent = '';
+        if (!r.ok) { tasks.textContent = 'Tasks load nahi ho pa rahi hain.'; return; }
+        var items = (r.data && r.data.data) || [];
+        var h = document.createElement('h3');
+        h.textContent = 'Your Tasks (live): ' + items.length;
+        tasks.appendChild(h);
+        if (!items.length) { tasks.appendChild(document.createTextNode('No tasks assigned to you.')); return; }
+        items.forEach(function (t) {
+          tasks.appendChild(card(t.title, 'Status: ' + t.status + ' • Priority: ' + t.priority + (t.due_date ? ' • Due: ' + t.due_date : '')));
+        });
+      });
+    });
+  }
 });
 </script></body></html>

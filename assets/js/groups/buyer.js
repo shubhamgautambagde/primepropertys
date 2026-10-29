@@ -65,9 +65,14 @@ document.addEventListener('DOMContentLoaded', function () {
       meta.textContent = (p.property_type || '') + ' • ' + (p.city || '') + (p.locality ? ', ' + p.locality : '') + ' • ' + inr(p.price_inr || 0);
       card.appendChild(meta);
       var a = document.createElement('a');
-      a.setAttribute('href', '../property-engine/make-enquiry.html?property_id=' + p.id);
-      a.textContent = 'Enquire →';
+      a.setAttribute('href', '../property-engine/property-details.html?property_id=' + p.id);
+      a.textContent = 'View Details →';
       card.appendChild(a);
+      card.appendChild(document.createTextNode(' · '));
+      var a2 = document.createElement('a');
+      a2.setAttribute('href', '../property-engine/make-enquiry.html?property_id=' + p.id);
+      a2.textContent = 'Enquire →';
+      card.appendChild(a2);
       el.appendChild(card);
     });
   }
@@ -122,9 +127,14 @@ document.addEventListener('DOMContentLoaded', function () {
     meta.textContent = (p.property_type || '') + ' • ' + (p.city || '') + (p.locality ? ', ' + p.locality : '') + ' • ' + inr(p.price_inr || 0);
     card.appendChild(meta);
     var a = document.createElement('a');
-    a.setAttribute('href', '../property-engine/make-enquiry.html?property_id=' + p.id);
-    a.textContent = 'Enquire →';
+    a.setAttribute('href', '../property-engine/property-details.html?property_id=' + p.id);
+    a.textContent = 'View Details →';
     card.appendChild(a);
+    card.appendChild(document.createTextNode(' · '));
+    var a2 = document.createElement('a');
+    a2.setAttribute('href', '../property-engine/make-enquiry.html?property_id=' + p.id);
+    a2.textContent = 'Enquire →';
+    card.appendChild(a2);
     return card;
   }
   function propList(box, items, heading, emptyText) {

@@ -50,3 +50,59 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 });
+
+/* Priority 2 — live builder projects + staff tasks (guarded containers).
+   My Projects shows the logged-in builder's own projects; staff tasks
+   show tasks visible to the logged-in user. Demo rows stay untouched
+   below; these live lists are the real data. */
+document.addEventListener('DOMContentLoaded', function () {
+  if (!window.PP || !window.PP.me) return;
+  function card(title, meta) {
+    var c = document.createElement('div');
+    c.className = 'card';
+    c.setAttribute('style', 'padding:12px;margin:10px 0');
+    var t = document.createElement('strong');
+    t.textContent = title;
+    c.appendChild(t);
+    var p = document.createElement('p');
+    p.textContent = meta;
+    c.appendChild(p);
+    return c;
+  }
+  var proj = document.getElementById('pp-builder-projects');
+  if (proj) {
+    window.PP.me().then(function (m) {
+      if (!m.ok || !m.data || !m.data.user) { proj.textContent = 'Apne projects dekhne ke liye login karein.'; return; }
+      window.PP.listBuilderProjects('mine=1&limit=100').then(function (r) {
+        proj.textContent = '';
+        if (!r.ok) { proj.textContent = 'Projects load nahi ho pa rahe hain.'; return; }
+        var items = (r.data && r.data.data) || [];
+        var h = document.createElement('h3');
+        h.textContent = 'Your Projects (live): ' + items.length;
+        proj.appendChild(h);
+        if (!items.length) { proj.appendChild(document.createTextNode('No projects yet.')); return; }
+        items.forEach(function (p) {
+          proj.appendChild(card(p.name, (p.city || '') + ' • ' + (p.project_type || '') + ' • Status: ' + p.status + ' • Units: ' + ((p.unit_counts && p.unit_counts.total) || 0)));
+        });
+      });
+    });
+  }
+  var tasks = document.getElementById('pp-staff-tasks');
+  if (tasks) {
+    window.PP.me().then(function (m) {
+      if (!m.ok || !m.data || !m.data.user) { tasks.textContent = 'Tasks dekhne ke liye login karein.'; return; }
+      window.PP.listTasks('limit=100').then(function (r) {
+        tasks.textContent = '';
+        if (!r.ok) { tasks.textContent = 'Tasks load nahi ho pa rahi hain.'; return; }
+        var items = (r.data && r.data.data) || [];
+        var h = document.createElement('h3');
+        h.textContent = 'Your Tasks (live): ' + items.length;
+        tasks.appendChild(h);
+        if (!items.length) { tasks.appendChild(document.createTextNode('No tasks assigned to you.')); return; }
+        items.forEach(function (t) {
+          tasks.appendChild(card(t.title, 'Status: ' + t.status + ' • Priority: ' + t.priority + (t.due_date ? ' • Due: ' + t.due_date : '')));
+        });
+      });
+    });
+  }
+});

@@ -1,5 +1,15 @@
 # TRIAGE — Remaining forms, links and admin tables (autopilot slice 5, 2026-10-28)
 
+> Priority 4 note (2026-10-28): this file is a historical slice log.
+> Its state line below is that slice's state, not the current state.
+> Current verified counts: 653 pages, 362 forms (224 wired + 138
+> `data-backend="not-connected"`), 186 `href="#"` occurrences in
+> source, 100/100 server tests, migrations 001–028. Statements in
+> this file that binary upload "is not implemented anywhere" and
+> that search filters are client-side are superseded by Priority 1
+> (binary upload, server-side search). The current authoritative
+> status is FINAL_REPORT.md.
+
 State after this slice: tests 59/59, audit 187 entries (was 250), 0 broken
 internal links, `data-backend="not-connected"` occurrences 201 → 138.
 

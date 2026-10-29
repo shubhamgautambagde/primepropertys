@@ -11,6 +11,7 @@ import {
   consumePasswordResetToken, createEmailVerificationToken, verifyEmailToken,
   listPermissions, listUsers, hasPermission, parseCookies, sessionCookieHeader,
   clearSessionCookieHeader, isLoginBlocked, recordFailedLogin, clearFailedLogins,
+  writeRateLimited, recordWriteAttempt,
 } from './auth.js';
 import * as P from './properties.js';
 import * as L from './leads.js';
@@ -22,12 +23,85 @@ import * as S from './services.js';
 import * as PAY from './payments.js';
 import * as CAMP from './campaigns.js';
 import * as SET from './settings.js';
+import * as U from './uploads.js';
+import * as B from './builder.js';
+import * as REV from './reviews.js';
+import * as TASK from './tasks.js';
+import * as RBAC from './rbac.js';
+import * as SUB from './subscriptions.js';
+import * as CHAT from './chat.js';
+import * as AI from './ai.js';
+import * as P3 from './priority3.js';
+import { readFileSync as readUploadFile, readdirSync } from 'node:fs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const STATIC_ROOT = resolve(process.env.STATIC_ROOT || join(here, '..', '..'));
 const DB_PATH = process.env.DATABASE_PATH || join(here, '..', 'data', 'primepropertys.db');
 const PORT = Number(process.env.PORT || 8902);
 const EMAIL_BACKEND = process.env.EMAIL_BACKEND || 'console';
+/* Priority 1 upload storage: outside the static root by default
+   (a sibling directory), so uploaded files can only be fetched
+   through the controlled /api/uploads/:id route. Set UPLOAD_DIR
+   explicitly on a real host. */
+const UPLOAD_DIR = process.env.UPLOAD_DIR || join(dirname(STATIC_ROOT), 'primepropertys-uploads');
+/* Priority 1: console-email is dev-only. Tokens are printed to the
+   server log ONLY when EMAIL_BACKEND=console AND an explicit dev
+   flag is set (NODE_ENV=development or PP_DEV_CONSOLE_EMAIL=1).
+   In every other mode the reset/verification handlers answer 503
+   EMAIL_NOT_CONFIGURED and issue no token to any log. */
+const DEV_CONSOLE_EMAIL = EMAIL_BACKEND === 'console' &&
+  (process.env.NODE_ENV === 'development' || process.env.PP_DEV_CONSOLE_EMAIL === '1');
+
+/* Priority 1: a session cookie is Secure when this request arrived
+   over TLS, when the trusted proxy says so (X-Forwarded-Proto),
+   or when SESSION_COOKIE_SECURE=1 / FORCE_HTTPS=1 is set. Plain-HTTP
+   local development keeps working (no Secure flag). */
+function sessionSecureFor(req) {
+  return Boolean(req && (req.socket?.encrypted ||
+    req.headers?.['x-forwarded-proto'] === 'https' ||
+    process.env.SESSION_COOKIE_SECURE === '1' || process.env.FORCE_HTTPS === '1'));
+}
+
+/* Priority 1 CSRF: strict Origin/Referer check for cookie-authenticated
+   state-changing requests. Same-origin browsers always send Origin
+   (fetch) or Referer on POST/PATCH/PUT/DELETE, so legitimate users are
+   unaffected. Requests with neither header (curl, server-to-server,
+   the existing test clients) are allowed: this check is a browser
+   CSRF defence, not an API-key scheme. GET is excluded on purpose:
+   the email-verification link is a GET clicked from an inbox. */
+function csrfBlocked(req) {
+  const host = (req.headers.host || '').toLowerCase();
+  const origin = req.headers.origin;
+  if (origin) {
+    try { return new URL(origin).host.toLowerCase() !== host; } catch { return true; }
+  }
+  const referer = req.headers.referer;
+  if (referer) {
+    try { return new URL(referer).host.toLowerCase() !== host; } catch { return true; }
+  }
+  return false;
+}
+
+/* Priority 1 write rate limits (in-memory, single-instance only).
+   Routes with their own limiter (login, inquiries, contact,
+   newsletter subscribe) keep that limiter and skip this one. */
+function writeLimitFor(req, user, body) {
+  const path = new URL(req.url, 'http://localhost').pathname;
+  const ip = req.socket.remoteAddress || '';
+  const group = path.split('/').slice(0, 3).join('/');
+  if (path === '/api/auth/register') return { key: `register:${ip}`, max: 30 };
+  if (path === '/api/auth/request-password-reset') {
+    const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
+    return { key: `reset:${ip}:${email}`, max: 10 };
+  }
+  if (path === '/api/auth/request-verification') {
+    return { key: user ? `verify:u${user.id}` : `verify:${ip}`, max: 30 };
+  }
+  if (path === '/api/newsletter/unsubscribe') return { key: `unsub:${ip}`, max: 30 };
+  if (user) return { key: `write:u${user.id}:${group}`, max: 300 };
+  return { key: `write:${ip}:${group}`, max: 300 };
+}
+
 
 const db = openDb(DB_PATH);
 
@@ -82,7 +156,9 @@ function sendJson(res, status, obj, extraHeaders) {
   // The request object is stashed on the per-request response object by
   // the server handler below, so gzip negotiation needs no signature
   // changes across the 50+ sendJson/respond call sites.
-  sendBody(res, res._ppReq, status, 'application/json; charset=utf-8', JSON.stringify(obj), extraHeaders);
+  // Priority 4: API responses carry user-specific data, so they must
+  // never sit in a shared cache. A caller-supplied Cache-Control wins.
+  sendBody(res, res._ppReq, status, 'application/json; charset=utf-8', JSON.stringify(obj), { 'Cache-Control': 'no-store', ...(extraHeaders || {}) });
 }
 
 function apiError(res, status, code, message) {
@@ -110,6 +186,20 @@ function readBody(req) {
   });
 }
 
+function readBodyBuffer(req, maxBytes) {
+  return new Promise((resolveBody, reject) => {
+    const chunks = [];
+    let size = 0;
+    req.on('data', (c) => {
+      size += c.length;
+      if (size > maxBytes) { reject(new Error('BODY_TOO_LARGE')); req.destroy(); return; }
+      chunks.push(c);
+    });
+    req.on('end', () => resolveBody(Buffer.concat(chunks)));
+    req.on('error', reject);
+  });
+}
+
 function listProperties(url) {
   const q = url.searchParams;
   const limit = parseIntParam(q.get('limit'), 20, 1, 100);
@@ -125,10 +215,32 @@ function listProperties(url) {
   const where = ['status = ?', 'deleted_at IS NULL'];
   const params = ['published'];
   if (q.get('city')) { where.push('city = ?'); params.push(q.get('city')); }
+  if (q.get('locality')) { where.push('locality = ?'); params.push(q.get('locality')); }
   if (q.get('property_type')) { where.push('property_type = ?'); params.push(q.get('property_type')); }
   if (q.get('listing_type')) { where.push('listing_type = ?'); params.push(q.get('listing_type')); }
   if (minPrice !== null) { where.push('price_inr >= ?'); params.push(minPrice); }
   if (maxPrice !== null) { where.push('price_inr <= ?'); params.push(maxPrice); }
+  /* Priority 1: server-side filters the frontend already sends
+     (bedrooms, bedrooms_min, area_min, area_max, possession_status).
+     Previously these were applied client-side over at most 100
+     fetched rows, so pagination.total described the fetched subset,
+     not the filtered set (BUG-009/BUG-028). Invalid values are 400,
+     not silently ignored. */
+  const bedrooms = parseIntParam(q.get('bedrooms'), null, 0, 50);
+  const bedroomsMin = parseIntParam(q.get('bedrooms_min'), null, 0, 50);
+  const areaMin = parseIntParam(q.get('area_min'), null, 0, 1000000);
+  const areaMax = parseIntParam(q.get('area_max'), null, 0, 1000000);
+  if ((q.get('bedrooms') !== null && bedrooms === null) ||
+      (q.get('bedrooms_min') !== null && bedroomsMin === null) ||
+      (q.get('area_min') !== null && areaMin === null) ||
+      (q.get('area_max') !== null && areaMax === null)) {
+    return { status: 400, code: 'INVALID_PARAMETER', message: 'bedrooms/bedrooms_min must be integers 0-50 and area_min/area_max integers 0-1000000' };
+  }
+  if (bedrooms !== null) { where.push('bedrooms = ?'); params.push(bedrooms); }
+  if (bedroomsMin !== null) { where.push('bedrooms >= ?'); params.push(bedroomsMin); }
+  if (areaMin !== null) { where.push('area_sqft >= ?'); params.push(areaMin); }
+  if (areaMax !== null) { where.push('area_sqft <= ?'); params.push(areaMax); }
+  if (q.get('possession_status')) { where.push('possession_status = ?'); params.push(q.get('possession_status')); }
   const sort = q.get('sort') || 'newest';
   const sorts = {
     newest: 'id DESC',
@@ -179,7 +291,7 @@ function handleAuth(req, res, url, body, user, token) {
     const created = publicUser(db.prepare('SELECT * FROM users WHERE id = ?').get(Number(info.lastInsertRowid)));
     const session = createSession(db, created.id, req.socket.remoteAddress, req.headers['user-agent']);
     return sendJson(res, 201, { user: created, permissions: listPermissions(db, created) },
-      { 'Set-Cookie': sessionCookieHeader(session, 604800) });
+      { 'Set-Cookie': sessionCookieHeader(session, 604800, { secure: sessionSecureFor(req) }) });
   }
   if (path === '/api/auth/login' && req.method === 'POST') {
     const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
@@ -195,11 +307,11 @@ function handleAuth(req, res, url, body, user, token) {
     const userRow = publicUser(row);
     const session = createSession(db, userRow.id, ip, req.headers['user-agent']);
     return sendJson(res, 200, { user: userRow, permissions: listPermissions(db, userRow) },
-      { 'Set-Cookie': sessionCookieHeader(session, 604800) });
+      { 'Set-Cookie': sessionCookieHeader(session, 604800, { secure: sessionSecureFor(req) }) });
   }
   if (path === '/api/auth/logout' && req.method === 'POST') {
     deleteSession(db, token);
-    return sendJson(res, 200, { ok: true }, { 'Set-Cookie': clearSessionCookieHeader() });
+    return sendJson(res, 200, { ok: true }, { 'Set-Cookie': clearSessionCookieHeader({ secure: sessionSecureFor(req) }) });
   }
   if (path === '/api/auth/me' && req.method === 'GET') {
     if (!user) return apiError(res, 401, 'UNAUTHORIZED', 'Login required');
@@ -218,7 +330,7 @@ function handleAuth(req, res, url, body, user, token) {
     return sendJson(res, 200, { ok: true });
   }
   if (path === '/api/auth/request-password-reset' && req.method === 'POST') {
-    if (EMAIL_BACKEND !== 'console') {
+    if (!DEV_CONSOLE_EMAIL) {
       return apiError(res, 503, 'EMAIL_NOT_CONFIGURED', 'Email delivery is not configured yet; password reset by email is unavailable');
     }
     const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
@@ -240,7 +352,7 @@ function handleAuth(req, res, url, body, user, token) {
   }
   if (path === '/api/auth/request-verification' && req.method === 'POST') {
     if (!user) return apiError(res, 401, 'UNAUTHORIZED', 'Login required');
-    if (EMAIL_BACKEND !== 'console') {
+    if (!DEV_CONSOLE_EMAIL) {
       return apiError(res, 503, 'EMAIL_NOT_CONFIGURED', 'Email delivery is not configured yet; verification email is unavailable');
     }
     const vToken = createEmailVerificationToken(db, user.id);
@@ -268,6 +380,13 @@ function handlePropertyRoutes(req, res, url, body, user) {
   if (path === '/api/properties' && m === 'GET') {
     const r = listProperties(url);
     if (r.status !== 200) return apiError(res, r.status, r.code, r.message);
+    // Priority 3: record a real search event (filters only, no PII) so
+    // analytics counts searches that actually happened.
+    const meta = {};
+    for (const k of ['city', 'locality', 'property_type', 'listing_type', 'sort']) {
+      if (url.searchParams.get(k)) meta[k] = url.searchParams.get(k);
+    }
+    P3.recordEvent(db, 'property_search', null, user ? user.id : null, meta);
     return sendJson(res, 200, r.body);
   }
   if (path === '/api/properties/mine' && m === 'GET') return respond(res, P.listMine(db, user, url));
@@ -276,9 +395,30 @@ function handlePropertyRoutes(req, res, url, body, user) {
   const similar = path.match(/^\/api\/properties\/([^/]+)\/similar$/);
   if (similar && m === 'GET') return respond(res, P.similarProperties(db, user, similar[1]));
   const pub = path.match(/^\/api\/properties\/([^/]+)\/publish$/);
-  if (pub && m === 'POST') return respond(res, P.publishProperty(db, user, pub[1]));
+  if (pub && m === 'POST') {
+    const r = P.publishProperty(db, user, pub[1]);
+    // Priority 3: a newly published property triggers in-app alerts
+    // for matching saved searches (deduplicated; no external delivery).
+    if (!r.error) P3.createAlertsForProperty(db, r.body);
+    return respond(res, r);
+  }
   const unpub = path.match(/^\/api\/properties\/([^/]+)\/unpublish$/);
   if (unpub && m === 'POST') return respond(res, P.unpublishProperty(db, user, unpub[1]));
+  const uploads = path.match(/^\/api\/properties\/([^/]+)\/uploads$/);
+  if (uploads) {
+    if (m === 'GET') return respond(res, U.listUploads(db, user, uploads[1]));
+    if (m === 'POST') {
+      if (!req._ppUpload) return apiError(res, 400, 'INVALID_PARAMETER', 'Upload must be multipart/form-data');
+      return respond(res, U.uploadFile(db, UPLOAD_DIR, STATIC_ROOT, user, uploads[1], req._ppUpload.buffer, req._ppUpload.contentType));
+    }
+    return apiError(res, 405, 'METHOD_NOT_ALLOWED', 'Method not allowed for this upload route');
+  }
+  const uploadOne = path.match(/^\/api\/properties\/([^/]+)\/uploads\/([^/]+)$/);
+  if (uploadOne) {
+    if (m === 'PATCH') return respond(res, U.reorderUpload(db, user, uploadOne[1], uploadOne[2], body));
+    if (m === 'DELETE') return respond(res, U.deleteUpload(db, UPLOAD_DIR, user, uploadOne[1], uploadOne[2]));
+    return apiError(res, 405, 'METHOD_NOT_ALLOWED', 'Method not allowed for this upload route');
+  }
   const img = path.match(/^\/api\/properties\/([^/]+)\/images$/);
   if (img && m === 'POST') return respond(res, P.addImage(db, user, img[1], body));
   const imgDel = path.match(/^\/api\/properties\/([^/]+)\/images\/([^/]+)$/);
@@ -292,6 +432,9 @@ function handlePropertyRoutes(req, res, url, body, user) {
       const r = getProperty(detail[1], user);
       if (r.status !== 200) return apiError(res, r.status, r.code, r.message);
       P.recordView(db, user, Number(detail[1]));
+      // Priority 3: record a real view event, including anonymous
+      // views (user_id NULL), so analytics counts actual detail loads.
+      P3.recordEvent(db, 'property_view', Number(detail[1]), user ? user.id : null, {});
       return sendJson(res, 200, r.body);
     }
     if (m === 'PATCH') return respond(res, P.updateProperty(db, user, detail[1], body));
@@ -444,7 +587,361 @@ function handleLeadRoutes(req, res, url, body, user) {
   return apiError(res, 404, 'NOT_FOUND', 'Unknown API route');
 }
 
+function handleBuilderRoutes(req, res, url, body, user) {
+  const path = url.pathname;
+  const m = req.method;
+  if (path === '/api/builder-projects' && m === 'POST') return respond(res, B.createProject(db, user, body));
+  if (path === '/api/builder-projects' && m === 'GET') return respond(res, B.listProjects(db, user, url));
+  const submit = path.match(/^\/api\/builder-projects\/([^/]+)\/submit$/);
+  if (submit && m === 'POST') return respond(res, B.submitProject(db, user, submit[1]));
+  const verify = path.match(/^\/api\/builder-projects\/([^/]+)\/verify$/);
+  if (verify && m === 'POST') return respond(res, B.verifyProject(db, user, verify[1], body));
+  const pub = path.match(/^\/api\/builder-projects\/([^/]+)\/publish$/);
+  if (pub && m === 'POST') return respond(res, B.publishProject(db, user, pub[1]));
+  const unpub = path.match(/^\/api\/builder-projects\/([^/]+)\/unpublish$/);
+  if (unpub && m === 'POST') return respond(res, B.unpublishProject(db, user, unpub[1]));
+  const arch = path.match(/^\/api\/builder-projects\/([^/]+)\/archive$/);
+  if (arch && m === 'POST') return respond(res, B.archiveProject(db, user, arch[1]));
+  const tower = path.match(/^\/api\/builder-projects\/([^/]+)\/towers$/);
+  if (tower && m === 'POST') return respond(res, B.addTower(db, user, tower[1], body));
+  const unit = path.match(/^\/api\/builder-projects\/([^/]+)\/units$/);
+  if (unit && m === 'POST') return respond(res, B.addUnit(db, user, unit[1], body));
+  const unitStatus = path.match(/^\/api\/builder-projects\/([^/]+)\/units\/([^/]+)\/status$/);
+  if (unitStatus && m === 'PATCH') return respond(res, B.setUnitStatus(db, user, unitStatus[1], unitStatus[2], body));
+  const mile = path.match(/^\/api\/builder-projects\/([^/]+)\/milestones$/);
+  if (mile && m === 'POST') return respond(res, B.addMilestone(db, user, mile[1], body));
+  const amen = path.match(/^\/api\/builder-projects\/([^/]+)\/amenities$/);
+  if (amen && m === 'POST') return respond(res, B.addAmenity(db, user, amen[1], body));
+  const doc = path.match(/^\/api\/builder-projects\/([^/]+)\/documents$/);
+  if (doc && m === 'POST') return respond(res, B.addDocument(db, user, doc[1], body));
+  const offer = path.match(/^\/api\/builder-projects\/([^/]+)\/offers$/);
+  if (offer && m === 'POST') return respond(res, B.addOffer(db, user, offer[1], body));
+  const enq = path.match(/^\/api\/builder-projects\/([^/]+)\/enquiries$/);
+  if (enq && m === 'POST') return respond(res, B.createEnquiry(db, user, enq[1], body));
+  if (enq && m === 'GET') return respond(res, B.listEnquiries(db, user, enq[1], url));
+  const act = path.match(/^\/api\/builder-projects\/([^/]+)\/activities$/);
+  if (act && m === 'POST') return respond(res, B.addActivity(db, user, act[1], body));
+  const detail = path.match(/^\/api\/builder-projects\/([^/]+)$/);
+  if (detail) {
+    if (m === 'GET') return respond(res, B.getProject(db, user, detail[1]));
+    if (m === 'PATCH') return respond(res, B.updateProject(db, user, detail[1], body));
+    return apiError(res, 405, 'METHOD_NOT_ALLOWED', 'Method not allowed for this project route');
+  }
+  return apiError(res, 404, 'NOT_FOUND', 'Unknown API route');
+}
+
+function handleReviewRoutes(req, res, url, body, user) {
+  const path = url.pathname;
+  const m = req.method;
+  const propReviews = path.match(/^\/api\/properties\/([^/]+)\/reviews$/);
+  if (propReviews && m === 'POST') return respond(res, REV.createReview(db, user, propReviews[1], body));
+  if (propReviews && m === 'GET') return respond(res, REV.listReviews(db, user, propReviews[1], url));
+  const report = path.match(/^\/api\/reviews\/([^/]+)\/report$/);
+  if (report && m === 'POST') return respond(res, REV.reportReview(db, user, report[1], body));
+  const detail = path.match(/^\/api\/reviews\/([^/]+)$/);
+  if (detail) {
+    if (m === 'PATCH') return respond(res, REV.moderateReview(db, user, detail[1], body));
+    if (m === 'DELETE') return respond(res, REV.deleteReview(db, user, detail[1]));
+    return apiError(res, 405, 'METHOD_NOT_ALLOWED', 'Method not allowed for this review route');
+  }
+  return apiError(res, 404, 'NOT_FOUND', 'Unknown API route');
+}
+
+function handleTaskRoutes(req, res, url, body, user) {
+  const path = url.pathname;
+  const m = req.method;
+  if (path === '/api/tasks/stats' && m === 'GET') return respond(res, TASK.taskStats(db, user));
+  if (path === '/api/tasks' && m === 'POST') return respond(res, TASK.createTask(db, user, body));
+  if (path === '/api/tasks' && m === 'GET') return respond(res, TASK.listTasks(db, user, url));
+  const comment = path.match(/^\/api\/tasks\/([^/]+)\/comments$/);
+  if (comment && m === 'POST') return respond(res, TASK.addComment(db, user, comment[1], body));
+  const detail = path.match(/^\/api\/tasks\/([^/]+)$/);
+  if (detail) {
+    if (m === 'GET') return respond(res, TASK.getTask(db, user, detail[1]));
+    if (m === 'PATCH') return respond(res, TASK.updateTask(db, user, detail[1], body));
+    return apiError(res, 405, 'METHOD_NOT_ALLOWED', 'Method not allowed for this task route');
+  }
+  return apiError(res, 404, 'NOT_FOUND', 'Unknown API route');
+}
+
+function handleRbacRoutes(req, res, url, body, user, token) {
+  const path = url.pathname;
+  const m = req.method;
+  if (path === '/api/auth/sessions' && m === 'GET') return respond(res, RBAC.listSessions(db, user));
+  if (path === '/api/auth/revoke-other-sessions' && m === 'POST') {
+    if (!user) return apiError(res, 401, 'UNAUTHORIZED', 'Login required');
+    revokeOtherSessions(db, user.id, token);
+    RBAC.logAudit(db, user.id, 'session.revoke_others', 'user', user.id, '');
+    return sendJson(res, 200, { ok: true });
+  }
+  const sess = path.match(/^\/api\/auth\/sessions\/([^/]+)$/);
+  if (sess && m === 'DELETE') return respond(res, RBAC.revokeSession(db, user, token, sess[1]));
+  if (path === '/api/custom-roles' && m === 'POST') return respond(res, RBAC.createCustomRole(db, user, body));
+  if (path === '/api/custom-roles' && m === 'GET') return respond(res, RBAC.listCustomRoles(db, user));
+  if (path === '/api/custom-roles/assign' && m === 'POST') return respond(res, RBAC.assignCustomRole(db, user, body));
+  if (path === '/api/custom-roles/unassign' && m === 'POST') return respond(res, RBAC.unassignCustomRole(db, user, body));
+  const role = path.match(/^\/api\/custom-roles\/([^/]+)$/);
+  if (role) {
+    if (m === 'GET') return respond(res, RBAC.getCustomRole(db, user, role[1]));
+    if (m === 'PATCH') return respond(res, RBAC.updateCustomRole(db, user, role[1], body));
+    if (m === 'DELETE') return respond(res, RBAC.deleteCustomRole(db, user, role[1]));
+    return apiError(res, 405, 'METHOD_NOT_ALLOWED', 'Method not allowed for this role route');
+  }
+  if (path === '/api/admin-audit-log' && m === 'GET') return respond(res, RBAC.listAuditLog(db, user, url));
+  return apiError(res, 404, 'NOT_FOUND', 'Unknown API route');
+}
+
+function handleSubscriptionRoutes(req, res, url, body, user) {
+  const path = url.pathname;
+  const m = req.method;
+  if (path === '/api/subscription-plans' && m === 'GET') return respond(res, SUB.listPlans(db, user, url));
+  if (path === '/api/subscription-plans' && m === 'POST') return respond(res, SUB.createPlan(db, user, body));
+  const plan = path.match(/^\/api\/subscription-plans\/([^/]+)$/);
+  if (plan && m === 'PATCH') return respond(res, SUB.updatePlan(db, user, plan[1], body));
+  if (path === '/api/subscriptions' && m === 'POST') return respond(res, SUB.createSubscription(db, user, body));
+  if (path === '/api/subscriptions/mine' && m === 'GET') return respond(res, SUB.listMySubscriptions(db, user));
+  if (path === '/api/subscriptions/entitlement' && m === 'GET') return respond(res, SUB.entitlement(db, user));
+  const activate = path.match(/^\/api\/subscriptions\/([^/]+)\/activate$/);
+  if (activate && m === 'POST') return respond(res, SUB.activateSubscription(db, user, activate[1], body));
+  const change = path.match(/^\/api\/subscriptions\/([^/]+)\/change-plan$/);
+  if (change && m === 'POST') return respond(res, SUB.changePlan(db, user, change[1], body));
+  const cancel = path.match(/^\/api\/subscriptions\/([^/]+)\/cancel$/);
+  if (cancel && m === 'POST') return respond(res, SUB.cancelSubscription(db, user, cancel[1]));
+  const expire = path.match(/^\/api\/subscriptions\/([^/]+)\/expire$/);
+  if (expire && m === 'POST') return respond(res, SUB.expireSubscription(db, user, expire[1]));
+  const invoices = path.match(/^\/api\/subscriptions\/([^/]+)\/invoices$/);
+  if (invoices && m === 'GET') return respond(res, SUB.subscriptionInvoices(db, user, invoices[1]));
+  const subDetail = path.match(/^\/api\/subscriptions\/([^/]+)$/);
+  if (subDetail && m === 'GET') return respond(res, SUB.getSubscription(db, user, subDetail[1]));
+  if (path === '/api/coupons' && m === 'POST') return respond(res, SUB.createCoupon(db, user, body));
+  if (path === '/api/coupons/apply' && m === 'POST') return respond(res, SUB.applyCoupon(db, user, body));
+  if (path === '/api/coupons/redeem' && m === 'POST') return respond(res, SUB.redeemCoupon(db, user, body));
+  const feature = path.match(/^\/api\/properties\/([^/]+)\/feature$/);
+  if (feature && m === 'POST') return respond(res, SUB.featureProperty(db, user, feature[1]));
+  if (feature && m === 'DELETE') return respond(res, SUB.unfeatureProperty(db, user, feature[1]));
+  return apiError(res, 404, 'NOT_FOUND', 'Unknown API route');
+}
+
+function handleChatRoutes(req, res, url, body, user) {
+  const path = url.pathname;
+  const m = req.method;
+  if (path === '/api/notification-preferences' && m === 'GET') return respond(res, CHAT.getPreferences(db, user));
+  if (path === '/api/notification-preferences' && m === 'PUT') return respond(res, CHAT.putPreferences(db, user, body));
+  if (path === '/api/conversations' && m === 'POST') return respond(res, CHAT.createConversation(db, user, body));
+  if (path === '/api/conversations' && m === 'GET') return respond(res, CHAT.listConversations(db, user));
+  const msgs = path.match(/^\/api\/conversations\/([^/]+)\/messages$/);
+  if (msgs && m === 'POST') return respond(res, CHAT.sendMessage(db, user, msgs[1], body));
+  if (msgs && m === 'GET') return respond(res, CHAT.listMessages(db, user, msgs[1], url));
+  const read = path.match(/^\/api\/conversations\/([^/]+)\/read$/);
+  if (read && m === 'POST') return respond(res, CHAT.markRead(db, user, read[1]));
+  const detail = path.match(/^\/api\/conversations\/([^/]+)$/);
+  if (detail && m === 'GET') return respond(res, CHAT.getConversation(db, user, detail[1]));
+  return apiError(res, 404, 'NOT_FOUND', 'Unknown API route');
+}
+
+/* Priority 3: sitemap + link check helpers. Both work only from files
+   that actually exist under the static root and from published
+   properties in the database. Nothing is claimed to be crawled from
+   the web, and no search-engine indexing status is reported. */
+function xmlEscape(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function walkHtmlFiles(dir, out) {
+  let entries = [];
+  try { entries = readdirSync(dir, { withFileTypes: true }); } catch { return out; }
+  for (const e of entries) {
+    if (e.name === 'server') continue;
+    const full = join(dir, e.name);
+    if (e.isDirectory()) walkHtmlFiles(full, out);
+    else if (e.isFile() && e.name.endsWith('.html')) out.push(full);
+  }
+  return out;
+}
+
+function generateSitemapXml() {
+  const base = (process.env.SITE_BASE_URL || 'https://shubhamgautambagde.github.io/primepropertys').replace(/\/$/, '');
+  const urls = [];
+  for (const full of walkHtmlFiles(STATIC_ROOT, [])) {
+    const rel = full.slice(STATIC_ROOT.length + 1).split(/[\\/]/).join('/');
+    let loc;
+    if (rel === 'index.html') loc = base + '/';
+    else if (rel.endsWith('/index.html')) loc = base + '/' + rel.slice(0, -'index.html'.length);
+    else loc = base + '/' + rel;
+    let lastmod = '';
+    try { lastmod = statSync(full).mtime.toISOString().slice(0, 10); } catch { /* omit */ }
+    urls.push({ loc, lastmod });
+  }
+  const props = db.prepare(`SELECT id, updated_at FROM properties
+    WHERE status = 'published' AND deleted_at IS NULL ORDER BY id`).all();
+  for (const p of props) {
+    urls.push({
+      loc: `${base}/sections/property-engine/property-details.html?property_id=${p.id}`,
+      lastmod: (p.updated_at || '').slice(0, 10),
+    });
+  }
+  const body = ['<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ...urls.map((u) => `  <url><loc>${xmlEscape(u.loc)}</loc>${u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ''}</url>`),
+    '</urlset>'].join('\n');
+  return { body, count: urls.length, published_properties: props.length };
+}
+
+function checkPageLinks(pagePath) {
+  // pagePath is an internal path like /sections/seo/broken-links.html.
+  const rel = pagePath.replace(/^\/+/, '');
+  if (rel.includes('..')) return { error: 'path must not contain ..' };
+  const file = resolve(join(STATIC_ROOT, '.' + pagePath));
+  if (!file.startsWith(STATIC_ROOT + '/')) return { error: 'path escapes the site root' };
+  if (!existsSync(file) || !statSync(file).isFile()) return { error: 'page not found' };
+  const html = readFileSync(file, 'utf8');
+  const found = new Set();
+  for (const m of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
+    const raw = m[1];
+    if (!raw || raw.startsWith('#') || raw.startsWith('mailto:') || raw.startsWith('tel:') ||
+        raw.startsWith('javascript:') || raw.startsWith('data:') || /^https?:\/\//.test(raw)) continue;
+    found.add(raw);
+  }
+  const broken = [];
+  const pageDir = dirname(pagePath);
+  for (const raw of found) {
+    const clean = raw.split('#')[0].split('?')[0];
+    if (!clean) continue;
+    let target = clean.startsWith('/') ? clean : join(pageDir, clean).split(/[\\/]/).join('/');
+    if (target.endsWith('/')) target += 'index.html';
+    const resolved = resolve(join(STATIC_ROOT, '.' + target));
+    if (!resolved.startsWith(STATIC_ROOT + '/') || !existsSync(resolved) || !statSync(resolved).isFile()) {
+      broken.push(raw);
+    }
+  }
+  return { path: pagePath, checked_links: found.size, broken };
+}
+
+async function handlePriority3Routes(req, res, url, body, user) {
+  const path = url.pathname;
+  const m = req.method;
+  try {
+    if (path === '/api/ai/generate' && m === 'POST') return respond(res, await AI.generate(db, user, body));
+    if (path === '/api/ai/generations' && m === 'GET') return respond(res, AI.listGenerations(db, user, url));
+    const gen = path.match(/^\/api\/ai\/generations\/([^/]+)$/);
+    if (gen && m === 'GET') return respond(res, AI.getGeneration(db, user, gen[1]));
+    const review = path.match(/^\/api\/ai\/generations\/([^/]+)\/review$/);
+    if (review && m === 'POST') return respond(res, AI.reviewGeneration(db, user, review[1], body));
+    const apply = path.match(/^\/api\/ai\/generations\/([^/]+)\/apply$/);
+    if (apply && m === 'POST') return respond(res, AI.applyGeneration(db, user, apply[1]));
+    const quality = path.match(/^\/api\/properties\/([^/]+)\/quality-check$/);
+    if (quality && m === 'GET') return respond(res, AI.qualityCheck(db, user, quality[1]));
+    const priceHist = path.match(/^\/api\/properties\/([^/]+)\/price-history$/);
+    if (priceHist && m === 'GET') return respond(res, P3.listPriceHistory(db, user, priceHist[1]));
+    const recs = path.match(/^\/api\/properties\/([^/]+)\/recommendations$/);
+    if (recs && m === 'GET') return respond(res, P3.recommendations(db, user, recs[1], url));
+    if (path === '/api/analytics/summary' && m === 'GET') return respond(res, P3.analyticsSummary(db, user, url));
+    if (path === '/api/analytics/export' && m === 'GET') {
+      const r = P3.analyticsExportCsv(db, user, url);
+      if (r.error) return apiError(res, r.status, r.error.code, r.error.message);
+      res.writeHead(200, { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="analytics.csv"', ...SECURITY_HEADERS });
+      return res.end(r.csv);
+    }
+    if (path === '/api/saved-searches' && m === 'POST') return respond(res, P3.createSavedSearch(db, user, body));
+    if (path === '/api/saved-searches' && m === 'GET') return respond(res, P3.listSavedSearches(db, user));
+    const match = path.match(/^\/api\/saved-searches\/([^/]+)\/match$/);
+    if (match && m === 'GET') return respond(res, P3.matchSavedSearch(db, user, match[1], url));
+    const savedOne = path.match(/^\/api\/saved-searches\/([^/]+)$/);
+    if (savedOne && m === 'DELETE') return respond(res, P3.deleteSavedSearch(db, user, savedOne[1]));
+    if (path === '/api/search-alerts' && m === 'GET') return respond(res, P3.listSearchAlerts(db, user, url));
+    if (path === '/api/reminders' && m === 'GET') return respond(res, P3.listReminders(db, user));
+    if (path === '/api/seo/metadata' && m === 'GET') return respond(res, P3.getSeoMetadata(db, user, url));
+    if (path === '/api/seo/metadata' && m === 'POST') return respond(res, P3.saveSeoMetadata(db, user, body));
+    if (path === '/api/seo/redirects' && m === 'GET') return respond(res, P3.listSeoRedirects(db, user));
+    if (path === '/api/seo/redirects' && m === 'POST') return respond(res, P3.createSeoRedirect(db, user, body));
+    const redirOne = path.match(/^\/api\/seo\/redirects\/([^/]+)$/);
+    if (redirOne && m === 'DELETE') return respond(res, P3.deleteSeoRedirect(db, user, redirOne[1]));
+    if (path === '/api/seo/duplicates' && m === 'GET') return respond(res, P3.seoDuplicates(db, user));
+    if (path === '/api/seo/robots' && m === 'GET') return respond(res, P3.seoRobots(db, user, null));
+    if (path === '/api/seo/robots' && m === 'PUT') return respond(res, P3.seoRobots(db, user, body));
+    if (path === '/api/seo/sitemap' && m === 'GET') {
+      const s = generateSitemapXml();
+      return sendBody(res, req, 200, 'application/xml; charset=utf-8', s.body);
+    }
+    if (path === '/api/seo/link-check' && m === 'POST') {
+      if (!user) return apiError(res, 401, 'UNAUTHORIZED', 'Login required');
+      if (!hasPermission(db, user, 'seo:manage')) return apiError(res, 403, 'FORBIDDEN', 'Missing permission: seo:manage');
+      const target = body && typeof body.path === 'string' ? body.path : '';
+      if (!target.startsWith('/')) return apiError(res, 400, 'INVALID_PARAMETER', 'path must start with /');
+      const r = checkPageLinks(target);
+      if (r.error) return apiError(res, 404, 'NOT_FOUND', r.error);
+      db.prepare(`INSERT INTO seo_link_checks (path, checked_links, broken_count, broken_json)
+        VALUES (?, ?, ?, ?)`).run(target, r.checked_links, r.broken.length, JSON.stringify(r.broken));
+      db.prepare(`UPDATE seo_metadata SET last_checked_at = datetime('now') WHERE path = ?`).run(target);
+      return sendJson(res, 200, r);
+    }
+    if (path === '/api/seo/broken-links' && m === 'GET') {
+      if (!user) return apiError(res, 401, 'UNAUTHORIZED', 'Login required');
+      if (!hasPermission(db, user, 'seo:manage')) return apiError(res, 403, 'FORBIDDEN', 'Missing permission: seo:manage');
+      const rows = db.prepare(`SELECT * FROM seo_link_checks WHERE broken_count > 0
+        ORDER BY checked_at DESC, id DESC LIMIT 100`).all();
+      return sendJson(res, 200, { data: rows });
+    }
+    return apiError(res, 404, 'NOT_FOUND', 'Unknown API route');
+  } catch {
+    if (!res.headersSent) return apiError(res, 500, 'SERVER_ERROR', 'Priority 3 route failed');
+    return res.end();
+  }
+}
+
+function isPriority3Path(path) {
+  return path === '/api/ai/generate' || path === '/api/ai/generations' ||
+    /^\/api\/ai\/generations\/[^/]+(\/(review|apply))?$/.test(path) ||
+    /^\/api\/properties\/[^/]+\/(quality-check|price-history|recommendations)$/.test(path) ||
+    path === '/api/analytics/summary' || path === '/api/analytics/export' ||
+    path === '/api/saved-searches' || /^\/api\/saved-searches\/[^/]+(\/match)?$/.test(path) ||
+    path === '/api/search-alerts' || path === '/api/reminders' ||
+    path === '/api/seo/metadata' || path === '/api/seo/redirects' ||
+    /^\/api\/seo\/redirects\/[^/]+$/.test(path) || path === '/api/seo/duplicates' ||
+    path === '/api/seo/robots' || path === '/api/seo/sitemap' ||
+    path === '/api/seo/link-check' || path === '/api/seo/broken-links';
+}
+
 function handleApi(req, res, url, body, user, token) {
+  /* Priority 3 routes (async: AI provider calls). */
+  if (isPriority3Path(url.pathname)) {
+    handlePriority3Routes(req, res, url, body, user);
+    return;
+  }
+  /* Priority 2: payment webhook stub — no provider is configured, so
+     this always answers 501 and never activates any entitlement. */
+  if (url.pathname === '/api/webhooks/payment' && req.method === 'POST') {
+    return apiError(res, 501, 'WEBHOOK_NOT_CONFIGURED', 'No payment provider is configured; webhooks are not accepted');
+  }
+  if (url.pathname === '/api/auth/sessions' || url.pathname === '/api/auth/revoke-other-sessions' ||
+      url.pathname.startsWith('/api/auth/sessions/')) {
+    return handleRbacRoutes(req, res, url, body, user, token);
+  }
+  if (url.pathname === '/api/custom-roles' || url.pathname.startsWith('/api/custom-roles/') ||
+      url.pathname === '/api/admin-audit-log') {
+    return handleRbacRoutes(req, res, url, body, user, token);
+  }
+  if (url.pathname === '/api/builder-projects' || url.pathname.startsWith('/api/builder-projects/')) {
+    return handleBuilderRoutes(req, res, url, body, user);
+  }
+  if (/^\/api\/properties\/[^/]+\/reviews$/.test(url.pathname) || url.pathname.startsWith('/api/reviews/')) {
+    return handleReviewRoutes(req, res, url, body, user);
+  }
+  if (/^\/api\/properties\/[^/]+\/feature$/.test(url.pathname)) {
+    return handleSubscriptionRoutes(req, res, url, body, user);
+  }
+  if (url.pathname === '/api/tasks' || url.pathname.startsWith('/api/tasks/')) {
+    return handleTaskRoutes(req, res, url, body, user);
+  }
+  if (url.pathname === '/api/subscription-plans' || url.pathname.startsWith('/api/subscription-plans/') ||
+      url.pathname === '/api/subscriptions' || url.pathname.startsWith('/api/subscriptions/') ||
+      url.pathname === '/api/coupons' || url.pathname.startsWith('/api/coupons/')) {
+    return handleSubscriptionRoutes(req, res, url, body, user);
+  }
+  if (url.pathname === '/api/conversations' || url.pathname.startsWith('/api/conversations/') ||
+      url.pathname === '/api/notification-preferences') {
+    return handleChatRoutes(req, res, url, body, user);
+  }
   if (url.pathname.startsWith('/api/auth/')) {
     const handled = handleAuth(req, res, url, body, user, token);
     if (handled !== null) return handled;
@@ -480,6 +977,17 @@ function handleApi(req, res, url, body, user, token) {
     if (req.method === 'GET') return respond(res, SET.getSettings(db, user));
     if (req.method === 'PUT') return respond(res, SET.putSettings(db, user, body));
     return apiError(res, 405, 'METHOD_NOT_ALLOWED', 'Method not allowed for this route');
+  }
+  const download = path.match(/^\/api\/uploads\/([^/]+)$/);
+  if (download && req.method === 'GET') {
+    const r = U.downloadUpload(db, UPLOAD_DIR, user, download[1]);
+    if (r.error) return apiError(res, r.status, r.error.code, r.error.message);
+    const data = readUploadFile(r.file);
+    return sendBody(res, req, 200, r.mime, data, {
+      'Content-Disposition': r.kind === 'document' ? `attachment; filename="upload-${r.id}.${r.ext}"` : `inline; filename="upload-${r.id}.${r.ext}"`,
+      // Priority 4: downloads can be private documents, so never cache them.
+      'Cache-Control': 'no-store',
+    });
   }
   if (path === '/api/properties' || path.startsWith('/api/properties/') ||
       path === '/api/saved' || path === '/api/recently-viewed') {
@@ -535,6 +1043,9 @@ function handleApi(req, res, url, body, user, token) {
       const sets = Object.keys(updates).map((k) => `${k} = ?`).join(', ');
       db.prepare(`UPDATE users SET ${sets}, updated_at = datetime('now') WHERE id = ?`)
         .run(...Object.values(updates), Number(userDetail[1]));
+      /* Priority 2: suspension is a sensitive admin action — audit it. */
+      if (updates.status === 'suspended') RBAC.logAudit(db, user.id, 'user.suspend', 'user', Number(userDetail[1]), row.email);
+      if (updates.role) RBAC.logAudit(db, user.id, 'user.role_change', 'user', Number(userDetail[1]), `${row.role} -> ${updates.role}`);
       const updated = db.prepare(`SELECT id, email, full_name, role, status, email_verified_at, created_at
         FROM users WHERE id = ?`).get(Number(userDetail[1]));
       return sendJson(res, 200, updated);
@@ -559,7 +1070,22 @@ function handleStatic(req, res, url) {
     res.writeHead(405, { 'Content-Type': 'text/plain', ...SECURITY_HEADERS });
     return res.end('Method not allowed');
   }
+  /* Priority 3: stored SEO redirects are honoured for real requests
+     (301/302 from the seo_redirects table, not from page markup). */
+  try {
+    const redir = db.prepare('SELECT * FROM seo_redirects WHERE from_path = ?').get(url.pathname);
+    if (redir) {
+      res.writeHead(redir.status_code, { Location: redir.to_path, ...SECURITY_HEADERS });
+      return res.end();
+    }
+  } catch { /* no redirect table yet: serve normally */ }
   let rel = decodeURIComponent(url.pathname);
+  /* Priority 1: never serve the server tree as static files (source,
+     data directory, or anything an operator places under server/). */
+  if (rel === '/server' || rel.startsWith('/server/')) {
+    res.writeHead(404, { 'Content-Type': 'text/plain', ...SECURITY_HEADERS });
+    return res.end('Not found');
+  }
   if (rel.endsWith('/')) rel += 'index.html';
   const file = resolve(join(STATIC_ROOT, '.' + rel));
   if (!file.startsWith(STATIC_ROOT + '/') && file !== STATIC_ROOT) {
@@ -573,10 +1099,16 @@ function handleStatic(req, res, url) {
   const ext = extname(file).toLowerCase();
   const contentType = MIME[ext] || 'application/octet-stream';
   const data = readFileSync(file);
+  // Priority 4: only non-HTML static assets get a public cache header.
+  // HTML pages are deliberately left uncached: they are regenerated by
+  // tools/build.py and can carry login-dependent client rendering, so a
+  // stale cached page would be worse than a fresh fetch. 3600s (not
+  // immutable) because assets share a path across builds.
+  const staticCache = ext !== '.html' ? { 'Cache-Control': 'public, max-age=3600' } : {};
   if (req.method === 'HEAD') {
     // Same headers a GET would send (including Content-Encoding when
     // the body would be gzipped), but no body.
-    const headers = { 'Content-Type': contentType, ...SECURITY_HEADERS };
+    const headers = { 'Content-Type': contentType, ...SECURITY_HEADERS, ...staticCache };
     const compressible = /^(text\/|application\/(json|javascript)|image\/svg\+xml)/.test(contentType);
     if (compressible && data.length >= 1024 && acceptsGzip(req)) {
       headers['Content-Encoding'] = 'gzip';
@@ -585,7 +1117,7 @@ function handleStatic(req, res, url) {
     res.writeHead(200, headers);
     return res.end();
   }
-  return sendBody(res, req, 200, contentType, data);
+  return sendBody(res, req, 200, contentType, data, staticCache);
 }
 
 const server = createServer(async (req, res) => {
@@ -600,7 +1132,16 @@ const server = createServer(async (req, res) => {
       const token = cookies[SESSION_COOKIE];
       const user = getSessionUser(db, token);
       let body = {};
-      if (req.method === 'POST' || req.method === 'PATCH' || req.method === 'PUT') {
+      const isUpload = req.method === 'POST' && /^\/api\/properties\/[^/]+\/uploads$/.test(url.pathname) &&
+        (req.headers['content-type'] || '').startsWith('multipart/form-data');
+      if (isUpload) {
+        try {
+          const buf = await readBodyBuffer(req, 11 * 1024 * 1024);
+          req._ppUpload = { buffer: buf, contentType: req.headers['content-type'] };
+        } catch {
+          return apiError(res, 413, 'BODY_TOO_LARGE', 'Upload too large (max 10 MB per file)');
+        }
+      } else if (req.method === 'POST' || req.method === 'PATCH' || req.method === 'PUT') {
         let raw;
         try {
           raw = await readBody(req);
@@ -614,6 +1155,15 @@ const server = createServer(async (req, res) => {
             return apiError(res, 400, 'INVALID_JSON', 'Request body must be valid JSON');
           }
         }
+      }
+      if (['POST', 'PATCH', 'PUT', 'DELETE'].includes(req.method) && token) {
+        if (csrfBlocked(req)) return apiError(res, 403, 'CSRF_FORBIDDEN', 'Request origin does not match this site');
+      }
+      if (['POST', 'PATCH', 'PUT', 'DELETE'].includes(req.method) &&
+          !['/api/auth/login', '/api/inquiries', '/api/contact', '/api/newsletter/subscribe'].includes(url.pathname)) {
+        const lim = writeLimitFor(req, user, body);
+        if (writeRateLimited(lim.key, lim.max)) return apiError(res, 429, 'TOO_MANY_ATTEMPTS', 'Too many requests. Try again later.');
+        recordWriteAttempt(lim.key);
       }
       return handleApi(req, res, url, body, user, token);
     }

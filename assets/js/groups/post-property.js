@@ -18,11 +18,17 @@
      implemented: those steps save nothing and say so. Images can
      be added later as URLs from Edit Property.
    - Choice cards carry data-choice-key / data-choice-value (added
-     in the page markup): purpose -> listing_type (sale/rent;
-     Lease maps to rent — the API has no lease value), type ->
-     property_type (PG/Office/Shop/Warehouse map to Commercial —
-     the enum has no PG/office/shop value), category is stored in
-     the session only (no column). */
+     in the page markup) and now carry the user's actual choice:
+     Lease, PG, Office, Shop and Warehouse are NOT silently remapped
+     to rent/Commercial any more. The server enum (validate.js, plus
+     the CHECK constraint in migration 001) does not include them, so
+     a draft create with one of those values fails with an explicit
+     error naming the unsupported choice, and no draft is created
+     under a different type (Priority 1 decision — extending the enum
+     would need a properties-table rebuild, which is a product
+     decision, not a silent repair). Category (residential /
+     commercial / land / project) IS persisted on the draft since
+     migration 019. */
 document.addEventListener('DOMContentLoaded', function () {
   if (!window.PP || !window.PP.me) return;
   var SESSION_KEY = 'pp-wizard';
@@ -646,8 +652,12 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   renderDuplicate();
   window.PP.wizardDuplicate = function (form) { renderDuplicate(); };
-  // Upload steps: honest notice (binary upload not implemented).
-  document.querySelectorAll('form[data-api="wizard-upload-notice"]').forEach(function () {
+  // Upload steps: honest notice where no picker is wired yet
+  // (floor plans, 360, verification, report screenshots). Photos and
+  // Documents pages get the real picker handler appended below, so
+  // they do not also get the "not implemented" notice.
+  var wiredUploadPage = ['property-photos.html', 'property-photos2.html', 'property-documents.html'].indexOf(currentPage()) !== -1;
+  if (!wiredUploadPage) { document.querySelectorAll('form[data-api="wizard-upload-notice"]').forEach(function () {
     var box = document.querySelector('.upload-box');
     if (box) {
       var p = document.createElement('p');
@@ -655,6 +665,7 @@ document.addEventListener('DOMContentLoaded', function () {
       box.parentElement.insertBefore(p, box.nextSibling);
     }
   });
+  }
   // Start page: resume an in-progress draft.
   if (currentPage() === 'post-property-start.html') {
     var id = draftId();
@@ -670,4 +681,69 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
   }
+});
+
+/* Priority 1 — real binary upload for the wizard Photos / Documents
+   steps only (other upload steps keep their honest notice). Each
+   "Choose Files" button gets a file picker that POSTs one file at a
+   time as multipart/form-data to /api/properties/:id/uploads with
+   kind=image (photos) or kind=document (documents). Requires a
+   draft (?draft_id= or sessionStorage pp-wizard-draft); without one
+   it says so and uploads nothing. Files are validated server-side
+   (signature, MIME, 10 MB, permissions); this picker never accepts
+   an external URL as a substitute. */
+document.addEventListener('DOMContentLoaded', function () {
+  var page = (window.location.pathname.split('/').pop() || '');
+  var kind = null;
+  if (page === 'property-photos.html' || page === 'property-photos2.html') kind = 'image';
+  else if (page === 'property-documents.html') kind = 'document';
+  if (!kind) return;
+  var params = new URLSearchParams(window.location.search);
+  var id = parseInt(params.get('draft_id') || params.get('property_id') || '', 10);
+  if (!id || id <= 0) {
+    try { id = parseInt(window.sessionStorage.getItem('pp-wizard-draft') || '', 10) || 0; } catch (e) { id = 0; }
+  }
+  document.querySelectorAll('.upload-box button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (!id || id <= 0) {
+        var warn = document.createElement('p');
+        warn.textContent = 'Pehle description step par draft banayein — bina draft ke upload nahi ho sakta.';
+        btn.parentElement.appendChild(warn);
+        return;
+      }
+      var input = document.createElement('input');
+      input.setAttribute('type', 'file');
+      input.setAttribute('accept', kind === 'image' ? 'image/jpeg,image/png,image/webp,image/gif' : '.pdf,image/jpeg,image/png,image/webp,image/gif');
+      input.setAttribute('multiple', 'multiple');
+      input.addEventListener('change', function () {
+        var files = Array.prototype.slice.call(input.files || []);
+        if (!files.length) return;
+        var note = document.createElement('p');
+        btn.parentElement.appendChild(note);
+        function uploadNext(i) {
+          if (i >= files.length) return;
+          var fd = new FormData();
+          fd.append('kind', kind);
+          fd.append('file', files[i]);
+          note.textContent = 'Upload ho raha hai: ' + files[i].name + ' (' + (i + 1) + '/' + files.length + ')…';
+          fetch('/api/properties/' + id + '/uploads', { method: 'POST', credentials: 'same-origin', body: fd }).then(function (res) {
+            return res.text().then(function (text) {
+              var data = null;
+              try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
+              if (!res.ok) {
+                note.textContent = 'Upload fail ho gaya (' + files[i].name + '): ' + ((data && data.error && data.error.message) || 'unknown error');
+                return;
+              }
+              note.textContent = 'Upload ho gaya: ' + (files[i].name) + ' — ' + (kind === 'image' ? 'photo listing me dikhegi (publish hone par public).' : 'document private rahega (sirf owner/admin dekh sakte hain).');
+              uploadNext(i + 1);
+            });
+          }).catch(function () {
+            note.textContent = 'Server se connect nahi ho pa raha hai — upload nahi hua.';
+          });
+        }
+        uploadNext(0);
+      });
+      input.click();
+    });
+  });
 });

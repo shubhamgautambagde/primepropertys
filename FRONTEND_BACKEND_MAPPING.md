@@ -7,6 +7,8 @@ only after a successful response. A form is "unwired" when it still carries `dat
 Client-side cases (search navigation, in-page filters, calculators) are wired behaviour without a
 server endpoint; they are marked as such and never claim a server save.
 
+Endpoint column corrected 2026-10-28 (Priority 1) from FRONTEND_BACKEND_MAPPING_AUDIT.md (BUG-004): login, register, inquiry, contact, wizard-step, wizard-edit, wizard-upload-notice, service-track, campaign-filter, wizard-choice. Page counts in §1 are distinct-file counts, re-verified 2026-10-28 by counting distinct HTML files per `data-api` value; they differ from occurrence counts (e.g. newsletter 105 files / 106 forms, settings 34 files / 62 forms) because a page can carry more than one form of the same type.
+
 ## 1. Wired forms (`data-api` → endpoint → pages)
 
 | Form (`data-api`) | Endpoint | Pages |
@@ -18,23 +20,23 @@ server endpoint; they are marked as such and never claim a server save.
 | `calc-yield` | `(client-side / navigation only)` | 1 — sections/investor-portal/rental-yield-calculator.html |
 | `campaign-create` | `/api/campaigns/` | 1 — sections/marketing/create-campaign.html |
 | `campaign-edit` | `/api/campaigns/` | 17 — sections/marketing/affiliate.html, sections/marketing/agent-promotion.html, sections/marketing/banner-ads.html (+14 more) |
-| `campaign-filter` | `/api/message-templates` | 1 — sections/marketing/campaigns.html |
+| `campaign-filter` | `(client-side filter)` | 1 — sections/marketing/campaigns.html |
 | `change-password` | `/api/auth/change-password` | 5 — sections/agent-portal/security.html, sections/builder-portal/security.html, sections/buyer-portal/security-settings.html (+2 more) |
-| `contact` | `/api/leads/` | 1 — contact.html |
+| `contact` | `/api/contact` | 1 — contact.html |
 | `emergency-support` | `/api/tickets` | 1 — sections/support-home-services/emergency-support.html |
 | `faq-search` | `(client-side / navigation only)` | 2 — faq.html, help-center.html |
-| `inquiry` | `(client-side / navigation only)` | 5 — sections/property-engine/contact-agent.html, sections/property-engine/contact-owner.html, sections/property-engine/make-enquiry.html (+2 more) |
-| `login` | `(client-side / navigation only)` | 1 — login.html |
+| `inquiry` | `/api/inquiries` | 5 — sections/property-engine/contact-agent.html, sections/property-engine/contact-owner.html, sections/property-engine/make-enquiry.html (+2 more) |
+| `login` | `/api/auth/login` | 1 — login.html |
 | `newsletter` | `/api/newsletter/subscribe` | 105 — about.html, accessibility.html, careers.html (+102 more) |
 | `payment-checkout` | `/api/payments` | 1 — sections/payments/payment-checkout.html |
 | `refund-request` | `/api/payments/` | 1 — sections/payments/refund-request.html |
-| `register` | `(client-side / navigation only)` | 1 — register.html |
+| `register` | `/api/auth/register` | 1 — register.html |
 | `report-problem` | `/api/tickets` | 2 — report-problem.html, sections/property-engine/report-property.html |
 | `section-search` | `(client-side / navigation only)` | 13 — sections/form-builder/conditional-logic.html, sections/form-builder/form-analytics.html, sections/form-builder/form-builder-dashboard.html (+10 more) |
 | `service-assign` | `/api/service-requests/` | 1 — sections/support-home-services/complaint-tracking.html |
 | `service-request` | `/api/service-requests` | 1 — sections/support-home-services/service-request-form.html |
 | `service-schedule` | `/api/service-requests/` | 1 — sections/support-home-services/complaint-tracking.html |
-| `service-track` | `/api/newsletter/subscribe` | 1 — sections/support-home-services/complaint-tracking.html |
+| `service-track` | `(client-side redirect to complaint-tracking.html?request_id=)` | 1 — sections/support-home-services/complaint-tracking.html |
 | `settings` | `/api/settings` | 34 — sections/security-center/security-settings.html, sections/super-admin/ai-settings.html, sections/super-admin/system-settings.html (+31 more) |
 | `site-search` | `(client-side / navigation only)` | 4 — index.html, sections/investor-portal/investment-search.html, sections/mobile/mobile-ui.html (+1 more) |
 | `sms-message` | `/api/queued-messages` | 15 — sections/communication/chat.html, sections/communication/communication-preferences.html, sections/communication/conversations.html (+12 more) |
@@ -47,13 +49,13 @@ server endpoint; they are marked as such and never claim a server save.
 | `visit-feedback` | `/api/site-visits/` | 1 — sections/site-visit/visit-feedback.html |
 | `visit-request` | `/api/site-visits` | 49 — sections/central-crm/agent-performance.html, sections/central-crm/all-leads.html, sections/central-crm/call-history.html (+46 more) |
 | `whatsapp-message` | `/api/queued-messages` | 15 — sections/communication/chat.html, sections/communication/communication-preferences.html, sections/communication/conversations.html (+12 more) |
-| `wizard-choice` | `/api/tickets` | 3 — sections/post-property/select-property-category.html, sections/post-property/select-property-type.html, sections/post-property/select-purpose.html |
+| `wizard-choice` | `(client-side / sessionStorage only)` | 3 — sections/post-property/select-property-category.html, sections/post-property/select-property-type.html, sections/post-property/select-purpose.html |
 | `wizard-duplicate` | `(client-side / navigation only)` | 1 — sections/post-property/duplicate-check.html |
-| `wizard-edit` | `(client-side / navigation only)` | 32 — sections/post-property/360-upload.html, sections/post-property/amenities.html, sections/post-property/contact-preferences.html (+29 more) |
+| `wizard-edit` | `/api/properties` (PATCH via post-property.js) | 32 — sections/post-property/360-upload.html, sections/post-property/amenities.html, sections/post-property/contact-preferences.html (+29 more) |
 | `wizard-quality` | `(client-side / navigation only)` | 1 — sections/post-property/listing-quality-score.html |
-| `wizard-step` | `(client-side / navigation only)` | 32 — sections/post-property/360-upload.html, sections/post-property/amenities.html, sections/post-property/contact-preferences.html (+29 more) |
+| `wizard-step` | `/api/properties` (POST at description step, then PATCH via post-property.js) | 32 — sections/post-property/360-upload.html, sections/post-property/amenities.html, sections/post-property/contact-preferences.html (+29 more) |
 | `wizard-submit` | `(client-side / navigation only)` | 1 — sections/post-property/submit-property.html |
-| `wizard-upload-notice` | `/api/tickets` | 32 — sections/post-property/360-upload.html, sections/post-property/amenities.html, sections/post-property/contact-preferences.html (+29 more) |
+| `wizard-upload-notice` | `(no API call; honest upload-not-implemented notice)` | 32 — sections/post-property/360-upload.html, sections/post-property/amenities.html, sections/post-property/contact-preferences.html (+29 more) |
 | `wizard-verification` | `(client-side / navigation only)` | 1 — sections/post-property/verification.html |
 
 ## 2. API routes present in `server/src/server.js`
@@ -143,3 +145,14 @@ server endpoint; they are marked as such and never claim a server save.
   still contain static demo rows in source; at runtime the live render replaces them, so their
   View/Edit links are real even though the source still contains placeholder links.
 
+
+## 5. Priority 2 additions (2026-10-28, working copy only)
+
+New endpoints (all server-side authorised; see CHANGELOG "Priority 2" for the full rules):
+- Builder Projects: `POST/GET /api/builder-projects`, `GET/PATCH /api/builder-projects/:id`, `POST …/submit|verify|publish|unpublish|archive`, `POST …/towers|units|milestones|amenities|documents|offers`, `PATCH …/units/:unitId/status`, `POST/GET …/enquiries`, `POST …/activities`. Frontend: live list on `sections/builder-portal/my-projects.html` (`#pp-builder-projects`).
+- Reviews: `POST/GET /api/properties/:id/reviews`, `PATCH/DELETE /api/reviews/:id`, `POST /api/reviews/:id/report`. Frontend: approved reviews on `sections/property-engine/property-details.html` (`#pp-property-reviews`).
+- Tasks: `POST/GET /api/tasks`, `GET/PATCH /api/tasks/:id`, `POST /api/tasks/:id/comments`, `GET /api/tasks/stats`. Frontend: live list on `sections/manager-staff/tasks.html` (`#pp-staff-tasks`).
+- RBAC: `POST/GET /api/custom-roles`, `GET/PATCH/DELETE /api/custom-roles/:id`, `POST /api/custom-roles/assign|unassign`, `GET /api/admin-audit-log`, `GET /api/auth/sessions`, `DELETE /api/auth/sessions/:id`, `POST /api/auth/revoke-other-sessions`. Frontend: roles list on `sections/super-admin/roles.html`, audit log on `sections/super-admin/audit-logs.html`.
+- Subscriptions: `GET/POST /api/subscription-plans`, `PATCH /api/subscription-plans/:id`, `POST /api/subscriptions`, `GET /api/subscriptions/mine`, `GET /api/subscriptions/entitlement`, `POST /api/subscriptions/:id/activate|change-plan|cancel|expire`, `GET /api/subscriptions/:id/invoices`, `POST/DELETE /api/properties/:id/feature`, `POST /api/coupons`, `POST /api/coupons/apply|redeem`, `POST /api/webhooks/payment` (501 stub, never activates). Frontend: plans on `sections/subscription/plans.html`, my subscription + entitlement on `sections/subscription/my-subscription.html`.
+- Chat: `POST/GET /api/conversations`, `GET /api/conversations/:id`, `POST/GET /api/conversations/:id/messages`, `POST /api/conversations/:id/read`, `GET/PUT /api/notification-preferences`. Frontend: conversation list on `sections/communication/conversations.html` (`#pp-conversations`).
+- Demo create/compose forms on add-project, reviews, tasks, chat and subscription checkout pages were NOT converted (their field names do not map to the API) and keep the honest demo notice; they are not counted as wired above.

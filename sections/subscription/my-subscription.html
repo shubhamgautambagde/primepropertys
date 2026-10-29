@@ -156,6 +156,11 @@ textarea{min-height:120px}
   .grid-5,.grid-4,.grid-8,.grid-3,.grid-2,.form-row{grid-template-columns:1fr}
   .footer-grid{grid-template-columns:1fr}
   .hero-img img{height:260px}
+  /* Priority 4 responsive tables: admin/CRM tables (.tbl) previously
+     overflowed the viewport on narrow screens with no scroll affordance.
+     Scrolling the table itself keeps columns readable without hiding
+     data or changing the desktop layout. */
+  .tbl{display:block;overflow-x:auto;max-width:100%}
 }
 .app-layout{display:grid;grid-template-columns:250px 1fr;gap:0;align-items:start}
 .side{background:#0A2240;color:#CBD5E1;padding:20px 16px;position:sticky;top:60px;min-height:60vh}
@@ -204,7 +209,8 @@ table.data th{color:#0A2240;background:#EEF3FA}
 <nav class="main-nav"><a href="../../index.html">Home</a><a href="../../services.html">Services</a><a href="../../pricing.html">Pricing</a><a href="../../contact.html">Contact Us</a><a href="index.html">Subscription</a><a href="../../sitemap.html">Sitemap</a></nav>
 <div class="header-actions"><a class="btn outline small" href="../../contact.html">Sign In</a><a class="btn red small" href="../../services.html">Post Property</a></div>
 </div></header>
-<div class="app-layout"><aside class="side"><a class="back" href="../../index.html">← Main Website</a><h4>Subscription</h4><a href="add-ons.html">Add-ons</a><a href="cancel-subscription.html">Cancel Subscription</a><a href="checkout.html">Checkout</a><a href="compare-plans.html">Compare Plans</a><a href="coupons.html">Coupons</a><a href="credit-usage.html">Credit Usage</a><a href="credits.html">Credits</a><a href="downgrade-plan.html">Downgrade Plan</a><a href="my-subscription.html" class="active">My Subscription</a><a href="plan-details.html">Plan Details</a><a href="plans.html">Plans</a><a href="pricing.html">Pricing</a><a href="subscription-failed.html">Subscription Failed</a><a href="subscription-success.html">Subscription Success</a><a href="upgrade-plan.html">Upgrade Plan</a></aside><main id="main-content" tabindex="-1" class="main"><div class="breadcrumb"><a href="../../index.html">Home</a> &gt; <a href="index.html">Subscription</a> &gt; My Subscription</div><h1>My Subscription</h1><p class="lead">Manage your subscription details, usage and billing information.</p><div class="card"><h3>Current Plan</h3><p><b>PREMIUM (Professional) Plan</b> <span class="pill-status info">Monthly</span> <span class="pill-status ok">Active</span></p><p>Ideal for growing agencies and real estate professionals.</p><p>Plan Price: ₹2,499 / month · Billing Cycle: Monthly · Next Billing Date: 25 June 2025 · Member Since: 25 May 2025 · Payment Method: Visa •••• 3456 · Transaction ID: TXN785412536987</p><p><a href="upgrade-plan.html">Change Plan →</a> · <a href="checkout.html">Update Payment Method →</a> · <a href="cancel-subscription.html" style="color:#E11D48">Cancel Subscription →</a></p></div><div class="grid grid-2" style="margin-top:20px"><div class="card"><h3>Usage Overview</h3><p>Properties 60 / 100 · Leads 250 / 500 · Site Visits 12 / 20 · Team Members 3 / 5</p><a class="btn small outline" href="credit-usage.html">View All Usage Details →</a></div><div class="card"><h3>Billing Summary</h3><p>Plan Amount ₹2,499.00 · CGST (9%) ₹224.91 · SGST (9%) ₹224.91</p><p class="price">Total (Monthly): ₹2,948.82</p><p class="pill-status ok">You Save 16% — ₹5,010 annually on yearly billing</p><p><a class="btn small" href="../payments/invoice-list.html">View Invoices &amp; Billing History →</a></p></div></div><h2 style="margin-top:28px">Subscription History</h2><div style="overflow-x:auto"><table class="data"><tr><th>Date</th><th>Plan</th><th>Billing Cycle</th><th>Amount</th><th>Status</th><th>Invoice</th></tr><tr><td>25 May 2025</td><td>PREMIUM (Professional)</td><td>Monthly</td><td>₹2,948.82</td><td><span class="pill-status ok">Paid</span></td><td><a href="../payments/invoice-details.html">INV-2025-0051 ↓</a></td></tr><tr><td>25 Apr 2025</td><td>PREMIUM (Professional)</td><td>Monthly</td><td>₹2,948.82</td><td><span class="pill-status ok">Paid</span></td><td><a href="../payments/invoice-details.html">INV-2025-0041 ↓</a></td></tr><tr><td>25 Mar 2025</td><td>PREMIUM (Professional)</td><td>Monthly</td><td>₹2,948.82</td><td><span class="pill-status ok">Paid</span></td><td><a href="../payments/invoice-details.html">INV-2025-0031 ↓</a></td></tr></table></div></main></div>
+<div class="app-layout"><aside class="side"><a class="back" href="../../index.html">← Main Website</a><h4>Subscription</h4><a href="add-ons.html">Add-ons</a><a href="cancel-subscription.html">Cancel Subscription</a><a href="checkout.html">Checkout</a><a href="compare-plans.html">Compare Plans</a><a href="coupons.html">Coupons</a><a href="credit-usage.html">Credit Usage</a><a href="credits.html">Credits</a><a href="downgrade-plan.html">Downgrade Plan</a><a href="my-subscription.html" class="active">My Subscription</a><a href="plan-details.html">Plan Details</a><a href="plans.html">Plans</a><a href="pricing.html">Pricing</a><a href="subscription-failed.html">Subscription Failed</a><a href="subscription-success.html">Subscription Success</a><a href="upgrade-plan.html">Upgrade Plan</a></aside><main id="main-content" tabindex="-1" class="main"><div class="breadcrumb"><a href="../../index.html">Home</a> &gt; <a href="index.html">Subscription</a> &gt; My Subscription</div><h1>My Subscription</h1><p class="lead">Manage your subscription details, usage and billing information.</p><div class="card"><h3>Current Plan</h3><p><b>PREMIUM (Professional) Plan</b> <span class="pill-status info">Monthly</span> <span class="pill-status ok">Active</span></p><p>Ideal for growing agencies and real estate professionals.</p><p>Plan Price: ₹2,499 / month · Billing Cycle: Monthly · Next Billing Date: 25 June 2025 · Member Since: 25 May 2025 · Payment Method: Visa •••• 3456 · Transaction ID: TXN785412536987</p><p><a href="upgrade-plan.html">Change Plan →</a> · <a href="checkout.html">Update Payment Method →</a> · <a href="cancel-subscription.html" style="color:#E11D48">Cancel Subscription →</a></p></div><div class="grid grid-2" style="margin-top:20px"><div class="card"><h3>Usage Overview</h3><p>Properties 60 / 100 · Leads 250 / 500 · Site Visits 12 / 20 · Team Members 3 / 5</p><a class="btn small outline" href="credit-usage.html">View All Usage Details →</a></div><div class="card"><h3>Billing Summary</h3><p>Plan Amount ₹2,499.00 · CGST (9%) ₹224.91 · SGST (9%) ₹224.91</p><p class="price">Total (Monthly): ₹2,948.82</p><p class="pill-status ok">You Save 16% — ₹5,010 annually on yearly billing</p><p><a class="btn small" href="../payments/invoice-list.html">View Invoices &amp; Billing History →</a></p></div></div><h2 style="margin-top:28px">Subscription History</h2><div style="overflow-x:auto"><table class="data"><tr><th>Date</th><th>Plan</th><th>Billing Cycle</th><th>Amount</th><th>Status</th><th>Invoice</th></tr><tr><td>25 May 2025</td><td>PREMIUM (Professional)</td><td>Monthly</td><td>₹2,948.82</td><td><span class="pill-status ok">Paid</span></td><td><a href="../payments/invoice-details.html">INV-2025-0051 ↓</a></td></tr><tr><td>25 Apr 2025</td><td>PREMIUM (Professional)</td><td>Monthly</td><td>₹2,948.82</td><td><span class="pill-status ok">Paid</span></td><td><a href="../payments/invoice-details.html">INV-2025-0041 ↓</a></td></tr><tr><td>25 Mar 2025</td><td>PREMIUM (Professional)</td><td>Monthly</td><td>₹2,948.82</td><td><span class="pill-status ok">Paid</span></td><td><a href="../payments/invoice-details.html">INV-2025-0031 ↓</a></td></tr></table></div><div id="pp-my-subscription"><p>Live subscription load ho rahi hai (login zaroori hai)…</p></div>
+</main></div>
 <footer class="site-footer"><div class="container footer-grid">
 <div><a class="logo" href="../../index.html" style="color:#fff">Prime<span>Propertys</span></a><p>Buy, Sell, Rent or Invest in residential and commercial properties across India. Your trusted property partner.</p></div>
 <div><h4>Explore</h4><p><a href="../../index.html">Home</a><br><a href="../../services.html">Services</a><br><a href="../../pricing.html">Pricing</a></p></div>
@@ -215,9 +221,20 @@ table.data th{color:#0A2240;background:#EEF3FA}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   // Mobile nav
+  // Priority 4 accessibility: the toggle now exposes its state, so
+  // assistive tech can tell whether the menu is open. Previously it
+  // was only aria-label="Menu" with no expanded state.
   var toggle = document.querySelector('.nav-toggle');
   var nav = document.querySelector('.main-nav');
-  if (toggle && nav) toggle.addEventListener('click', function () { nav.classList.toggle('open'); });
+  if (toggle && nav) {
+    if (!nav.id) nav.id = 'main-nav';
+    toggle.setAttribute('aria-controls', nav.id);
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.addEventListener('click', function () {
+      var open = nav.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }
 
   // Active nav link
   var here = window.location.pathname.split('/').pop() || 'index.html';
@@ -386,6 +403,24 @@ document.addEventListener('DOMContentLoaded', function () {
   window.PP.submitContact = function (fields) { return post('/api/contact', fields); };
   window.PP.savedList = function () { return get('/api/saved'); };
   window.PP.notifications = function () { return get('/api/notifications'); };
+  /* Priority 2 helpers (same honest-request pattern as above). */
+  window.PP.listBuilderProjects = function (params) { return get('/api/builder-projects' + (params ? '?' + params : '')); };
+  window.PP.listReviews = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/reviews'); };
+  window.PP.listTasks = function (params) { return get('/api/tasks' + (params ? '?' + params : '')); };
+  window.PP.listPlans = function () { return get('/api/subscription-plans'); };
+  window.PP.mySubscriptions = function () { return get('/api/subscriptions/mine'); };
+  window.PP.entitlement = function () { return get('/api/subscriptions/entitlement'); };
+  window.PP.listConversations = function () { return get('/api/conversations'); };
+  window.PP.listCustomRoles = function () { return get('/api/custom-roles'); };
+  window.PP.listAuditLog = function () { return get('/api/admin-audit-log'); };
+  /* Priority 3 helpers (same honest-request pattern as above). */
+  window.PP.analyticsSummary = function () { return get('/api/analytics/summary'); };
+  window.PP.listSavedSearches = function () { return get('/api/saved-searches'); };
+  window.PP.listSearchAlerts = function () { return get('/api/search-alerts'); };
+  window.PP.listPriceHistory = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/price-history'); };
+  window.PP.recommendations = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/recommendations'); };
+  window.PP.aiGenerations = function () { return get('/api/ai/generations'); };
+  window.PP.aiGenerate = function (fields) { return post('/api/ai/generate', fields); };
 })();
 document.addEventListener('DOMContentLoaded', function () {
   /* Role dashboards, relative to the site root (login/register pages
@@ -431,7 +466,13 @@ document.addEventListener('DOMContentLoaded', function () {
       form.appendChild(box);
     }
     box.textContent = text;
-    box.style.color = isError ? '#f87171' : '#4ade80';
+    // Priority 4 accessibility: errors are announced (role=alert) and
+    // success is a live status, so screen-reader users get the same
+    // result sighted users see. Colours are the dark variants: the old
+    // #f87171/#4ade80 measured 2.77:1 / 1.74:1 on white (WCAG AA fail);
+    // #B91C1C/#166534 measure 6.47:1 / 7.13:1 on white.
+    box.setAttribute('role', isError ? 'alert' : 'status');
+    box.style.color = isError ? '#B91C1C' : '#166534';
     return box;
   }
   function field(form, name) {
@@ -1522,5 +1563,72 @@ document.addEventListener('DOMContentLoaded', function () {
   // Footer year, only if a year span is present
   var yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
+});
+document.addEventListener('DOMContentLoaded', function () {
+  if (!window.PP || !window.PP.me) return;
+  function inrPaise(p) {
+    try { return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format((p || 0) / 100); }
+    catch (e) { return 'Rs ' + ((p || 0) / 100); }
+  }
+  var plans = document.getElementById('pp-subscription-plans');
+  if (plans) {
+    window.PP.listPlans().then(function (r) {
+      plans.textContent = '';
+      if (!r.ok) { plans.textContent = 'Plans load nahi ho pa rahe hain.'; return; }
+      var items = (r.data && r.data.data) || [];
+      var h = document.createElement('h3');
+      h.textContent = 'Subscription Plans (live, pricing.html prices): ' + items.length;
+      plans.appendChild(h);
+      items.forEach(function (p) {
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.setAttribute('style', 'padding:12px;margin:10px 0');
+        var t = document.createElement('strong');
+        t.textContent = p.name + ' — ' + inrPaise(p.price_paise) + '/month';
+        card.appendChild(t);
+        var meta = document.createElement('p');
+        meta.textContent = 'Listings: ' + (p.listing_limit === null ? 'Unlimited' : p.listing_limit) +
+          ' • Photos per listing: ' + (p.photos_per_listing === null ? '-' : p.photos_per_listing) +
+          ' • Featured credits: ' + p.featured_credits;
+        card.appendChild(meta);
+        plans.appendChild(card);
+      });
+    });
+  }
+  var mine = document.getElementById('pp-my-subscription');
+  if (mine) {
+    window.PP.me().then(function (m) {
+      if (!m.ok || !m.data || !m.data.user) { mine.textContent = 'Apni subscription dekhne ke liye login karein.'; return; }
+      window.PP.mySubscriptions().then(function (r) {
+        mine.textContent = '';
+        if (!r.ok) { mine.textContent = 'Subscription load nahi ho pa rahi hai.'; return; }
+        var items = (r.data && r.data.data) || [];
+        var h = document.createElement('h3');
+        h.textContent = 'Your Subscriptions (live): ' + items.length;
+        mine.appendChild(h);
+        if (!items.length) { mine.appendChild(document.createTextNode('No subscription yet.')); return; }
+        items.forEach(function (s) {
+          var card = document.createElement('div');
+          card.className = 'card';
+          card.setAttribute('style', 'padding:12px;margin:10px 0');
+          var t = document.createElement('strong');
+          t.textContent = s.plan_name + ' (' + s.billing_period + ') — ' + (s.effective_status || s.status);
+          card.appendChild(t);
+          var p = document.createElement('p');
+          p.textContent = (s.starts_at ? 'From: ' + s.starts_at : 'Not started (pending activation)') + (s.ends_at ? ' • Until: ' + s.ends_at : '');
+          card.appendChild(p);
+          mine.appendChild(card);
+        });
+      });
+      window.PP.entitlement().then(function (r) {
+        if (!r.ok || !r.data) return;
+        var p = document.createElement('p');
+        p.textContent = 'Entitlement: listings used ' + r.data.listings_used +
+          (r.data.listing_limit === null ? ' (no plan limit set)' : ' / ' + r.data.listing_limit) +
+          ' • Featured remaining: ' + r.data.featured_remaining;
+        mine.appendChild(p);
+      });
+    });
+  }
 });
 </script></body></html>

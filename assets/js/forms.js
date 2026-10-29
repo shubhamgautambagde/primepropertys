@@ -52,7 +52,13 @@ document.addEventListener('DOMContentLoaded', function () {
       form.appendChild(box);
     }
     box.textContent = text;
-    box.style.color = isError ? '#f87171' : '#4ade80';
+    // Priority 4 accessibility: errors are announced (role=alert) and
+    // success is a live status, so screen-reader users get the same
+    // result sighted users see. Colours are the dark variants: the old
+    // #f87171/#4ade80 measured 2.77:1 / 1.74:1 on white (WCAG AA fail);
+    // #B91C1C/#166534 measure 6.47:1 / 7.13:1 on white.
+    box.setAttribute('role', isError ? 'alert' : 'status');
+    box.style.color = isError ? '#B91C1C' : '#166534';
     return box;
   }
   function field(form, name) {

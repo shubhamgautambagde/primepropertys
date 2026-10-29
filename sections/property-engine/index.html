@@ -154,6 +154,11 @@ textarea{min-height:120px}
   .grid-5,.grid-4,.grid-8,.grid-3,.grid-2,.form-row{grid-template-columns:1fr}
   .footer-grid{grid-template-columns:1fr}
   .hero-img img{height:260px}
+  /* Priority 4 responsive tables: admin/CRM tables (.tbl) previously
+     overflowed the viewport on narrow screens with no scroll affordance.
+     Scrolling the table itself keeps columns readable without hiding
+     data or changing the desktop layout. */
+  .tbl{display:block;overflow-x:auto;max-width:100%}
 }
 .pe-layout{display:grid;grid-template-columns:230px 1fr;gap:24px;align-items:start}
 .pe-sidebar{background:#fff;border:1px solid #E2E8F0;border-radius:14px;padding:16px;position:sticky;top:84px}
@@ -193,9 +198,20 @@ table.data th{color:#0A2240}
 <main id="main-content" tabindex="-1"><div class="container" style="padding-top:24px"><div class="pe-layout"><aside class="pe-sidebar"><h4>Property Engine</h4><a href="index.html" class="active">🏠 Property Engine Home</a><a href="property-details.html">Property Details</a><a href="property-amenities.html">Property Amenities</a><a href="property-photos-gallery.html">Property Photos Gallery</a><a href="property-price-history.html">Property Price History</a><a href="property-analytics.html">Property Analytics</a><a href="property-documents.html">Property Documents</a><a href="property-verification.html">Property Verification</a><a href="property-reviews.html">Property Reviews</a><a href="property-report.html">Property Report</a><a href="property-video.html">Property Video</a><a href="360-virtual-tour.html">360° Virtual Tour</a><a href="floor-plans.html">Floor Plans</a><a href="property-share.html">Property Share</a><a href="contact-owner.html">Contact Owner</a><a href="contact-agent.html">Contact Agent</a><a href="make-enquiry.html">Make Enquiry</a><a href="request-callback.html">Request Callback</a><a href="request-site-visit.html">Request Site Visit</a><a href="report-property.html">Report Property</a></aside><div><p class="breadcrumb"><a href="../../index.html">Home</a> &gt; Property Engine</p><h1>Property Engine</h1><p>All the detail pages for a single property — 2 BHK Apartment in Andheri East, Mumbai (₹ 1.25 Cr, Lodha Eternis). Use the sidebar on every page to move between them, or start below.</p><div class="grid grid-3"><div class="card"><h3>Property Details</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-details.html">Open →</a></div><div class="card"><h3>Property Amenities</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-amenities.html">Open →</a></div><div class="card"><h3>Property Photos Gallery</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-photos-gallery.html">Open →</a></div><div class="card"><h3>Property Price History</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-price-history.html">Open →</a></div><div class="card"><h3>Property Analytics</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-analytics.html">Open →</a></div><div class="card"><h3>Property Documents</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-documents.html">Open →</a></div><div class="card"><h3>Property Verification</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-verification.html">Open →</a></div><div class="card"><h3>Property Reviews</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-reviews.html">Open →</a></div><div class="card"><h3>Property Report</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-report.html">Open →</a></div><div class="card"><h3>Property Video</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-video.html">Open →</a></div><div class="card"><h3>360° Virtual Tour</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="360-virtual-tour.html">Open →</a></div><div class="card"><h3>Floor Plans</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="floor-plans.html">Open →</a></div><div class="card"><h3>Property Share</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="property-share.html">Open →</a></div><div class="card"><h3>Contact Owner</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="contact-owner.html">Open →</a></div><div class="card"><h3>Contact Agent</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="contact-agent.html">Open →</a></div><div class="card"><h3>Make Enquiry</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="make-enquiry.html">Open →</a></div><div class="card"><h3>Request Callback</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="request-callback.html">Open →</a></div><div class="card"><h3>Request Site Visit</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="request-site-visit.html">Open →</a></div><div class="card"><h3>Report Property</h3><p>Property Engine page for the Andheri East 2 BHK.</p><a class="btn small" href="report-property.html">Open →</a></div></div><div class="card" style="margin-top:20px"><h3>About This Property</h3><p>2 BHK Apartment, Lodha Eternis, Near Metro Station, Andheri East, Mumbai - 400069 · ₹ 1.25 Cr · ₹ 14,706 / sq.ft. · 850 Sq.Ft. · 2 Beds · 2 Baths · East Facing · Ready to Move · RERA P51800012345 · Verified.</p><p><a href="property-details.html">View Property Details →</a> &nbsp; <a href="../../index.html">← Back to PrimePropertys Home</a></p></div></div></div></div></main><footer class="site-footer"><div class="container footer-grid"><div><a class="logo" href="../../index.html" style="color:#fff">Prime<span>Propertys</span></a><p>India's most trusted real estate portal for buying, selling and renting properties.</p></div><div><h4>Explore</h4><p><a href="../../index.html">Home</a><br><a href="../../services.html">Services</a><br><a href="../../pricing.html">Pricing</a></p></div><div><h4>Company</h4><p><a href="../../about.html">About Us</a><br><a href="../../contact.html">Contact Us</a><br><a href="../../terms.html">Terms &amp; Conditions</a></p></div><div><h4>Support</h4><p><a href="../../help-center.html">Help Center</a><br><a href="../../faq.html">FAQs</a><br><a href="index.html">Property Engine</a></p></div><div><h4>Subscribe</h4><form data-api="newsletter"><div class="newsletter-row"><input placeholder="Enter your email address" name="email-address" aria-label="Email address" data-api-field="email"><button class="btn small" type="submit">Subscribe</button></div><div class="form-success">Subscribed successfully!</div></form></div></div><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with ❤ in India</span></div></footer><script>
 document.addEventListener('DOMContentLoaded', function () {
   // Mobile nav
+  // Priority 4 accessibility: the toggle now exposes its state, so
+  // assistive tech can tell whether the menu is open. Previously it
+  // was only aria-label="Menu" with no expanded state.
   var toggle = document.querySelector('.nav-toggle');
   var nav = document.querySelector('.main-nav');
-  if (toggle && nav) toggle.addEventListener('click', function () { nav.classList.toggle('open'); });
+  if (toggle && nav) {
+    if (!nav.id) nav.id = 'main-nav';
+    toggle.setAttribute('aria-controls', nav.id);
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.addEventListener('click', function () {
+      var open = nav.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }
 
   // Active nav link
   var here = window.location.pathname.split('/').pop() || 'index.html';
@@ -364,6 +380,24 @@ document.addEventListener('DOMContentLoaded', function () {
   window.PP.submitContact = function (fields) { return post('/api/contact', fields); };
   window.PP.savedList = function () { return get('/api/saved'); };
   window.PP.notifications = function () { return get('/api/notifications'); };
+  /* Priority 2 helpers (same honest-request pattern as above). */
+  window.PP.listBuilderProjects = function (params) { return get('/api/builder-projects' + (params ? '?' + params : '')); };
+  window.PP.listReviews = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/reviews'); };
+  window.PP.listTasks = function (params) { return get('/api/tasks' + (params ? '?' + params : '')); };
+  window.PP.listPlans = function () { return get('/api/subscription-plans'); };
+  window.PP.mySubscriptions = function () { return get('/api/subscriptions/mine'); };
+  window.PP.entitlement = function () { return get('/api/subscriptions/entitlement'); };
+  window.PP.listConversations = function () { return get('/api/conversations'); };
+  window.PP.listCustomRoles = function () { return get('/api/custom-roles'); };
+  window.PP.listAuditLog = function () { return get('/api/admin-audit-log'); };
+  /* Priority 3 helpers (same honest-request pattern as above). */
+  window.PP.analyticsSummary = function () { return get('/api/analytics/summary'); };
+  window.PP.listSavedSearches = function () { return get('/api/saved-searches'); };
+  window.PP.listSearchAlerts = function () { return get('/api/search-alerts'); };
+  window.PP.listPriceHistory = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/price-history'); };
+  window.PP.recommendations = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/recommendations'); };
+  window.PP.aiGenerations = function () { return get('/api/ai/generations'); };
+  window.PP.aiGenerate = function (fields) { return post('/api/ai/generate', fields); };
 })();
 document.addEventListener('DOMContentLoaded', function () {
   /* Role dashboards, relative to the site root (login/register pages
@@ -409,7 +443,13 @@ document.addEventListener('DOMContentLoaded', function () {
       form.appendChild(box);
     }
     box.textContent = text;
-    box.style.color = isError ? '#f87171' : '#4ade80';
+    // Priority 4 accessibility: errors are announced (role=alert) and
+    // success is a live status, so screen-reader users get the same
+    // result sighted users see. Colours are the dark variants: the old
+    // #f87171/#4ade80 measured 2.77:1 / 1.74:1 on white (WCAG AA fail);
+    // #B91C1C/#166534 measure 6.47:1 / 7.13:1 on white.
+    box.setAttribute('role', isError ? 'alert' : 'status');
+    box.style.color = isError ? '#B91C1C' : '#166534';
     return box;
   }
   function field(form, name) {
@@ -1503,4 +1543,163 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 document.querySelectorAll('.gallery-filter').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.gallery-filter').forEach(function(x){x.classList.remove('active')});b.classList.add('active');var c=b.getAttribute('data-cat');document.querySelectorAll('.gallery-item').forEach(function(el){el.style.display=(!c||el.getAttribute('data-cat')===c)?'':'none'})})});
 var copyBtn=document.getElementById('copyLink');if(copyBtn){copyBtn.addEventListener('click',function(){var t=document.getElementById('shareLink');if(t){t.select();try{document.execCommand('copy')}catch(e){}}var m=document.getElementById('copyMsg');if(m){m.classList.add('show')}})};
+
+/* Priority 1 — live property detail (guarded by #pp-live-detail, only on
+   property-details.html). Renders GET /api/properties/:id when
+   ?property_id= is present. Published listings are public; a draft is
+   visible only to its owner or a properties:view_any holder when logged
+   in — everyone else gets 404 from the API, and this page says so
+   instead of inventing a listing. When no id is given, or the fetch
+   fails, the demo preview below stays visible and the notice says
+   plainly that it is not the requested listing. */
+document.addEventListener('DOMContentLoaded', function () {
+  var box = document.getElementById('pp-live-detail');
+  if (!box || !window.PP || !window.PP.getProperty) return;
+  var notice = document.getElementById('pp-live-detail-notice');
+  var body = document.getElementById('pp-live-detail-body');
+  var params = new URLSearchParams(window.location.search);
+  var id = parseInt(params.get('property_id') || '', 10);
+  if (!id || id <= 0) {
+    if (notice) notice.textContent = 'Koi property chuni nahi gayi — search results se kisi listing par View Details dabayein (?property_id= ke saath). Neeche demo preview hai, koi real listing nahi.';
+    return;
+  }
+  function inr(n) {
+    try { return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n); }
+    catch (e) { return 'Rs ' + n; }
+  }
+  function text(tag, str) {
+    var el = document.createElement(tag);
+    el.textContent = str == null ? '' : String(str);
+    return el;
+  }
+  window.PP.getProperty(id).then(function (r) {
+    if (!r.ok || !r.data) {
+      if (notice) notice.textContent = 'Property not found (404). Draft ya unpublished listing public nahi hoti — sirf uska owner (login karke) ya properties:view_any wala user use dekh sakta hai. Neeche demo preview hai, requested listing nahi.';
+      return;
+    }
+    var d = r.data;
+    if (notice) notice.textContent = d.status === 'published'
+      ? 'Live property (database se):'
+      : 'Ye listing abhi public nahi hai (status: ' + d.status + ') — aap ise isliye dekh pa rahe hain kyunki aap owner hain ya view permission rakhte hain.';
+    if (body) {
+      body.textContent = '';
+      body.appendChild(text('h2', d.title));
+      body.appendChild(text('p', (d.property_type || '') + ' • ' + (d.listing_type || '') + ' • ' + (d.city || '') + (d.locality ? ', ' + d.locality : '')));
+      var price = document.createElement('p');
+      var strong = document.createElement('strong');
+      strong.textContent = inr(d.price_inr || 0);
+      price.appendChild(strong);
+      body.appendChild(price);
+      var specs = [];
+      if (d.bedrooms !== null && d.bedrooms !== undefined) specs.push(d.bedrooms + ' BHK');
+      if (d.bathrooms !== null && d.bathrooms !== undefined) specs.push(d.bathrooms + ' Bath');
+      if (d.area_sqft) specs.push(d.area_sqft + ' sqft');
+      if (d.facing) specs.push('Facing: ' + d.facing);
+      if (d.furnishing_status) specs.push('Furnishing: ' + d.furnishing_status);
+      if (d.possession_status) specs.push('Possession: ' + d.possession_status);
+      if (specs.length) body.appendChild(text('p', specs.join(' • ')));
+      if (d.description) body.appendChild(text('p', d.description));
+      if (d.amenities) {
+        try {
+          var am = JSON.parse(d.amenities);
+          if (am.length) body.appendChild(text('p', 'Amenities: ' + am.join(', ')));
+        } catch (e) { /* ignore unparseable amenities */ }
+      }
+      (d.images || []).forEach(function (img) {
+        if (!img || !img.url) return;
+        var im = document.createElement('img');
+        im.setAttribute('src', img.url);
+        im.setAttribute('alt', img.alt_text || d.title || 'Property photo');
+        im.setAttribute('style', 'max-width:100%;margin:8px 0');
+        body.appendChild(im);
+      });
+      var pl = document.createElement('p');
+      var a = document.createElement('a');
+      a.setAttribute('href', 'make-enquiry.html?property_id=' + d.id);
+      a.textContent = 'Make Enquiry →';
+      pl.appendChild(a);
+      body.appendChild(pl);
+    }
+    try { document.title = (d.title || 'Property') + ' — PrimePropertys'; } catch (e) { /* ignore */ }
+    // Hide the demo preview siblings so the live listing is the page,
+    // not a second (fake) listing underneath it.
+    try {
+      var parent = box.parentElement;
+      if (parent) Array.prototype.forEach.call(parent.children, function (child) {
+        if (child !== box) child.style.display = 'none';
+      });
+    } catch (e) { /* demo stays visible if hiding fails */ }
+  });
+});
+
+/* Priority 2 — approved property reviews (guarded by #pp-property-reviews,
+   only when ?property_id= is present). Only APPROVED reviews render;
+   pending reviews are moderator-only and never appear here. */
+document.addEventListener('DOMContentLoaded', function () {
+  var box = document.getElementById('pp-property-reviews');
+  if (!box || !window.PP || !window.PP.listReviews) return;
+  var params = new URLSearchParams(window.location.search);
+  var id = parseInt(params.get('property_id') || '', 10);
+  if (!id || id <= 0) { box.textContent = 'Reviews dekhne ke liye kisi property par View Details dabayein (?property_id= ke saath).'; return; }
+  window.PP.listReviews(id).then(function (r) {
+    box.textContent = '';
+    if (!r.ok || !r.data) { box.textContent = 'Reviews load nahi ho pa rahi hain.'; return; }
+    var agg = r.data.aggregation || {};
+    var h = document.createElement('h3');
+    h.textContent = 'Reviews' + (agg.approved_count ? ' — ' + agg.approved_count + ' approved, average ' + agg.average_rating + '/5' : ' — no approved reviews yet');
+    box.appendChild(h);
+    var items = r.data.data || [];
+    if (!items.length) { box.appendChild(document.createTextNode('No approved reviews yet. Reviews moderation ke baad yahan dikhengi.')); return; }
+    items.forEach(function (rev) {
+      var card = document.createElement('div');
+      card.className = 'card';
+      card.setAttribute('style', 'padding:12px;margin:10px 0');
+      var t = document.createElement('strong');
+      t.textContent = (rev.rating || '') + '/5' + (rev.verified ? ' • Verified visit' : '');
+      card.appendChild(t);
+      var p = document.createElement('p');
+      p.textContent = rev.text || '';
+      card.appendChild(p);
+      box.appendChild(card);
+    });
+  });
+});
+
+/* Priority 3 — property price history (guarded by #pp-price-history).
+   Append-only history from the API: only real recorded changes appear,
+   with the actor and timestamp. No history is fabricated for edits
+   that predated the history table. */
+document.addEventListener('DOMContentLoaded', function () {
+  var box = document.getElementById('pp-price-history');
+  if (!box || !window.PP || !window.PP.get) return;
+  var params = new URLSearchParams(window.location.search);
+  var id = parseInt(params.get('property_id') || '', 10);
+  if (!id || id <= 0) {
+    box.textContent = 'Price history dekhne ke liye kisi property par View Details dabayein (?property_id= ke saath).';
+    return;
+  }
+  box.textContent = 'Loading price history…';
+  window.PP.get('/api/properties/' + id + '/price-history').then(function (r) {
+    box.textContent = '';
+    if (!r.ok || !r.data) {
+      box.textContent = 'Price history load nahi ho pa rahi hai (draft listings sirf owner ko dikhti hain).';
+      return;
+    }
+    var h = document.createElement('h3');
+    h.textContent = 'Price history (recorded changes only)';
+    box.appendChild(h);
+    var rows = r.data.data || [];
+    if (!rows.length) {
+      var p = document.createElement('p');
+      p.textContent = 'Is property ke liye koi recorded price change nahi hai. Purani edits ka history banaya nahi gaya hai.';
+      box.appendChild(p);
+      return;
+    }
+    rows.forEach(function (row) {
+      var p = document.createElement('p');
+      p.textContent = '₹' + row.old_price_inr + ' → ₹' + row.new_price_inr + ' · ' + (row.actor_name || 'unknown') + ' · ' + (row.created_at || '');
+      box.appendChild(p);
+    });
+  });
+});
 </script></body></html>

@@ -47,6 +47,10 @@
     "support-home-services": "services",
     "payments": "payments",
     "marketing": "marketing",
-    "post-property": "post-property"
+    "post-property": "post-property",
+    "subscription": "subscriptions",
+    "analytics": "priority3",
+    "ai-intelligence": "priority3",
+    "seo": "priority3"
   }
 }

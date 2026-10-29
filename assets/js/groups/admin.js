@@ -373,3 +373,48 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 });
+
+/* Priority 2 — custom roles + admin audit log (guarded containers,
+   roles:manage / audit:view holders only; the API enforces this). */
+document.addEventListener('DOMContentLoaded', function () {
+  if (!window.PP || !window.PP.me) return;
+  var roles = document.getElementById('pp-custom-roles');
+  if (roles) {
+    window.PP.listCustomRoles().then(function (r) {
+      roles.textContent = '';
+      if (!r.ok) { roles.textContent = 'Custom roles load nahi ho pa rahe hain (roles:manage permission chahiye).'; return; }
+      var items = (r.data && r.data.data) || [];
+      var h = document.createElement('h3');
+      h.textContent = 'Custom Roles (live): ' + items.length;
+      roles.appendChild(h);
+      items.forEach(function (x) {
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.setAttribute('style', 'padding:12px;margin:10px 0');
+        var t = document.createElement('strong');
+        t.textContent = x.name;
+        card.appendChild(t);
+        var p = document.createElement('p');
+        p.textContent = 'Permissions: ' + (x.permissions || []).join(', ');
+        card.appendChild(p);
+        roles.appendChild(card);
+      });
+    });
+  }
+  var audit = document.getElementById('pp-audit-log');
+  if (audit) {
+    window.PP.listAuditLog().then(function (r) {
+      audit.textContent = '';
+      if (!r.ok) { audit.textContent = 'Audit log load nahi ho pa raha hai (audit:view permission chahiye).'; return; }
+      var items = (r.data && r.data.data) || [];
+      var h = document.createElement('h3');
+      h.textContent = 'Admin Audit Log (live): ' + items.length + ' recent entries';
+      audit.appendChild(h);
+      items.forEach(function (x) {
+        var p = document.createElement('p');
+        p.textContent = x.created_at + ' — ' + x.action + ' (' + x.target_type + ' #' + (x.target_id || '') + ') ' + (x.details || '');
+        audit.appendChild(p);
+      });
+    });
+  }
+});

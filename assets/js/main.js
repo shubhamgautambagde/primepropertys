@@ -2,9 +2,20 @@
    Safe when .nav-toggle or .main-nav is absent: every lookup is guarded. */
 document.addEventListener('DOMContentLoaded', function () {
   // Mobile nav
+  // Priority 4 accessibility: the toggle now exposes its state, so
+  // assistive tech can tell whether the menu is open. Previously it
+  // was only aria-label="Menu" with no expanded state.
   var toggle = document.querySelector('.nav-toggle');
   var nav = document.querySelector('.main-nav');
-  if (toggle && nav) toggle.addEventListener('click', function () { nav.classList.toggle('open'); });
+  if (toggle && nav) {
+    if (!nav.id) nav.id = 'main-nav';
+    toggle.setAttribute('aria-controls', nav.id);
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.addEventListener('click', function () {
+      var open = nav.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }
 
   // Active nav link
   var here = window.location.pathname.split('/').pop() || 'index.html';
@@ -187,6 +198,24 @@ document.addEventListener('DOMContentLoaded', function () {
   window.PP.submitContact = function (fields) { return post('/api/contact', fields); };
   window.PP.savedList = function () { return get('/api/saved'); };
   window.PP.notifications = function () { return get('/api/notifications'); };
+  /* Priority 2 helpers (same honest-request pattern as above). */
+  window.PP.listBuilderProjects = function (params) { return get('/api/builder-projects' + (params ? '?' + params : '')); };
+  window.PP.listReviews = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/reviews'); };
+  window.PP.listTasks = function (params) { return get('/api/tasks' + (params ? '?' + params : '')); };
+  window.PP.listPlans = function () { return get('/api/subscription-plans'); };
+  window.PP.mySubscriptions = function () { return get('/api/subscriptions/mine'); };
+  window.PP.entitlement = function () { return get('/api/subscriptions/entitlement'); };
+  window.PP.listConversations = function () { return get('/api/conversations'); };
+  window.PP.listCustomRoles = function () { return get('/api/custom-roles'); };
+  window.PP.listAuditLog = function () { return get('/api/admin-audit-log'); };
+  /* Priority 3 helpers (same honest-request pattern as above). */
+  window.PP.analyticsSummary = function () { return get('/api/analytics/summary'); };
+  window.PP.listSavedSearches = function () { return get('/api/saved-searches'); };
+  window.PP.listSearchAlerts = function () { return get('/api/search-alerts'); };
+  window.PP.listPriceHistory = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/price-history'); };
+  window.PP.recommendations = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/recommendations'); };
+  window.PP.aiGenerations = function () { return get('/api/ai/generations'); };
+  window.PP.aiGenerate = function (fields) { return post('/api/ai/generate', fields); };
 })();
 /* PrimePropertys — forms. Part of the shared bundle (see tools/build.py).
    Stage H: forms marked with data-api submit to the real API (window.PP)
@@ -242,7 +271,13 @@ document.addEventListener('DOMContentLoaded', function () {
       form.appendChild(box);
     }
     box.textContent = text;
-    box.style.color = isError ? '#f87171' : '#4ade80';
+    // Priority 4 accessibility: errors are announced (role=alert) and
+    // success is a live status, so screen-reader users get the same
+    // result sighted users see. Colours are the dark variants: the old
+    // #f87171/#4ade80 measured 2.77:1 / 1.74:1 on white (WCAG AA fail);
+    // #B91C1C/#166534 measure 6.47:1 / 7.13:1 on white.
+    box.setAttribute('role', isError ? 'alert' : 'status');
+    box.style.color = isError ? '#B91C1C' : '#166534';
     return box;
   }
   function field(form, name) {

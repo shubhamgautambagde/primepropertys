@@ -107,10 +107,24 @@ export function verifyEmailToken(db, token) {
   return row.user_id;
 }
 
+/* Priority 2: permissions are the union of the fixed role's grants
+   and any custom roles assigned to the user. Custom roles only ADD
+   permissions; they never remove a fixed-role grant, and deleting a
+   custom role drops its grants (ON DELETE CASCADE). If the Priority 2
+   tables do not exist yet (a pre-migration database), the union falls
+   back to the fixed role only. */
 export function listPermissions(db, user) {
   if (!user) return [];
-  return db.prepare(`SELECT p.name FROM role_permissions rp JOIN permissions p ON p.id = rp.permission_id
+  const base = db.prepare(`SELECT p.name FROM role_permissions rp JOIN permissions p ON p.id = rp.permission_id
     WHERE rp.role = ? ORDER BY p.name`).all(user.role).map((r) => r.name);
+  try {
+    const extra = db.prepare(`SELECT DISTINCT p.name FROM user_custom_roles ucr
+      JOIN custom_role_permissions crp ON crp.custom_role_id = ucr.custom_role_id
+      JOIN permissions p ON p.id = crp.permission_id WHERE ucr.user_id = ?`).all(user.id).map((r) => r.name);
+    return [...new Set([...base, ...extra])].sort();
+  } catch {
+    return base;
+  }
 }
 
 export function hasPermission(db, user, permission) {
@@ -137,13 +151,44 @@ export function parseCookies(header) {
   return out;
 }
 
-export function sessionCookieHeader(token, maxAgeSeconds) {
-  const secure = process.env.SESSION_COOKIE_SECURE === '1' ? '; Secure' : '';
+/* Priority 1 (2026-10-28): Secure is set when the caller says the
+   request is HTTPS, or when SESSION_COOKIE_SECURE=1 / FORCE_HTTPS=1
+   is set (e.g. TLS terminated at a trusted reverse proxy). Plain-HTTP
+   local development keeps working: no Secure flag is added there,
+   because a Secure cookie would never be sent back over HTTP and
+   local login would silently break. The third argument is
+   backwards-compatible: a boolean, or { secure: boolean }. */
+export function sessionCookieHeader(token, maxAgeSeconds, opts) {
+  const secure = opts === true || (opts && opts.secure) ||
+    process.env.SESSION_COOKIE_SECURE === '1' || process.env.FORCE_HTTPS === '1'
+    ? '; Secure' : '';
   return `${SESSION_COOKIE}=${token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${maxAgeSeconds}${secure}`;
 }
 
-export function clearSessionCookieHeader() {
-  return `${SESSION_COOKIE}=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0`;
+export function clearSessionCookieHeader(opts) {
+  const secure = opts === true || (opts && opts.secure) ||
+    process.env.SESSION_COOKIE_SECURE === '1' || process.env.FORCE_HTTPS === '1'
+    ? '; Secure' : '';
+  return `${SESSION_COOKIE}=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0${secure}`;
+}
+
+/* Generic in-memory write rate limiter (Priority 1, single-instance
+   only: buckets live in this process and are lost on restart, and a
+   multi-process deployment would need a shared store). Callers check
+   first and record only when the request is allowed, so a tripped
+   bucket recovers when its window slides past instead of being
+   extended by rejected attempts. */
+const writeAttempts = new Map();
+export function writeRateLimited(key, max, windowMs = 3600_000) {
+  const now = Date.now();
+  const list = (writeAttempts.get(key) || []).filter((t) => now - t < windowMs);
+  writeAttempts.set(key, list);
+  return list.length >= max;
+}
+export function recordWriteAttempt(key) {
+  const list = writeAttempts.get(key) || [];
+  list.push(Date.now());
+  writeAttempts.set(key, list);
 }
 
 // Login throttling (in-memory, per IP+email): 5 failed attempts in 10

@@ -34,8 +34,7 @@ flows answer 503 `EMAIL_NOT_CONFIGURED` — no provider is configured).
 ### Option 2 — static pages only
 
 ```bash
-cd primepropertys-website
-python3 -m http.server 8000
+python3 -m http.server 8000  # from this directory (the site root)
 ```
 
 Pages render, but API-backed sections (login, live listings, dashboards,
@@ -63,7 +62,7 @@ file per section under `assets/js/groups/` (see `tools/section-map.json`).
 
 ```bash
 cd server
-npm test                      # 54 tests, all passing (Node.js >= 24)
+npm test                      # 100 tests, all passing (Node.js >= 24, verified 2026-10-28 Priority 4)
 ```
 
 Tests run against temporary databases that are deleted afterwards; no
@@ -79,29 +78,49 @@ end-to-end journey test that walks the whole product).
   follow-ups/tags/scores/SLA/reports/export, contact inbox, site-visit
   request/assign/schedule/complete/feedback, support tickets + replies,
   service requests, newsletter subscribe/unsubscribe, and the buyer /
-  owner / agent "my lists" pages.
+  owner / agent "my lists" pages. Priority 2 added builder projects +
+  units, property reviews, staff tasks, custom roles + admin audit log,
+  subscription catalog + coupons/promotions (no gateway), and in-app
+  chat + notification preferences. Priority 3 added AI generation
+  (provider abstraction, 503 without a key), analytics from real
+  events only, SEO records/redirects, saved searches + search alerts
+  (in-app), price history, reminders computed on read, and
+  recommendations from real signals. 2FA, a payment gateway, email /
+  SMS / WhatsApp delivery, PDF export, and browser (Playwright) tests
+  are NOT implemented — see FINAL_REPORT.md.
 - The authoritative per-form mapping is
-  [`FRONTEND_BACKEND_MAPPING.md`](FRONTEND_BACKEND_MAPPING.md) (17
-  `data-api` form handlers, live tables, and every still-unwired form
-  grouped by section with its blocking reason).
-- Still unwired: 263 `data-backend="not-connected"` forms and 186
+  [`FRONTEND_BACKEND_MAPPING.md`](FRONTEND_BACKEND_MAPPING.md) (44
+  `data-api` form values, 224 wired forms, live tables, and every
+  still-unwired form grouped by section with its blocking reason).
+  Final verified counts (Priority 4, 2026-10-28): 653 pages, 362 forms
+  (224 wired + 138 `data-backend="not-connected"`), 186 `href="#"`
+  occurrences in source, 100/100 server tests, Node >= 24, migrations
+  001–028. See [`FINAL_REPORT.md`](FINAL_REPORT.md).
+- Still unwired: 138 `data-backend="not-connected"` forms and 186
   `href="#"` links — triaged in
   [`PLACEHOLDER_LINKS_REPORT.md`](PLACEHOLDER_LINKS_REPORT.md). Most need
   product decisions, not wiring: payments (needs a provider), campaigns
   (needs an email provider), settings pages (mostly hold secrets),
   the post-property wizard (no shared draft state; binary uploads and
   OTP need decisions), and admin tables whose demo rows carry no IDs.
-- Honest limits, kept on purpose: binary image upload is not implemented
-  (validated URL references only); email/SMS/WhatsApp delivery is not
-  configured; notifications are in-app database rows only; the session
-  cookie has no `Secure` flag on plain HTTP (add it on HTTPS hosting);
-  the production database starts empty (no sample listings, leads or
-  stats are fabricated).
+- Honest limits, kept on purpose: binary image upload IS implemented
+  since Priority 1 (signature/MIME/size-checked, max 10 MB, outside the
+  static root, private documents access-controlled) alongside validated
+  URL references; email/SMS/WhatsApp delivery is still not configured
+  (email flows answer 503 outside dev console mode, SMS/WhatsApp are
+  queued rows only); notifications are in-app database rows only; the
+  session cookie gets `Secure` on HTTPS / `X-Forwarded-Proto: https` /
+  `SESSION_COOKIE_SECURE=1` / `FORCE_HTTPS=1`, and plain HTTP local dev
+  keeps working without it; the production database starts empty (no
+  sample listings, leads or stats are fabricated). Payment webhooks are
+  a 501 stub — no paid entitlement is ever activated without a verified
+  payment, and none is configured. AI generation answers 503 without a
+  configured provider key.
 
 ## Structure
 
 ```text
-primepropertys-website/
+./  (site root)
   index.html, contact.html, login.html, register.html, ...
   sections/            27 sections, 653 pages total
   assets/css/          shared styles (source of truth)

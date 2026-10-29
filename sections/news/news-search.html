@@ -157,6 +157,11 @@ textarea{min-height:120px}
   .grid-5,.grid-4,.grid-8,.grid-3,.grid-2,.form-row{grid-template-columns:1fr}
   .footer-grid{grid-template-columns:1fr}
   .hero-img img{height:260px}
+  /* Priority 4 responsive tables: admin/CRM tables (.tbl) previously
+     overflowed the viewport on narrow screens with no scroll affordance.
+     Scrolling the table itself keeps columns readable without hiding
+     data or changing the desktop layout. */
+  .tbl{display:block;overflow-x:auto;max-width:100%}
 }
 .app-layout{display:grid;grid-template-columns:250px 1fr;gap:0;align-items:start}
 .sidebar{background:#0A2240;color:#CBD5E1;padding:20px 14px;min-height:70vh;position:sticky;top:60px}
@@ -197,15 +202,26 @@ table.data th{color:#0A2240;background:#F8FAFC;white-space:nowrap}
 <main id="main-content" tabindex="-1" class="app-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> &gt; News &gt; News Search</div>
 <div class="app-top"><div><h1>News Search</h1><p class="lead">Search news, topics, categories and authors.</p></div><a class="btn outline small" href="index.html">← All News Pages</a></div>
-<form data-api="section-search"><label>Search news, topics, categories, authors...</label><input placeholder="e.g. RBI repo rate, Mumbai property prices" name="e-g-rbi-repo-rate-mumbai-property-prices" aria-label="E.g. RBI repo rate, Mumbai property prices" data-api-field="query"><button class="btn" type="submit">Search</button><div class="form-success">Search results shown below (front-end demo).</div></form><div class="grid grid-2"><div class="card"><img class="article-img" src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1200&q=80" alt="News"><span class="badge blue">Home Loan</span><h3><a href="news-detail.html">RBI Keeps Repo Rate Unchanged at 6.50%</a></h3><p>The Reserve Bank of India keeps the repo rate steady at 6.50%, bringing relief to homebuyers and supporting real estate demand.</p><p>Amit Verma • 20 May 2024 • 6 min read</p></div><div class="card"><img class="article-img" src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1200&q=80" alt="RBI Keeps Repo Rate Unchanged at 6.50%"><span class="badge blue">Real Estate</span><h3><a href="news-detail.html">Mumbai Property Prices Rise 6% in Q1 2024; Demand Remains Strong</a></h3><p>Mumbai&#x27;s residential market continues to show resilience with price appreciation across key micro-markets.</p><p>Neha Kapoor • 20 May 2024 • 5 min read</p></div><div class="card"><img class="article-img" src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1200&q=80" alt="Mumbai Property Prices Rise 6% in Q1 2024; Demand Remains Strong"><span class="badge blue">Infrastructure</span><h3><a href="news-detail.html">Delhi-NCR Metro Expansion: New Corridors to Boost Property Values</a></h3><p>The new metro corridors in Delhi-NCR are expected to significantly improve connectivity and drive real estate demand.</p><p>Rajiv Mehta • 20 May 2024 • 4 min read</p></div><div class="card"><img class="article-img" src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1200&q=80" alt="Delhi-NCR Metro Expansion: New Corridors to Boost Property Values"><span class="badge blue">Commercial</span><h3><a href="news-detail.html">India Office Market Sees Strong Leasing Momentum in Q1 2024</a></h3><p>Leasing activity across the top 7 cities rises 18% year-on-year, driven by IT-BPM and GCC demand.</p><p>Neha Kapoor • 20 May 2024 • 6 min read</p></div></div>
+<form data-api="section-search"><label>Search news, topics, categories, authors...</label><input placeholder="e.g. RBI repo rate, Mumbai property prices" name="e-g-rbi-repo-rate-mumbai-property-prices" aria-label="E.g. RBI repo rate, Mumbai property prices" data-api-field="query"><button class="btn" type="submit">Search</button><div class="form-success">Search results shown below (front-end demo).</div></form><div class="grid grid-2"><div class="card"><img class="article-img" src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1200&q=80" alt="News" loading="lazy" decoding="async"><span class="badge blue">Home Loan</span><h3><a href="news-detail.html">RBI Keeps Repo Rate Unchanged at 6.50%</a></h3><p>The Reserve Bank of India keeps the repo rate steady at 6.50%, bringing relief to homebuyers and supporting real estate demand.</p><p>Amit Verma • 20 May 2024 • 6 min read</p></div><div class="card"><img class="article-img" src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1200&q=80" alt="RBI Keeps Repo Rate Unchanged at 6.50%" loading="lazy" decoding="async"><span class="badge blue">Real Estate</span><h3><a href="news-detail.html">Mumbai Property Prices Rise 6% in Q1 2024; Demand Remains Strong</a></h3><p>Mumbai&#x27;s residential market continues to show resilience with price appreciation across key micro-markets.</p><p>Neha Kapoor • 20 May 2024 • 5 min read</p></div><div class="card"><img class="article-img" src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1200&q=80" alt="Mumbai Property Prices Rise 6% in Q1 2024; Demand Remains Strong" loading="lazy" decoding="async"><span class="badge blue">Infrastructure</span><h3><a href="news-detail.html">Delhi-NCR Metro Expansion: New Corridors to Boost Property Values</a></h3><p>The new metro corridors in Delhi-NCR are expected to significantly improve connectivity and drive real estate demand.</p><p>Rajiv Mehta • 20 May 2024 • 4 min read</p></div><div class="card"><img class="article-img" src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1200&q=80" alt="Delhi-NCR Metro Expansion: New Corridors to Boost Property Values" loading="lazy" decoding="async"><span class="badge blue">Commercial</span><h3><a href="news-detail.html">India Office Market Sees Strong Leasing Momentum in Q1 2024</a></h3><p>Leasing activity across the top 7 cities rises 18% year-on-year, driven by IT-BPM and GCC demand.</p><p>Neha Kapoor • 20 May 2024 • 6 min read</p></div></div>
 </main></div>
 <footer class="site-footer" style="margin-top:0"><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with love in India</span></div></footer>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   // Mobile nav
+  // Priority 4 accessibility: the toggle now exposes its state, so
+  // assistive tech can tell whether the menu is open. Previously it
+  // was only aria-label="Menu" with no expanded state.
   var toggle = document.querySelector('.nav-toggle');
   var nav = document.querySelector('.main-nav');
-  if (toggle && nav) toggle.addEventListener('click', function () { nav.classList.toggle('open'); });
+  if (toggle && nav) {
+    if (!nav.id) nav.id = 'main-nav';
+    toggle.setAttribute('aria-controls', nav.id);
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.addEventListener('click', function () {
+      var open = nav.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }
 
   // Active nav link
   var here = window.location.pathname.split('/').pop() || 'index.html';
@@ -374,6 +390,24 @@ document.addEventListener('DOMContentLoaded', function () {
   window.PP.submitContact = function (fields) { return post('/api/contact', fields); };
   window.PP.savedList = function () { return get('/api/saved'); };
   window.PP.notifications = function () { return get('/api/notifications'); };
+  /* Priority 2 helpers (same honest-request pattern as above). */
+  window.PP.listBuilderProjects = function (params) { return get('/api/builder-projects' + (params ? '?' + params : '')); };
+  window.PP.listReviews = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/reviews'); };
+  window.PP.listTasks = function (params) { return get('/api/tasks' + (params ? '?' + params : '')); };
+  window.PP.listPlans = function () { return get('/api/subscription-plans'); };
+  window.PP.mySubscriptions = function () { return get('/api/subscriptions/mine'); };
+  window.PP.entitlement = function () { return get('/api/subscriptions/entitlement'); };
+  window.PP.listConversations = function () { return get('/api/conversations'); };
+  window.PP.listCustomRoles = function () { return get('/api/custom-roles'); };
+  window.PP.listAuditLog = function () { return get('/api/admin-audit-log'); };
+  /* Priority 3 helpers (same honest-request pattern as above). */
+  window.PP.analyticsSummary = function () { return get('/api/analytics/summary'); };
+  window.PP.listSavedSearches = function () { return get('/api/saved-searches'); };
+  window.PP.listSearchAlerts = function () { return get('/api/search-alerts'); };
+  window.PP.listPriceHistory = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/price-history'); };
+  window.PP.recommendations = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/recommendations'); };
+  window.PP.aiGenerations = function () { return get('/api/ai/generations'); };
+  window.PP.aiGenerate = function (fields) { return post('/api/ai/generate', fields); };
 })();
 document.addEventListener('DOMContentLoaded', function () {
   /* Role dashboards, relative to the site root (login/register pages
@@ -419,7 +453,13 @@ document.addEventListener('DOMContentLoaded', function () {
       form.appendChild(box);
     }
     box.textContent = text;
-    box.style.color = isError ? '#f87171' : '#4ade80';
+    // Priority 4 accessibility: errors are announced (role=alert) and
+    // success is a live status, so screen-reader users get the same
+    // result sighted users see. Colours are the dark variants: the old
+    // #f87171/#4ade80 measured 2.77:1 / 1.74:1 on white (WCAG AA fail);
+    // #B91C1C/#166534 measure 6.47:1 / 7.13:1 on white.
+    box.setAttribute('role', isError ? 'alert' : 'status');
+    box.style.color = isError ? '#B91C1C' : '#166534';
     return box;
   }
   function field(form, name) {

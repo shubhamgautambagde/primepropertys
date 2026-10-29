@@ -15,4 +15,9 @@
   .grid-5,.grid-4,.grid-8,.grid-3,.grid-2,.form-row{grid-template-columns:1fr}
   .footer-grid{grid-template-columns:1fr}
   .hero-img img{height:260px}
+  /* Priority 4 responsive tables: admin/CRM tables (.tbl) previously
+     overflowed the viewport on narrow screens with no scroll affordance.
+     Scrolling the table itself keeps columns readable without hiding
+     data or changing the desktop layout. */
+  .tbl{display:block;overflow-x:auto;max-width:100%}
 }

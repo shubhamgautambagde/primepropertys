@@ -144,3 +144,35 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 });
+
+/* Priority 2 — live conversations (guarded by #pp-conversations).
+   Only conversations the logged-in user belongs to are returned by
+   the API; member names only, no phone numbers or emails. */
+document.addEventListener('DOMContentLoaded', function () {
+  var box = document.getElementById('pp-conversations');
+  if (!box || !window.PP || !window.PP.listConversations) return;
+  window.PP.me().then(function (m) {
+    if (!m.ok || !m.data || !m.data.user) { box.textContent = 'Conversations dekhne ke liye login karein.'; return; }
+    window.PP.listConversations().then(function (r) {
+      box.textContent = '';
+      if (!r.ok) { box.textContent = 'Conversations load nahi ho pa rahi hain.'; return; }
+      var items = (r.data && r.data.data) || [];
+      var h = document.createElement('h3');
+      h.textContent = 'Your Conversations (live): ' + items.length;
+      box.appendChild(h);
+      if (!items.length) { box.appendChild(document.createTextNode('No conversations yet.')); return; }
+      items.forEach(function (c) {
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.setAttribute('style', 'padding:12px;margin:10px 0');
+        var t = document.createElement('strong');
+        t.textContent = (c.title || 'Conversation') + (c.unread_count ? ' • ' + c.unread_count + ' unread' : '');
+        card.appendChild(t);
+        var p = document.createElement('p');
+        p.textContent = 'Members: ' + (c.members || []).map(function (x) { return x.full_name || ('User #' + x.id); }).join(', ') + (c.last_message ? ' • Last: ' + c.last_message.body : '');
+        card.appendChild(p);
+        box.appendChild(card);
+      });
+    });
+  });
+});

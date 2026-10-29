@@ -157,6 +157,11 @@ textarea{min-height:120px}
   .grid-5,.grid-4,.grid-8,.grid-3,.grid-2,.form-row{grid-template-columns:1fr}
   .footer-grid{grid-template-columns:1fr}
   .hero-img img{height:260px}
+  /* Priority 4 responsive tables: admin/CRM tables (.tbl) previously
+     overflowed the viewport on narrow screens with no scroll affordance.
+     Scrolling the table itself keeps columns readable without hiding
+     data or changing the desktop layout. */
+  .tbl{display:block;overflow-x:auto;max-width:100%}
 }
 .app-layout{display:grid;grid-template-columns:250px 1fr;gap:0;align-items:start}
 .sidebar{background:#0A2240;color:#CBD5E1;padding:20px 14px;min-height:70vh;position:sticky;top:60px}
@@ -196,16 +201,27 @@ table.data th{color:#0A2240;background:#F8FAFC;white-space:nowrap}
 <aside class="sidebar"><h3>SEO</h3><ul><li><a href="agent-seo.html" class="">Agent SEO</a></li><li><a href="blog-seo.html" class="">Blog SEO</a></li><li><a href="broken-links.html" class="active">Broken Links</a></li><li><a href="builder-seo.html" class="">Builder SEO</a></li><li><a href="canonical-manager.html" class="">Canonical Manager</a></li><li><a href="city-seo.html" class="">City SEO</a></li><li><a href="global-seo.html" class="">Global SEO</a></li><li><a href="internal-link-manager.html" class="">Internal Link Manager</a></li><li><a href="locality-seo.html" class="">Locality SEO</a></li><li><a href="meta-manager.html" class="">Meta Manager</a></li><li><a href="news-seo.html" class="">News SEO</a></li><li><a href="orphan-pages.html" class="">Orphan Pages</a></li><li><a href="page-seo.html" class="">Page SEO</a></li><li><a href="project-seo.html" class="">Project SEO</a></li><li><a href="property-seo.html" class="">Property SEO</a></li><li><a href="redirect-manager.html" class="">Redirect Manager</a></li><li><a href="robots-manager.html" class="">Robots Manager</a></li><li><a href="schema-manager.html" class="">Schema Manager</a></li><li><a href="search-console.html" class="">Search Console</a></li><li><a href="seo-audit.html" class="">SEO Audit</a></li><li><a href="seo-dashboard.html" class="">SEO Dashboard</a></li><li><a href="seo-reports.html" class="">SEO Reports</a></li><li><a href="sitemap-manager.html" class="">Sitemap Manager</a></li></ul><p class="note">Need help?<br>support@primepropertys.com<br>+91 98765 43210</p><a class="btn small" href="../../contact.html">Contact Support</a></aside>
 <main id="main-content" tabindex="-1" class="app-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> &gt; SEO &gt; Broken Links</div>
-<div class="app-top"><div><h1>Broken Links</h1><p class="lead">Broken internal and external links found by the latest crawl.</p></div><a class="btn outline small" href="index.html">← All SEO Pages</a></div>
+<div class="app-top"><div><h1>Broken Links</h1><p class="lead">Broken internal and external links found by the latest crawl.</p><div id="pp-seo"><p>Actually checked pages ke broken internal links yahan dikhenge (seo:manage permission chahiye).</p></div></div><a class="btn outline small" href="index.html">← All SEO Pages</a></div>
 <div class="grid grid-3" style="margin:20px 0"><div class="card"><p style="color:#64748B;margin:0">Broken Links</p><h3 style="font-size:1.6rem">86</h3><p style="margin:0">42 internal, 44 external</p></div><div class="card"><p style="color:#64748B;margin:0">Pages Affected</p><h3 style="font-size:1.6rem">63</h3><p style="margin:0">Fix priority: high</p></div><div class="card"><p style="color:#64748B;margin:0">Last Crawl</p><h3 style="font-size:1.6rem">20 May 2025</h3><p style="margin:0">2,145 pages crawled</p></div></div><div style="overflow-x:auto"><table class="data"><thead><tr><th>Broken URL</th><th>Found On</th><th>Type</th><th>Status Code</th><th>Action</th></tr></thead><tbody><tr><td>/property/old-listing-123</td><td>/flats-in-noida</td><td>Internal</td><td>404</td><td>Redirect</td></tr><tr><td>https://example-partner.com/old-page</td><td>/builders</td><td>External</td><td>404</td><td>Remove</td></tr><tr><td>/projects/closed-project</td><td>/projects-in-noida</td><td>Internal</td><td>410</td><td>Redirect</td></tr><tr><td>/blog/removed-article</td><td>/news</td><td>Internal</td><td>404</td><td>Redirect</td></tr></tbody></table></div>
 </main></div>
 <footer class="site-footer" style="margin-top:0"><div class="container footer-bottom"><span>© 2024 PrimePropertys. All Rights Reserved.</span><span>Made with love in India</span></div></footer>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   // Mobile nav
+  // Priority 4 accessibility: the toggle now exposes its state, so
+  // assistive tech can tell whether the menu is open. Previously it
+  // was only aria-label="Menu" with no expanded state.
   var toggle = document.querySelector('.nav-toggle');
   var nav = document.querySelector('.main-nav');
-  if (toggle && nav) toggle.addEventListener('click', function () { nav.classList.toggle('open'); });
+  if (toggle && nav) {
+    if (!nav.id) nav.id = 'main-nav';
+    toggle.setAttribute('aria-controls', nav.id);
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.addEventListener('click', function () {
+      var open = nav.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }
 
   // Active nav link
   var here = window.location.pathname.split('/').pop() || 'index.html';
@@ -374,6 +390,24 @@ document.addEventListener('DOMContentLoaded', function () {
   window.PP.submitContact = function (fields) { return post('/api/contact', fields); };
   window.PP.savedList = function () { return get('/api/saved'); };
   window.PP.notifications = function () { return get('/api/notifications'); };
+  /* Priority 2 helpers (same honest-request pattern as above). */
+  window.PP.listBuilderProjects = function (params) { return get('/api/builder-projects' + (params ? '?' + params : '')); };
+  window.PP.listReviews = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/reviews'); };
+  window.PP.listTasks = function (params) { return get('/api/tasks' + (params ? '?' + params : '')); };
+  window.PP.listPlans = function () { return get('/api/subscription-plans'); };
+  window.PP.mySubscriptions = function () { return get('/api/subscriptions/mine'); };
+  window.PP.entitlement = function () { return get('/api/subscriptions/entitlement'); };
+  window.PP.listConversations = function () { return get('/api/conversations'); };
+  window.PP.listCustomRoles = function () { return get('/api/custom-roles'); };
+  window.PP.listAuditLog = function () { return get('/api/admin-audit-log'); };
+  /* Priority 3 helpers (same honest-request pattern as above). */
+  window.PP.analyticsSummary = function () { return get('/api/analytics/summary'); };
+  window.PP.listSavedSearches = function () { return get('/api/saved-searches'); };
+  window.PP.listSearchAlerts = function () { return get('/api/search-alerts'); };
+  window.PP.listPriceHistory = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/price-history'); };
+  window.PP.recommendations = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/recommendations'); };
+  window.PP.aiGenerations = function () { return get('/api/ai/generations'); };
+  window.PP.aiGenerate = function (fields) { return post('/api/ai/generate', fields); };
 })();
 document.addEventListener('DOMContentLoaded', function () {
   /* Role dashboards, relative to the site root (login/register pages
@@ -419,7 +453,13 @@ document.addEventListener('DOMContentLoaded', function () {
       form.appendChild(box);
     }
     box.textContent = text;
-    box.style.color = isError ? '#f87171' : '#4ade80';
+    // Priority 4 accessibility: errors are announced (role=alert) and
+    // success is a live status, so screen-reader users get the same
+    // result sighted users see. Colours are the dark variants: the old
+    // #f87171/#4ade80 measured 2.77:1 / 1.74:1 on white (WCAG AA fail);
+    // #B91C1C/#166534 measure 6.47:1 / 7.13:1 on white.
+    box.setAttribute('role', isError ? 'alert' : 'status');
+    box.style.color = isError ? '#B91C1C' : '#166534';
     return box;
   }
   function field(form, name) {
@@ -1510,5 +1550,108 @@ document.addEventListener('DOMContentLoaded', function () {
   // Footer year, only if a year span is present
   var yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
+});
+document.addEventListener('DOMContentLoaded', function () {
+  function text(tag, str) {
+    var el = document.createElement(tag);
+    el.textContent = str == null ? '' : String(str);
+    return el;
+  }
+  function inrPaise(paise) {
+    try { return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format((paise || 0) / 100); }
+    catch (e) { return 'Rs ' + (paise || 0) / 100; }
+  }
+
+  var analyticsBox = document.getElementById('pp-analytics');
+  if (analyticsBox && window.PP && window.PP.get) {
+    analyticsBox.textContent = 'Loading live analytics…';
+    window.PP.get('/api/analytics/summary').then(function (r) {
+      analyticsBox.textContent = '';
+      if (!r.ok || !r.data) {
+        analyticsBox.textContent = 'Analytics load nahi ho pa rahi hain' +
+          (r.error ? ' (' + (r.error.code || 'error') + '). Login karein; analytics:view permission chahiye.' : '.');
+        return;
+      }
+      var d = r.data;
+      analyticsBox.appendChild(text('h3', 'Live analytics (scope: ' + d.scope + ')'));
+      analyticsBox.appendChild(text('p', 'Property views (events, Priority 3 se): ' + d.property_views.events +
+        ' · Search events: ' + d.searches.events +
+        ' · Published properties: ' + d.properties.published + ' / ' + d.properties.total));
+      analyticsBox.appendChild(text('p', 'Inquiries: ' + d.inquiries.total +
+        ' · Closed conversion: ' + (d.inquiries.conversion_closed_rate === null ? '— (koi inquiry nahi)' : (d.inquiries.conversion_closed_rate * 100).toFixed(1) + '%') +
+        ' · Visits: ' + d.visits.total));
+      analyticsBox.appendChild(text('p', 'Verified subscription-linked revenue: ' + inrPaise(d.revenue.total_paise) +
+        ' (' + d.revenue.verified_linked_payments + ' verified payments). Unverified payments isme nahi gine jaate.'));
+      analyticsBox.appendChild(text('p', 'Note: ' + (d.limitations || '')));
+    });
+  }
+
+  var aiBox = document.getElementById('pp-ai');
+  if (aiBox && window.PP && window.PP.get) {
+    aiBox.textContent = '';
+    aiBox.appendChild(text('h3', 'AI generations (live)'));
+    var note = text('p', 'AI provider configure nahi hai to generation 503 AI_NOT_CONFIGURED dega — koi fake AI text nahi dikhaya jayega. Generated text publish nahi hota jab tak aap use approve karke apply na karein.');
+    aiBox.appendChild(note);
+    var form = document.createElement('form');
+    var kindSel = document.createElement('select');
+    ['description', 'title', 'seo'].forEach(function (k) {
+      var o = document.createElement('option'); o.value = k; o.textContent = k; kindSel.appendChild(o);
+    });
+    var facts = document.createElement('textarea');
+    facts.placeholder = 'Listing facts (ya property_id ke saath khaali chhodein)';
+    facts.setAttribute('aria-label', 'Listing facts');
+    var propInput = document.createElement('input');
+    propInput.placeholder = 'Property ID (optional)';
+    propInput.setAttribute('aria-label', 'Property ID');
+    var btn = document.createElement('button');
+    btn.type = 'submit'; btn.className = 'btn'; btn.textContent = 'Generate (human review ke liye)';
+    var out = document.createElement('div');
+    form.appendChild(kindSel); form.appendChild(facts); form.appendChild(propInput); form.appendChild(btn);
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      out.textContent = 'Generating…';
+      var body = { kind: kindSel.value, facts: facts.value };
+      if (propInput.value.trim()) body.property_id = parseInt(propInput.value.trim(), 10);
+      window.PP.post('/api/ai/generate', body).then(function (r) {
+        if (!r.ok || !r.data) {
+          out.textContent = 'Generation failed: ' + (r.error ? (r.error.code + ' — ' + r.error.message) : 'unknown error');
+          return;
+        }
+        out.textContent = 'Generated (status: ' + r.data.status + ', approval pending): ' + r.data.output_text;
+      });
+    });
+    aiBox.appendChild(form); aiBox.appendChild(out);
+    window.PP.get('/api/ai/generations').then(function (r) {
+      if (!r.ok || !r.data || !r.data.data) return;
+      var list = document.createElement('ul');
+      r.data.data.slice(0, 10).forEach(function (g) {
+        var li = document.createElement('li');
+        li.textContent = g.kind + ' · ' + g.status + ' · ' + (g.output_text || '').slice(0, 120);
+        list.appendChild(li);
+      });
+      aiBox.appendChild(list);
+    });
+  }
+
+  var seoBox = document.getElementById('pp-seo');
+  if (seoBox && window.PP && window.PP.get) {
+    seoBox.textContent = 'Loading live broken-link checks…';
+    window.PP.get('/api/seo/broken-links').then(function (r) {
+      seoBox.textContent = '';
+      if (!r.ok || !r.data) {
+        seoBox.textContent = 'Broken-link checks load nahi ho pa rahi hain' +
+          (r.error ? ' (' + (r.error.code || 'error') + '). seo:manage permission chahiye.' : '.');
+        return;
+      }
+      seoBox.appendChild(text('h3', 'Pages with broken internal links (actually checked)'));
+      if (!r.data.data || !r.data.data.length) {
+        seoBox.appendChild(text('p', 'Koi checked page me broken internal link nahi mila. Sirf wahi pages yahan aate hain jinka link-check chalaya gaya hai.'));
+        return;
+      }
+      r.data.data.forEach(function (row) {
+        seoBox.appendChild(text('p', row.path + ' — ' + row.broken_count + ' broken / ' + row.checked_links + ' checked'));
+      });
+    });
+  }
 });
 </script></body></html>

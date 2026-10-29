@@ -42,12 +42,12 @@ export function validatePropertyInput(body, partial = false) {
   if (b.property_type === undefined) {
     if (!partial) errors.push('property_type is required');
   } else if (!PROPERTY_TYPES.includes(b.property_type)) {
-    errors.push(`property_type must be one of: ${PROPERTY_TYPES.join(', ')}`);
+    errors.push(`property_type '${b.property_type}' is not supported — must be one of: ${PROPERTY_TYPES.join(', ')}`);
   } else clean.property_type = b.property_type;
   if (b.listing_type === undefined) {
     if (!partial) errors.push('listing_type is required');
   } else if (!LISTING_TYPES.includes(b.listing_type)) {
-    errors.push('listing_type must be sale or rent');
+    errors.push(`listing_type '${b.listing_type}' is not supported — must be sale or rent`);
   } else clean.listing_type = b.listing_type;
   if (b.price_inr === undefined) {
     if (!partial) errors.push('price_inr is required');
@@ -73,6 +73,11 @@ export function validatePropertyInput(body, partial = false) {
     area_notes: 1000, availability: 50,
   };
   for (const [field, max] of Object.entries(optStrs)) optStr(field, max);
+  if (b.category !== undefined && b.category !== null && b.category !== '') {
+    if (typeof b.category !== 'string' || !['residential', 'commercial', 'land', 'project'].includes(b.category.trim())) {
+      errors.push(`category '${b.category}' is not supported — must be one of: residential, commercial, land, project`);
+    } else clean.category = b.category.trim();
+  }
   const optInts = {
     floor_number: [0, 200], total_floors: [0, 200], balconies: [0, 50],
     servant_room: [0, 20], open_parking: [0, 100], covered_parking: [0, 100],

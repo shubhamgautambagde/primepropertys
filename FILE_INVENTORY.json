@@ -1,0 +1,509 @@
+{
+  "generated_from": "actual filesystem walk, 2026-10-28 audit (working copy ~/workspace/primepropertys-audit/primepropertys)",
+  "git_head": "0116c3b Triage (25/25): system-settings + final files",
+  "runtime": "Node v24.22.1, server/package.json engines node >=24",
+  "html_total": {
+    "count": 653,
+    "bytes": 59209597,
+    "lines": 1152304
+  },
+  "html_root": {
+    "count": 20,
+    "bytes": 1573363,
+    "lines": 29893
+  },
+  "sections": {
+    "agent-portal": {
+      "count": 41,
+      "bytes": 3625891,
+      "lines": 71012
+    },
+    "ai-intelligence": {
+      "count": 14,
+      "bytes": 1102558,
+      "lines": 21386
+    },
+    "analytics": {
+      "count": 18,
+      "bytes": 1421185,
+      "lines": 27396
+    },
+    "blog": {
+      "count": 17,
+      "bytes": 1349493,
+      "lines": 25922
+    },
+    "builder-portal": {
+      "count": 37,
+      "bytes": 3012925,
+      "lines": 57757
+    },
+    "buyer-portal": {
+      "count": 29,
+      "bytes": 2760458,
+      "lines": 54172
+    },
+    "central-crm": {
+      "count": 34,
+      "bytes": 4304276,
+      "lines": 89183
+    },
+    "communication": {
+      "count": 15,
+      "bytes": 1258922,
+      "lines": 24995
+    },
+    "form-builder": {
+      "count": 15,
+      "bytes": 1174978,
+      "lines": 22844
+    },
+    "investor-portal": {
+      "count": 21,
+      "bytes": 1996727,
+      "lines": 39228
+    },
+    "manager-staff": {
+      "count": 17,
+      "bytes": 1371767,
+      "lines": 26537
+    },
+    "marketing": {
+      "count": 17,
+      "bytes": 1442526,
+      "lines": 28442
+    },
+    "mobile": {
+      "count": 2,
+      "bytes": 155206,
+      "lines": 3052
+    },
+    "news": {
+      "count": 47,
+      "bytes": 3804975,
+      "lines": 71158
+    },
+    "owner-portal": {
+      "count": 38,
+      "bytes": 3506400,
+      "lines": 68516
+    },
+    "payments": {
+      "count": 12,
+      "bytes": 1045315,
+      "lines": 20702
+    },
+    "post-property": {
+      "count": 32,
+      "bytes": 3551398,
+      "lines": 68804
+    },
+    "property-engine": {
+      "count": 20,
+      "bytes": 1659794,
+      "lines": 30120
+    },
+    "property-search": {
+      "count": 18,
+      "bytes": 1579262,
+      "lines": 28756
+    },
+    "security-center": {
+      "count": 17,
+      "bytes": 1641087,
+      "lines": 32385
+    },
+    "seo": {
+      "count": 24,
+      "bytes": 1862992,
+      "lines": 36340
+    },
+    "site-visit": {
+      "count": 15,
+      "bytes": 1886149,
+      "lines": 39376
+    },
+    "subscription": {
+      "count": 16,
+      "bytes": 1256821,
+      "lines": 24416
+    },
+    "super-admin": {
+      "count": 54,
+      "bytes": 5352376,
+      "lines": 102870
+    },
+    "super-manager": {
+      "count": 20,
+      "bytes": 1922502,
+      "lines": 38127
+    },
+    "support-home-services": {
+      "count": 12,
+      "bytes": 1053938,
+      "lines": 20679
+    },
+    "system-settings": {
+      "count": 31,
+      "bytes": 2536313,
+      "lines": 48236
+    }
+  },
+  "server_src": {
+    "server/src/auth.js": {
+      "bytes": 6783,
+      "lines": 174
+    },
+    "server/src/campaigns.js": {
+      "bytes": 12697,
+      "lines": 233
+    },
+    "server/src/contact.js": {
+      "bytes": 3282,
+      "lines": 66
+    },
+    "server/src/db.js": {
+      "bytes": 1297,
+      "lines": 40
+    },
+    "server/src/leads.js": {
+      "bytes": 27256,
+      "lines": 490
+    },
+    "server/src/newsletter.js": {
+      "bytes": 2778,
+      "lines": 59
+    },
+    "server/src/payments.js": {
+      "bytes": 8818,
+      "lines": 161
+    },
+    "server/src/properties.js": {
+      "bytes": 13426,
+      "lines": 236
+    },
+    "server/src/server.js": {
+      "bytes": 34317,
+      "lines": 629
+    },
+    "server/src/services.js": {
+      "bytes": 9728,
+      "lines": 215
+    },
+    "server/src/settings.js": {
+      "bytes": 3224,
+      "lines": 77
+    },
+    "server/src/tickets.js": {
+      "bytes": 7974,
+      "lines": 166
+    },
+    "server/src/validate.js": {
+      "bytes": 5805,
+      "lines": 125
+    },
+    "server/src/visits.js": {
+      "bytes": 12096,
+      "lines": 257
+    }
+  },
+  "server_migrations": {
+    "server/migrations/001_init.sql": {
+      "bytes": 3454,
+      "lines": 82
+    },
+    "server/migrations/002_auth.sql": {
+      "bytes": 3292,
+      "lines": 76
+    },
+    "server/migrations/003_properties.sql": {
+      "bytes": 650,
+      "lines": 14
+    },
+    "server/migrations/004_leads.sql": {
+      "bytes": 1757,
+      "lines": 43
+    },
+    "server/migrations/005_contact.sql": {
+      "bytes": 1095,
+      "lines": 22
+    },
+    "server/migrations/006_inquiries_user.sql": {
+      "bytes": 515,
+      "lines": 8
+    },
+    "server/migrations/007_lead_tags.sql": {
+      "bytes": 802,
+      "lines": 18
+    },
+    "server/migrations/008_perf_indexes.sql": {
+      "bytes": 895,
+      "lines": 14
+    },
+    "server/migrations/009_site_visits.sql": {
+      "bytes": 2077,
+      "lines": 37
+    },
+    "server/migrations/010_visit_assignment.sql": {
+      "bytes": 412,
+      "lines": 6
+    },
+    "server/migrations/011_support_tickets.sql": {
+      "bytes": 2070,
+      "lines": 38
+    },
+    "server/migrations/012_service_requests.sql": {
+      "bytes": 2133,
+      "lines": 41
+    },
+    "server/migrations/013_newsletter.sql": {
+      "bytes": 997,
+      "lines": 18
+    },
+    "server/migrations/014_payments.sql": {
+      "bytes": 2169,
+      "lines": 47
+    },
+    "server/migrations/015_campaigns.sql": {
+      "bytes": 2802,
+      "lines": 60
+    },
+    "server/migrations/016_site_settings.sql": {
+      "bytes": 1594,
+      "lines": 33
+    },
+    "server/migrations/017_wizard_fields.sql": {
+      "bytes": 3592,
+      "lines": 60
+    }
+  },
+  "server_tests": {
+    "server/test/a11y.js": {
+      "bytes": 3753,
+      "lines": 100
+    },
+    "server/test/auth.js": {
+      "bytes": 8029,
+      "lines": 181
+    },
+    "server/test/campaigns.js": {
+      "bytes": 6308,
+      "lines": 116
+    },
+    "server/test/contact.js": {
+      "bytes": 4710,
+      "lines": 126
+    },
+    "server/test/crm.js": {
+      "bytes": 13062,
+      "lines": 273
+    },
+    "server/test/journey.js": {
+      "bytes": 7088,
+      "lines": 144
+    },
+    "server/test/leads.js": {
+      "bytes": 9479,
+      "lines": 184
+    },
+    "server/test/my-enquiries.js": {
+      "bytes": 3964,
+      "lines": 102
+    },
+    "server/test/newsletter.js": {
+      "bytes": 2899,
+      "lines": 68
+    },
+    "server/test/payments.js": {
+      "bytes": 6674,
+      "lines": 114
+    },
+    "server/test/perf.js": {
+      "bytes": 3778,
+      "lines": 91
+    },
+    "server/test/portal-lists.js": {
+      "bytes": 5432,
+      "lines": 101
+    },
+    "server/test/properties.js": {
+      "bytes": 8680,
+      "lines": 174
+    },
+    "server/test/run.js": {
+      "bytes": 5915,
+      "lines": 137
+    },
+    "server/test/services.js": {
+      "bytes": 6801,
+      "lines": 122
+    },
+    "server/test/settings.js": {
+      "bytes": 4260,
+      "lines": 88
+    },
+    "server/test/tickets.js": {
+      "bytes": 6445,
+      "lines": 112
+    },
+    "server/test/users-admin.js": {
+      "bytes": 4680,
+      "lines": 94
+    },
+    "server/test/visits.js": {
+      "bytes": 8730,
+      "lines": 144
+    },
+    "server/test/wizard.js": {
+      "bytes": 5316,
+      "lines": 108
+    }
+  },
+  "assets_css": {
+    "count": 20,
+    "bytes": 53337,
+    "lines": 686
+  },
+  "assets_js": {
+    "count": 23,
+    "bytes": 307150,
+    "lines": 6634
+  },
+  "tools": {
+    "tools/build.py": {
+      "bytes": 6639,
+      "lines": 131
+    },
+    "tools/sitemap.py": {
+      "bytes": 3481,
+      "lines": 93
+    }
+  },
+  "docs_md": {
+    "ACCESSIBILITY.md": 2516,
+    "CHANGELOG.md": 94892,
+    "DEPLOYMENT.md": 12028,
+    "FRONTEND_BACKEND_MAPPING.md": 8779,
+    "PLACEHOLDER_LINKS_REPORT.md": 5186,
+    "README.md": 5421,
+    "TRIAGE.md": 9768,
+    "server/README.md": 12571
+  },
+  "counts_verified": {
+    "data_backend_not_connected_occurrences": 138,
+    "data_backend_not_connected_files": 132,
+    "href_hash_occurrences": 186,
+    "href_hash_files": 52,
+    "forms_total": 362,
+    "forms_without_data_api": 138,
+    "forms_with_data_api": 224,
+    "internal_links_total": 31371,
+    "broken_internal_links": 0,
+    "images_total": 374,
+    "images_without_alt": 0,
+    "pages_without_h1": 0,
+    "pages_with_duplicate_ids": 0,
+    "sitemap_urls": 105,
+    "server_test_cases_pass": 59,
+    "server_test_files": 20,
+    "api_route_prefixes_in_server_js": null,
+    "not_connected_by_section": {
+      "occurrences": {
+        "agent-portal": 7,
+        "ai-intelligence": 13,
+        "analytics": 17,
+        "builder-portal": 14,
+        "buyer-portal": 5,
+        "central-crm": 4,
+        "communication": 4,
+        "form-builder": 5,
+        "investor-portal": 1,
+        "manager-staff": 3,
+        "marketing": 3,
+        "owner-portal": 9,
+        "property-engine": 23,
+        "property-search": 1,
+        "security-center": 1,
+        "seo": 14,
+        "site-visit": 1,
+        "subscription": 4,
+        "super-admin": 9
+      },
+      "files": {
+        "agent-portal": 7,
+        "ai-intelligence": 13,
+        "analytics": 17,
+        "builder-portal": 14,
+        "buyer-portal": 5,
+        "central-crm": 4,
+        "communication": 4,
+        "form-builder": 4,
+        "investor-portal": 1,
+        "manager-staff": 3,
+        "marketing": 3,
+        "owner-portal": 9,
+        "property-engine": 18,
+        "property-search": 1,
+        "security-center": 1,
+        "seo": 14,
+        "site-visit": 1,
+        "subscription": 4,
+        "super-admin": 9
+      }
+    },
+    "href_hash_by_section": {
+      "occurrences": {
+        "buyer-portal": 13,
+        "communication": 21,
+        "investor-portal": 9,
+        "post-property": 24,
+        "property-engine": 16,
+        "site-visit": 7,
+        "super-admin": 48,
+        "super-manager": 48
+      },
+      "files": {
+        "buyer-portal": 4,
+        "communication": 6,
+        "investor-portal": 3,
+        "post-property": 24,
+        "property-engine": 4,
+        "site-visit": 3,
+        "super-admin": 4,
+        "super-manager": 4
+      }
+    }
+  },
+  "tables_in_migrations": [
+    "billing_profiles",
+    "campaigns",
+    "contact_messages",
+    "email_verification_tokens",
+    "inquiries",
+    "lead_activities",
+    "lead_followups",
+    "lead_tags",
+    "message_templates",
+    "newsletter_subscriptions",
+    "notifications",
+    "password_reset_tokens",
+    "payments",
+    "permissions",
+    "properties",
+    "property_images",
+    "property_views",
+    "queued_messages",
+    "role_permissions",
+    "saved_properties",
+    "schema_migrations",
+    "service_requests",
+    "sessions",
+    "site_settings",
+    "site_visits",
+    "support_tickets",
+    "tags",
+    "ticket_replies",
+    "users"
+  ],
+  "tables_count": 29
+}
