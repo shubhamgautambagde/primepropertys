@@ -156,11 +156,6 @@ textarea{min-height:120px}
   .grid-5,.grid-4,.grid-8,.grid-3,.grid-2,.form-row{grid-template-columns:1fr}
   .footer-grid{grid-template-columns:1fr}
   .hero-img img{height:260px}
-  /* Priority 4 responsive tables: admin/CRM tables (.tbl) previously
-     overflowed the viewport on narrow screens with no scroll affordance.
-     Scrolling the table itself keeps columns readable without hiding
-     data or changing the desktop layout. */
-  .tbl{display:block;overflow-x:auto;max-width:100%}
 }
 .app{display:grid;grid-template-columns:250px 1fr;align-items:start}
 .sidebar{background:#0A2240;color:#CBD5E1;padding:22px 16px;min-height:640px;position:sticky;top:61px}
@@ -203,7 +198,7 @@ table.data td{padding:10px 8px;border-bottom:1px solid #F1F5F9}
 <ul><li><a href="index.html">Section Home</a></li><li><a href="ai-admin-assistant.html">AI Admin Assistant</a></li><li><a href="ai-crm-assistant.html">AI CRM Assistant</a></li><li><a href="ai-description-generator.html" class="active">AI Description Generator</a></li><li><a href="ai-investment-advisor.html">AI Investment Advisor</a></li><li><a href="ai-lead-assistant.html">AI Lead Assistant</a></li><li><a href="ai-listing-assistant.html">AI Listing Assistant</a></li><li><a href="ai-locality-intelligence.html">AI Locality Intelligence</a></li><li><a href="ai-price-intelligence.html">AI Price Intelligence</a></li><li><a href="ai-property-advisor.html">AI Property Advisor</a></li><li><a href="ai-property-search.html">AI Property Search</a></li><li><a href="ai-property-valuation.html">AI Property Valuation</a></li><li><a href="ai-recommendations.html">AI Recommendations</a></li><li><a href="ai-seo-assistant.html">AI SEO Assistant</a></li></ul>
 <div class="help"><b>Need Help?</b><br>support@primepropertys.com<br>+91 98765 43210</div></aside><main id="main-content" tabindex="-1" class="app-main">
 <div class="breadcrumb"><a href="../../index.html">Home</a> &gt; <a href="index.html">AI &amp; Intelligence</a> &gt; AI Description Generator</div>
-<h1>AI Description Generator</h1><p class="lead">Generate compelling, SEO-friendly property descriptions in seconds with AI.</p><div id="pp-ai"><p>Live AI generations yahan dikhengi. Provider configure nahi hai to AI_NOT_CONFIGURED milega.</p></div>
+<h1>AI Description Generator</h1><p class="lead">Generate compelling, SEO-friendly property descriptions in seconds with AI.</p>
 <div class="grid grid-4"><div class="card"><p>AI Score</p><div class="stat-num">86%</div><span class="stat-delta">▲ 3.2% vs last month</span></div><div class="card"><p>Items analysed</p><div class="stat-num">12,680</div><span class="stat-delta">▲ 8.4% vs last month</span></div><div class="card"><p>Time saved</p><div class="stat-num">20.5 hrs</div><span class="stat-delta">▲ 12.0% vs last month</span></div></div>
 <section class="section" style="padding:20px 0"><div class="grid grid-2">
 <div class="chat"><h3>Ask the AI</h3><form data-backend="not-connected"><label>Describe what you need</label><textarea placeholder="Write a description for a 3 BHK in Sector 150, Noida" name="write-a-description-for-a-3-bhk-in-sector-150-no" aria-label="Description for a 3 BHK in Sector 150, Noida"></textarea><button class="btn" type="submit">✨ Generate</button><div class="form-success">Done — see the AI answer below.</div></form>
@@ -222,20 +217,9 @@ table.data td{padding:10px 8px;border-bottom:1px solid #F1F5F9}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   // Mobile nav
-  // Priority 4 accessibility: the toggle now exposes its state, so
-  // assistive tech can tell whether the menu is open. Previously it
-  // was only aria-label="Menu" with no expanded state.
   var toggle = document.querySelector('.nav-toggle');
   var nav = document.querySelector('.main-nav');
-  if (toggle && nav) {
-    if (!nav.id) nav.id = 'main-nav';
-    toggle.setAttribute('aria-controls', nav.id);
-    toggle.setAttribute('aria-expanded', 'false');
-    toggle.addEventListener('click', function () {
-      var open = nav.classList.toggle('open');
-      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
-  }
+  if (toggle && nav) toggle.addEventListener('click', function () { nav.classList.toggle('open'); });
 
   // Active nav link
   var here = window.location.pathname.split('/').pop() || 'index.html';
@@ -404,24 +388,6 @@ document.addEventListener('DOMContentLoaded', function () {
   window.PP.submitContact = function (fields) { return post('/api/contact', fields); };
   window.PP.savedList = function () { return get('/api/saved'); };
   window.PP.notifications = function () { return get('/api/notifications'); };
-  /* Priority 2 helpers (same honest-request pattern as above). */
-  window.PP.listBuilderProjects = function (params) { return get('/api/builder-projects' + (params ? '?' + params : '')); };
-  window.PP.listReviews = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/reviews'); };
-  window.PP.listTasks = function (params) { return get('/api/tasks' + (params ? '?' + params : '')); };
-  window.PP.listPlans = function () { return get('/api/subscription-plans'); };
-  window.PP.mySubscriptions = function () { return get('/api/subscriptions/mine'); };
-  window.PP.entitlement = function () { return get('/api/subscriptions/entitlement'); };
-  window.PP.listConversations = function () { return get('/api/conversations'); };
-  window.PP.listCustomRoles = function () { return get('/api/custom-roles'); };
-  window.PP.listAuditLog = function () { return get('/api/admin-audit-log'); };
-  /* Priority 3 helpers (same honest-request pattern as above). */
-  window.PP.analyticsSummary = function () { return get('/api/analytics/summary'); };
-  window.PP.listSavedSearches = function () { return get('/api/saved-searches'); };
-  window.PP.listSearchAlerts = function () { return get('/api/search-alerts'); };
-  window.PP.listPriceHistory = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/price-history'); };
-  window.PP.recommendations = function (propertyId) { return get('/api/properties/' + encodeURIComponent(propertyId) + '/recommendations'); };
-  window.PP.aiGenerations = function () { return get('/api/ai/generations'); };
-  window.PP.aiGenerate = function (fields) { return post('/api/ai/generate', fields); };
 })();
 document.addEventListener('DOMContentLoaded', function () {
   /* Role dashboards, relative to the site root (login/register pages
@@ -467,13 +433,7 @@ document.addEventListener('DOMContentLoaded', function () {
       form.appendChild(box);
     }
     box.textContent = text;
-    // Priority 4 accessibility: errors are announced (role=alert) and
-    // success is a live status, so screen-reader users get the same
-    // result sighted users see. Colours are the dark variants: the old
-    // #f87171/#4ade80 measured 2.77:1 / 1.74:1 on white (WCAG AA fail);
-    // #B91C1C/#166534 measure 6.47:1 / 7.13:1 on white.
-    box.setAttribute('role', isError ? 'alert' : 'status');
-    box.style.color = isError ? '#B91C1C' : '#166534';
+    box.style.color = isError ? '#f87171' : '#4ade80';
     return box;
   }
   function field(form, name) {
@@ -1299,10 +1259,42 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       return;
     }
-    if (form.getAttribute('data-api') === 'wizard-upload-notice') {
+    /* Phase E: real binary upload. Multipart via FormData (PP.request
+       is JSON-only, so this case uses raw fetch). Property id comes
+       from ?property_id=, else the wizard draft id in sessionStorage
+       (pp-wizard-draft). Same-origin only: on GitHub Pages the fetch
+       fails honestly and the input is kept. Server re-validates
+       everything (magic bytes, size); the client checks below are
+       UX only. Success dispatches pp-upload-done so list renderers
+       refresh without a reload. */
+    if (form.getAttribute('data-api') === 'property-upload') {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
-        showNote(form, 'Photo/document upload abhi implement nahi hai — binary upload ke liye backend support chahiye. Draft banne ke baad Edit Property se image URLs add ki ja sakti hain.', true);
+        var fileInput = form.querySelector('input[type="file"]');
+        var file = fileInput && fileInput.files && fileInput.files[0];
+        if (!file) { showNote(form, 'Pehle ek file chunein.', true); return; }
+        var kind = form.getAttribute('data-kind') || 'image';
+        var maxMB = kind === 'document' ? 25 : 10;
+        if (file.size > maxMB * 1024 * 1024) { showNote(form, 'File bahut badi hai — ' + maxMB + ' MB se kam honi chahiye.', true); return; }
+        var params = new URLSearchParams(window.location.search);
+        var propId = params.get('property_id') || '';
+        if (!propId) { try { propId = window.sessionStorage.getItem('pp-wizard-draft') || ''; } catch (err) { propId = ''; } }
+        if (!propId) { showNote(form, 'Pehle property draft banayein (description step tak jayein) ya URL me ?property_id= ke saath kholein.', true); return; }
+        var btn = form.querySelector('button[type="submit"], input[type="submit"]');
+        if (btn) btn.disabled = true;
+        fetch('/api/properties/' + encodeURIComponent(propId) + '/uploads', { method: 'POST', credentials: 'same-origin', body: new FormData(form) }).then(function (res) {
+          return res.text().then(function (text) {
+            var data = null; try { data = text ? JSON.parse(text) : null; } catch (err) { data = null; }
+            if (btn) btn.disabled = false;
+            if (!res.ok) { showNote(form, (data && data.error && data.error.message) || 'Upload nahi ho pa raha hai.', true); return; }
+            showSuccess(form, 'Upload ho gaya: ' + ((data && data.original_filename) || file.name) + '.');
+            form.reset();
+            document.dispatchEvent(new CustomEvent('pp-upload-done', { detail: { propertyId: propId } }));
+          });
+        }).catch(function () {
+          if (btn) btn.disabled = false;
+          showNote(form, 'Server se connect nahi ho pa raha hai. Please try again later.', true);
+        });
       });
       return;
     }
@@ -1564,108 +1556,5 @@ document.addEventListener('DOMContentLoaded', function () {
   // Footer year, only if a year span is present
   var yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
-});
-document.addEventListener('DOMContentLoaded', function () {
-  function text(tag, str) {
-    var el = document.createElement(tag);
-    el.textContent = str == null ? '' : String(str);
-    return el;
-  }
-  function inrPaise(paise) {
-    try { return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format((paise || 0) / 100); }
-    catch (e) { return 'Rs ' + (paise || 0) / 100; }
-  }
-
-  var analyticsBox = document.getElementById('pp-analytics');
-  if (analyticsBox && window.PP && window.PP.get) {
-    analyticsBox.textContent = 'Loading live analytics…';
-    window.PP.get('/api/analytics/summary').then(function (r) {
-      analyticsBox.textContent = '';
-      if (!r.ok || !r.data) {
-        analyticsBox.textContent = 'Analytics load nahi ho pa rahi hain' +
-          (r.error ? ' (' + (r.error.code || 'error') + '). Login karein; analytics:view permission chahiye.' : '.');
-        return;
-      }
-      var d = r.data;
-      analyticsBox.appendChild(text('h3', 'Live analytics (scope: ' + d.scope + ')'));
-      analyticsBox.appendChild(text('p', 'Property views (events, Priority 3 se): ' + d.property_views.events +
-        ' · Search events: ' + d.searches.events +
-        ' · Published properties: ' + d.properties.published + ' / ' + d.properties.total));
-      analyticsBox.appendChild(text('p', 'Inquiries: ' + d.inquiries.total +
-        ' · Closed conversion: ' + (d.inquiries.conversion_closed_rate === null ? '— (koi inquiry nahi)' : (d.inquiries.conversion_closed_rate * 100).toFixed(1) + '%') +
-        ' · Visits: ' + d.visits.total));
-      analyticsBox.appendChild(text('p', 'Verified subscription-linked revenue: ' + inrPaise(d.revenue.total_paise) +
-        ' (' + d.revenue.verified_linked_payments + ' verified payments). Unverified payments isme nahi gine jaate.'));
-      analyticsBox.appendChild(text('p', 'Note: ' + (d.limitations || '')));
-    });
-  }
-
-  var aiBox = document.getElementById('pp-ai');
-  if (aiBox && window.PP && window.PP.get) {
-    aiBox.textContent = '';
-    aiBox.appendChild(text('h3', 'AI generations (live)'));
-    var note = text('p', 'AI provider configure nahi hai to generation 503 AI_NOT_CONFIGURED dega — koi fake AI text nahi dikhaya jayega. Generated text publish nahi hota jab tak aap use approve karke apply na karein.');
-    aiBox.appendChild(note);
-    var form = document.createElement('form');
-    var kindSel = document.createElement('select');
-    ['description', 'title', 'seo'].forEach(function (k) {
-      var o = document.createElement('option'); o.value = k; o.textContent = k; kindSel.appendChild(o);
-    });
-    var facts = document.createElement('textarea');
-    facts.placeholder = 'Listing facts (ya property_id ke saath khaali chhodein)';
-    facts.setAttribute('aria-label', 'Listing facts');
-    var propInput = document.createElement('input');
-    propInput.placeholder = 'Property ID (optional)';
-    propInput.setAttribute('aria-label', 'Property ID');
-    var btn = document.createElement('button');
-    btn.type = 'submit'; btn.className = 'btn'; btn.textContent = 'Generate (human review ke liye)';
-    var out = document.createElement('div');
-    form.appendChild(kindSel); form.appendChild(facts); form.appendChild(propInput); form.appendChild(btn);
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      out.textContent = 'Generating…';
-      var body = { kind: kindSel.value, facts: facts.value };
-      if (propInput.value.trim()) body.property_id = parseInt(propInput.value.trim(), 10);
-      window.PP.post('/api/ai/generate', body).then(function (r) {
-        if (!r.ok || !r.data) {
-          out.textContent = 'Generation failed: ' + (r.error ? (r.error.code + ' — ' + r.error.message) : 'unknown error');
-          return;
-        }
-        out.textContent = 'Generated (status: ' + r.data.status + ', approval pending): ' + r.data.output_text;
-      });
-    });
-    aiBox.appendChild(form); aiBox.appendChild(out);
-    window.PP.get('/api/ai/generations').then(function (r) {
-      if (!r.ok || !r.data || !r.data.data) return;
-      var list = document.createElement('ul');
-      r.data.data.slice(0, 10).forEach(function (g) {
-        var li = document.createElement('li');
-        li.textContent = g.kind + ' · ' + g.status + ' · ' + (g.output_text || '').slice(0, 120);
-        list.appendChild(li);
-      });
-      aiBox.appendChild(list);
-    });
-  }
-
-  var seoBox = document.getElementById('pp-seo');
-  if (seoBox && window.PP && window.PP.get) {
-    seoBox.textContent = 'Loading live broken-link checks…';
-    window.PP.get('/api/seo/broken-links').then(function (r) {
-      seoBox.textContent = '';
-      if (!r.ok || !r.data) {
-        seoBox.textContent = 'Broken-link checks load nahi ho pa rahi hain' +
-          (r.error ? ' (' + (r.error.code || 'error') + '). seo:manage permission chahiye.' : '.');
-        return;
-      }
-      seoBox.appendChild(text('h3', 'Pages with broken internal links (actually checked)'));
-      if (!r.data.data || !r.data.data.length) {
-        seoBox.appendChild(text('p', 'Koi checked page me broken internal link nahi mila. Sirf wahi pages yahan aate hain jinka link-check chalaya gaya hai.'));
-        return;
-      }
-      r.data.data.forEach(function (row) {
-        seoBox.appendChild(text('p', row.path + ' — ' + row.broken_count + ' broken / ' + row.checked_links + ' checked'));
-      });
-    });
-  }
 });
 </script></body></html>
