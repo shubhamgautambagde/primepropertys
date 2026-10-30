@@ -1,116 +1,200 @@
-# SOURCE CODE AUDIT — PrimePropertys (Phase A)
+# PRIME CMS — Source Code Audit (Phase 1)
 
-Date: 2026-10-28. Working copy only: `~/workspace/primepropertys-audit/primepropertys`
-(git HEAD `0116c3b` "Triage (25/25): system-settings + final files"; pristine backup
-`~/workspace/primepropertys-audit/primepropertys-backup-2026-10-28`, diff-clean before audit).
-No push, no deploy, no production data touched. Nothing below is claimed without a
-file read or a run; method and evidence are in BUG_REGISTER.md.
+Date: 2026-10-30. Scope: the existing PrimePropertys tree at the
+project root (Node.js + SQLite line). Nothing was modified to
+produce this audit. Counts below were recounted from the tree on
+the audit date; older counts in other docs are superseded where
+they differ.
 
-## 1. Verified baseline (re-counted, not copied)
+## 1. Inventory (verified)
 
-| Measure | Verified | Source / method |
-|---|---|---|
-| HTML pages | **653** (20 root + 633 in `sections/`, 27 sections) | `find` walk; see FILE_INVENTORY.json |
-| `data-backend="not-connected"` | **138 occurrences in 132 files**; every one is a `<form>` | grep, all 653 pages |
-| `href="#"` | **186 occurrences in 52 files** | grep, all 653 pages |
-| Forms total | 362 (224 with `data-api`, 138 without — exactly the unwired set) | grep |
-| Internal links | 31,371 checked, **0 broken** | Python link resolver, all pages |
-| Images | 374, 0 without `alt`; 0 pages without `<h1>`; 0 pages with duplicate `id` | scripted scan |
-| Node | **v24.22.1**; `server/package.json` engines `>=24` | `node --version` |
-| Server tests | **59/59 pass** (20 test files, ~24.4 s) | `node --test server/test/*.js` (full npm-test list) |
-| HTML size | 59,209,597 bytes, avg ~90,673 bytes/page, max 131,119 | filesystem walk |
-| Server code | `server/src/` 2,928 lines (14 files); migrations 17 files; tests 6,124 lines total incl. src+migrations+tests walk (see inventory) | `wc -l` |
-| Shared frontend | `assets/js/` core + groups + components; `assets/css/` 8 core files + section CSS; `tools/build.py` (131 lines), `tools/sitemap.py`, `tools/section-map.json` | read |
+| Area | Count / fact |
+| --- | --- |
+| HTML pages | 653 total: 19 at root + 634 under `sections/` |
+| Sections | 27 directories under `sections/` |
+| Backend source | 15 files in `server/src/`, 3,228 lines |
+| SQL migrations | 18 files (`001`–`018`) in `server/migrations/` |
+| Database tables | 28 (incl. `schema_migrations`) |
+| API path patterns | 52 distinct `/api/` patterns in `server/src/` |
+| Automated tests | 20 files in `server/test/` + `run.js` |
+| Frontend JS groups | 14 files in `assets/js/groups/` |
+| Frontend CSS groups | 12 files in `assets/css/sections/` |
+| Shared CSS sources | 8 files in `assets/css/` |
+| Build tooling | `tools/build.py`, `tools/section-map.json`, `tools/sitemap.py` |
+| Docs at root | README, DEPLOYMENT, SECURITY_AUDIT, PRODUCTION_READINESS, FEATURE_GAP_ANALYSIS (2026-10-28), TRIAGE, FRONTEND_BACKEND_MAPPING, PLACEHOLDER_LINKS_REPORT, CHANGELOG, ACCESSIBILITY |
 
-## 2. What is actually built (and what is only pages)
+## 2. Pages by section (recounted)
 
-**Real, tested backend (SQLite, zero-dependency Node, `server/src/server.js` 629 lines).**
-Tables (29, migrations 001–017): users, sessions, tokens, permissions/role_permissions,
-properties, property_images, property_views, saved_properties, inquiries, lead_activities,
-lead_followups, lead_tags, tags, notifications, site_visits, support_tickets, ticket_replies,
-service_requests, contact_messages, newsletter_subscriptions, payments, billing_profiles,
-campaigns, message_templates, queued_messages, site_settings, + schema_migrations.
-Routes: auth (register/login/logout/me/change-password/reset/verify), properties
-(create/draft/publish/unpublish/edit/soft-delete/images/save/recent/similar/mine),
-leads/CRM (inquiries, assign, notes, follow-ups, tags, scores, SLA, stats, CSV export,
-notifications read), site visits, tickets, service requests, contact, newsletter,
-payments (pending records + refund requests + billing profile), campaigns/templates/
-queued messages, settings (4-key allowlist), users list/detail/PATCH, health.
-Validation is real (`server/src/validate.js`: enums, lengths, integer ranges, image-URL
-scheme check) and authorisation is server-side per route (see SECURITY_AUDIT.md).
+| Section | Pages | Section | Pages |
+| --- | --- | --- | --- |
+| agent-portal | 41 | news | 47 |
+| ai-intelligence | 14 | owner-portal | 38 |
+| analytics | 18 | payments | 12 |
+| blog | 17 | post-property | 32 |
+| builder-portal | 37 | property-engine | 20 |
+| buyer-portal | 29 | property-search | 18 |
+| central-crm | 34 | security-center | 17 |
+| communication | 15 | seo | 24 |
+| form-builder | 15 | site-visit | 15 |
+| investor-portal | 21 | subscription | 16 |
+| manager-staff | 17 | super-admin | 54 |
+| marketing | 17 | super-manager | 20 |
+| mobile | 2 | support-home-services | 12 |
+| system-settings | 31 | root pages | 19 |
 
-**Frontend architecture — read this before editing anything.**
-Pages are self-contained by design: `tools/build.py` inlines shared CSS/JS into every
-page (exactly one `<style>` + one inline `<script>` per page, else skipped). Edit
-`assets/`, never inlined copies, then re-run build.py twice (idempotence is claimed in
-docs; not re-run here because Phase A must not modify the working copy's pages).
-Shared JS order: navigation, tabs, accordion, filters, `api.js` (`window.PP`, same-origin
-fetch, `credentials: 'same-origin'`), `forms.js` (one dispatcher per `data-api` value),
-`core.js`, plus one group file per section from `tools/section-map.json`.
-**Every `data-api` value found in HTML has a handler in `forms.js`/post-property.js
-and vice versa (44 values, 0 orphans)** — verified by script. `assets/js/validation.js`
-is explicitly NOT inlined and no form uses it yet (build.py header comment).
+Total: 634 + 19 = 653. The largest sections are super-admin
+(54), news (47), agent-portal (41), owner-portal (38), and
+builder-portal (37) — these are where CMS admin work concentrates.
 
-**Unwired behaviour is honest, not fake.** A form with no `data-api` hits the fallback
-at the end of `forms.js`: submit is prevented and a "Demo preview — no data was saved
-yet" note is appended. No unwired form claims a save. The same honesty holds for
-queued SMS/WhatsApp ("NOT sent: no provider"), payment checkout ("pending, no gateway
-charge"), wizard uploads, and the empty-production-database rule.
+## 3. Frontend architecture
 
-## 3. Existing docs: what verified, what did not
+- Pages are **self-contained HTML**: each page carries one
+  inlined `<style>` block and one inline `<script>` block.
+  This is deliberate — a page renders styled when opened alone.
+- Single source of truth: `assets/css/*.css` (tokens, base,
+  layout, components, forms, dashboard, responsive) and
+  `assets/js/` (navigation, components, api, forms, core) plus
+  per-section files in `assets/css/sections/` and
+  `assets/js/groups/`, mapped by `tools/section-map.json`.
+- `tools/build.py` regenerates every page's inlined CSS/JS
+  from the shared sources. It is idempotent. **Never edit
+  inlined blocks in pages directly** — edit a shared file and
+  re-run the build. Body-HTML edits are made directly in pages.
+- API client: `assets/js/api.js` exposes `window.PP` with
+  `get`/`post` returning `{ok, status, data}`.
+- Form wiring: `assets/js/forms.js` dispatches on `data-api`
+  attributes (every wired form needs a real case; fields via
+  `[data-api-field]`). Most common form kinds: newsletter
+  (106 pages), settings (62), visit-request (50), wizard-step
+  (46), wizard-edit (33).
+- Live-list pattern: a `#pp-live-*` container plus a group-JS
+  renderer on DOMContentLoaded after a `PP.me()` check.
+- Static mockup content on wired pages is deliberately left
+  untouched below the live blocks.
+- SEO basics are static: sitemap (generated by
+  `tools/sitemap.py`), robots.txt, canonical + Open Graph tags
+  injected by build.py from each page's own title/meta.
 
-| Doc | Verdict |
-|---|---|
-| TRIAGE.md (187 entries, 138 markers, 59/59, 0 broken links) | **Verified** on counts; its per-domain blocker classification is the best starting point and is reused in FEATURE_GAP_ANALYSIS.md. Note: its "audit 187 entries" is a per-file entry count, not 187 defects. |
-| PLACEHOLDER_LINKS_REPORT.md (186 href="#", by text) | **Verified** on total; by-text table matches recount (View 54, Edit 48, WhatsApp 24, View Details 22, Use Template 19, rest 19). Its "resolved at runtime" claim holds only for the 8 user-table pages (admin.js over GET /api/users); other View/Edit rows are still demo rows. |
-| FRONTEND_BACKEND_MAPPING.md | **Partly WRONG — do not use as-is.** At least 8 rows misstate the endpoint (see BUG-004). A corrected audit mapping is in FRONTEND_BACKEND_MAPPING_AUDIT.md; the original file was NOT overwritten. |
-| README.md | **Outdated on counts**: says 263 not-connected (actual 138) and "54 tests" (actual 59). Also says the site lives in `primepropertys-website/` (no such directory; root is the site) and its Option 2 path does not exist. Page/section counts (653/27) are correct. |
-| DEPLOYMENT.md | Mostly accurate; internally inconsistent on audit size (339 vs 341 entries, §Final verification vs §Remaining) and says `.env.example` holds placeholders — true, but the server never loads a `.env` file (no dotenv, zero deps), so copying it does nothing unless vars are exported. |
-| ACCESSIBILITY.md | Says "652 pages"; actual 653. Automated claims verified (lang/h1/main/alt/dup-id scan all pass); manual keyboard/screen-reader testing explicitly not done — that limit is real. |
-| CHANGELOG.md | Historical slice log; its older counts (263, 54 tests) are superseded, not errors in their own slice context. Do not quote them as current. |
-| server/README.md | Accurate on routes, limits and the Secure-cookie gap. Its "Stage D read-only" description was replaced. |
+## 4. Backend architecture
 
-## 4. Wired vs unwired, by section
+- Zero-dependency Node.js 24+ (`node:http`, `node:sqlite`,
+  `node:crypto`, `node:zlib`, `node:fs`, `node:path`,
+  `node:url`). No framework, no npm dependencies.
+- `server/src/server.js` (702 lines) is both the HTTP server
+  and the router: a hand-written dispatcher (`handleApi`) plus
+  per-domain handlers (`handlePropertyRoutes`,
+  `handleLeadRoutes`, `handleVisitRoutes`,
+  `handleTicketRoutes`, `handleServiceRoutes`,
+  `handlePaymentRoutes`, `handleCampaignRoutes`) and a static
+  file handler (`handleStatic`) with gzip support.
+- Domain modules: auth (174), campaigns (233), contact (66),
+  db (40), leads (490), newsletter (59), payments (161),
+  properties (243), services (215), settings (77),
+  tickets (166), uploads (220), validate (125), visits (257).
+- Config via environment, with local defaults:
+  `STATIC_ROOT` (default: project root),
+  `DATABASE_PATH` (default: `server/data/primepropertys.db`),
+  `PORT` (default: 8902),
+  `EMAIL_BACKEND` (default: `console` — dev only, prints
+  reset links to the console; never a real send).
+- Migrations: `server/src/db.js` (`openDb`) applies every
+  `*.sql` file in filename order, once, tracked in
+  `schema_migrations`, inside a transaction per file.
+  **Never modify an already-applied migration** — new
+  changes are new files.
+- Static handler safety (verified 2026-10-29, test-covered):
+  `/server/*` and `*.db` return 404, so the SQLite file and
+  server source are never served.
 
-Unwired (`data-backend="not-connected"`) occurrences: property-engine 23, analytics 17,
-builder-portal 14, seo 14, ai-intelligence 13, super-admin 9, owner-portal 9,
-agent-portal 7, form-builder 5, buyer-portal 5, subscription 4, communication 4,
-central-crm 4, marketing 3, manager-staff 3, site-visit 1, security-center 1,
-property-search 1, investor-portal 1. Root pages: 0. Sections with **no** unwired forms:
-blog, mobile, news, payments, post-property (wizard forms are wired or honestly
-noticed), property-search except search-alerts, super-manager, support-home-services,
-system-settings.
+## 5. Authentication, roles, permissions
 
-Sections with **no group JS file** in `section-map.json` (core bundle only, no live
-renderer): ai-intelligence, analytics, blog, form-builder, mobile, news, seo,
-subscription. That absence predicts their unwired counts.
+- Passwords: scrypt hashes (Node `node:crypto`). Sessions:
+  SHA-256 token hashes in the `sessions` table, 7-day TTL,
+  cookie `pp_session` (HttpOnly, SameSite=Lax, Secure when
+  the request is HTTPS).
+- Login throttling: 5 failed attempts per IP+email per
+  10 minutes → 429.
+- Password reset tokens: 1-hour expiry. Email verification
+  tokens: 24-hour expiry.
+- Roles (9): self-service Buyer, Seller, Owner, Agent,
+  Builder, Investor; admin-class Admin, Super Admin, Support
+  (never self-assignable; created through admin paths).
+- Permission catalogue (19, checked in module code via a
+  `role_permissions` join): `properties:create`,
+  `properties:edit_own`, `properties:edit_any`,
+  `properties:delete_own`, `properties:delete_any`,
+  `properties:publish_any`, `properties:view_any`,
+  `leads:view_any`, `leads:assign`, `leads:export`,
+  `visits:manage`, `tickets:manage`, `services:manage`,
+  `payments:manage`, `campaigns:manage`, `contact:view`,
+  `settings:manage`, `users:manage`. There is no permission
+  row seed in the migrations; grants live in the `permissions`
+  / `role_permissions` tables as populated by admin flows.
+- Visibility failures return **404, not 403** (drafts,
+  other users' private records, strangers in chat-like flows).
+- Known gaps (see SECURITY_AUDIT.md): no CSRF tokens, no
+  2FA, no global session revocation UI, no admin audit log,
+  no account-deletion workflow.
 
-## 5. Sampling method and limits
+## 6. Tests
 
-- Full counts: grep/Python over all 653 pages (markers, links, forms, ids, alt, h1).
-- Line-level reads: all of `server/src/` (auth, server, properties, validate, settings,
-  payments, leads structure), `assets/js/api.js`, `assets/js/forms.js` (full),
-  `assets/js/groups/post-property.js` (wizard flow), `tools/build.py`,
-  `tools/section-map.json`, all migrations' table definitions, `server/.env.example`.
-- Sampled pages: one or more per section, all 132 unwired-form files listed by title
-  in the audit working notes (titles captured for every unwired file; full list is
-  derivable by `grep -rl 'data-backend="not-connected"' sections/`).
-- NOT done in Phase A (by design, no browser tooling in this agent): live browser
-  walkthrough, manual keyboard/screen-reader test, load test, or any run against
-  production. Browser journeys are a Priority 1 item in IMPLEMENTATION_PLAN.md.
-- The inlined copies in pages were NOT re-diffed against `assets/` page-by-page;
-  build idempotence is a documented claim, not re-verified here.
+- `server/test/run.js` runs 20 test files with
+  `node --test`. Coverage: auth, properties, leads, contact,
+  my-enquiries, crm, perf, a11y, journey, visits, tickets,
+  services, portal-lists, newsletter, payments, campaigns,
+  settings, wizard, users-admin, uploads.
+- Latest Node-line result on record: 59/59 (2026-10-28).
+  The Priority 2/3 domains (projects, reviews, tasks, roles,
+  chat, price history, analytics, AI) were built and tested
+  in the PHP deployment line only — they do **not** exist in
+  this Node tree (see §8).
 
-## 6. Headline conclusions
+## 7. Deployment configuration
 
-1. The core product (auth → property draft → admin publish → enquiry → lead → visit/
-   ticket/service) is real, permission-checked and test-covered. It is not a mock.
-2. Everything beyond that core is pages without a domain: builder projects, reviews,
-   tasks, coupons, subscriptions, chat, AI, analytics, SEO records, search alerts and
-   price history have **no tables and no routes** — only frontend pages.
-3. The single largest correctness risk is not the unwired forms (they are honestly
-   labelled) but the **wrong documentation** (mapping + README counts) and the
-   **security defaults** (Secure cookie opt-in, reset tokens printed to the server log
-   in the default console-email mode, no CSRF token, no 2FA, no admin audit log).
-4. Production readiness is **not established** (see PRODUCTION_READINESS.md). The
-   codebase itself says so in DEPLOYMENT.md and server/README.md; Phase A agrees.
+- GitHub Pages (static only):
+  https://shubhamgautambagde.github.io/primepropertys/ —
+  serves the 653 pages; API-backed sections honestly report
+  the server as unreachable there.
+- Live production site: https://primepropertys.in/ on
+  Serverbyt shared hosting (Blaze, London). The panel has
+  **no Node.js route** (verified by panel inspection
+  2026-10-29), so the live API is the **PHP + MySQL port**
+  of this same contract, kept in a separate tree
+  (`~/workspace/primepropertys-php/`, deployed as `api/`).
+  Live health reports the port's version string; the Node
+  tree remains the reference implementation and the CMS
+  development line per the PRIME CMS brief.
+- Consequence for CMS work: every new Node API + migration
+  needs a matching PHP-port slice before it is live on
+  primepropertys.in. The port pipeline (full-tree zip,
+  browser panel deploy, health + auth + 404 checks) is
+  proven through slices 1–6 and the Priority 2/3 bundle.
+- GitHub repo: https://github.com/shubhamgautambagde/primepropertys
+  (pushes via the approved file-push tool only; never PATs).
+
+## 8. What the CMS must add (summary — detail in FEATURE_GAP_ANALYSIS.md)
+
+- No CMS tables exist yet: no pages, revisions, templates,
+  menus, media library records, plugins, themes, forms,
+  SEO metadata, redirects, widgets, or activity logs.
+- No dynamic page renderer: all 653 pages are static files.
+- No media manager beyond property uploads (magic-byte
+  sniffing, 10 MB images / 25 MB docs, private docs).
+- No theme/plugin manager, no visual builder, no menu
+  builder, no form builder, no SEO manager, no custom
+  content types, no multi-website tables.
+- Existing real-estate + CRM domains are complete and
+  working — the CMS wraps and extends them, it does not
+  rebuild them.
+- Blocked items (never invent): live payment gateway,
+  email/SMS/WhatsApp providers, AI provider, subscription
+  plan catalog, WhatsApp number policy, account-deletion
+  policy.
+
+## 9. Audit method
+
+Every count above was produced from the tree itself
+(`find`, `wc`, `grep`, migration and section listings) on
+2026-10-30. Behavioural claims (404 visibility, session
+rules, static-handler safety) are backed by the automated
+tests and by live probes recorded in the project docs.
